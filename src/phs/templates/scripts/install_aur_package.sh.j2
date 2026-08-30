@@ -1,0 +1,7 @@
+set -euo pipefail
+
+tmpdir="$(mktemp -d -t phs-aur.XXXXXX)"
+trap 'rm -rf "$tmpdir"' EXIT
+git clone "https://aur.archlinux.org/{{ package }}.git" "$tmpdir/{{ package }}"
+cd "$tmpdir/{{ package }}"
+makepkg --syncdeps --install --needed --noconfirm

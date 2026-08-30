@@ -4,15 +4,17 @@ from typing import Annotated
 import cyclopts
 from cyclopts import App, Parameter
 
+from phs.commands.init import init
 from phs.context import AppContext
 from phs.inventory import HostDataLoader
 from phs.settings import Settings
 from phs.ssh import SSHRunner
+from phs.target.local import LocalTarget
 from phs.template import TemplateRenderer
 from phs.commands.printconfig import printconfig
 from phs.commands.install import install
 
-CONFIG_FILE = Path.home() / ".phs" / "config.toml"
+CONFIG_FILE = Path.home() / ".phs.yaml"
 
 app = App(
     config=cyclopts.config.Yaml(
@@ -24,6 +26,7 @@ app = App(
 
 app.command(install)
 app.command(printconfig)
+app.command(init)
 
 
 @app.meta.default
@@ -45,6 +48,7 @@ def main(
         builtin_templates=TemplateRenderer.builtin(),
         config_templates=TemplateRenderer.from_directory(settings.config_dir / "templates"),
         ssh=SSHRunner(),
+        target=LocalTarget(),
     )
 
     command, bound, ignored = app.parse_args(tokens)

@@ -225,6 +225,13 @@ arch-chroot /mnt visudo --check
 
 printf '%s\n' "$TARGET_HOSTNAME" > /mnt/etc/hostname
 
+arch-chroot /mnt sudo -u ko -H bash -lc '
+    mkdir ~/projects
+    git clone https://github.com/kolibri/phs.git ~/projects/phs
+    cd ~/projects/phs
+    uv tool install --editable .
+'
+
 
 
 # Finish

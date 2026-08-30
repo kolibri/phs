@@ -1,9 +1,9 @@
 from pathlib import Path
 from typing import Annotated
 
-from cyclopts import Parameter, validators
+from cyclopts import Parameter
 
-from phs.cli import AppContext
+from phs.context import AppContext
 from phs.ssh import SSHTarget
 
 

@@ -2,7 +2,7 @@ from typing import Annotated
 
 from cyclopts import Parameter
 
-from phs.cli import AppContext
+from phs.context import AppContext
 
 
 def printconfig(

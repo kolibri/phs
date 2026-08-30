@@ -16,8 +16,8 @@ run_action() {
         run_action boot-with-installer
         run_action wait
         run_action install
-        #run_action shutdown
-        #run_action boot
+        run_action shutdown
+        run_action boot
         #run_action wait
         #run_action init
     ;;

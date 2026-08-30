@@ -41,6 +41,7 @@ class AllHostDataFragment(BaseModel):
     git_email: str
     shell: str
     packages: list[str] = Field(default_factory=list)
+    aur_packages: list[str] = Field(default_factory=list)
     files: list[FileConfig] = Field(default_factory=list)
     services: list[str] = Field(default_factory=list)
 
@@ -57,6 +58,7 @@ class HostDataFragment(BaseModel):
     git_email: str | None = None
     shell: str | None = None
     packages: list[str] = Field(default_factory=list)
+    aur_packages: list[str] = Field(default_factory=list)
     files: list[FileConfig] = Field(default_factory=list)
     services: list[str] = Field(default_factory=list)
 
@@ -78,6 +80,7 @@ class HostDataDict(TypedDict):
     git_email: str
     shell: str
     packages: list[str]
+    aur_packages: list[str]
     files: list[FileConfigDict]
     services: list[str]
 
@@ -94,6 +97,7 @@ class HostData:
     git_email: str
     shell: str
     packages: list[str]
+    aur_packages: list[str]
     files: list[FileConfig]
     services: list[str]
 
@@ -109,6 +113,7 @@ class HostData:
             "git_email": self.git_email,
             "shell": self.shell,
             "packages": self.packages,
+            "aur_packages": self.aur_packages,
             "files": [
                 {
                     "target": str(file.target),
@@ -153,6 +158,7 @@ class HostDataLoader:
             git_email=host_config.git_email or all_config.git_email,
             shell=host_config.shell or all_config.shell,
             packages=self.merge_unique(all_config.packages, host_config.packages),
+            aur_packages=self.merge_unique(all_config.aur_packages, host_config.aur_packages),
             files=self.merge_files(all_config.files, host_config.files),
             services=self.merge_unique(all_config.services, host_config.services),
         )

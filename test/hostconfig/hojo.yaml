@@ -2,7 +2,9 @@
 packages:
   - docker
   - nano
-
+  - firefox
+aur_packages:
+  - firefox-profile-switcher-connector-bin
 files:
   -
     target: ~/.zshrc
