@@ -1,0 +1,10 @@
+test/qemu/iso/*
+test/qemu/state/*
+.idea/
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+.venv

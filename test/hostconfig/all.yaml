@@ -1,0 +1,25 @@
+---
+hostname: hojo.ko
+ip: 127.0.0.1
+ssh_port: 2222
+hdd: /dev/nvme0n1
+username: ko
+groupname: ko
+git_user: ko.libri
+git_email: entengelb@gmail.com
+shell: /bin/zsh
+
+packages:
+  - git
+  - zsh
+  - nfs
+
+files:
+  -
+    target: '/etc/pacman.conf'
+    src: files/pacman.conf
+    root: true
+
+services:
+  - sshd
+  - nfs

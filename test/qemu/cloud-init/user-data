@@ -1,0 +1,6 @@
+#cloud-config
+disable_root: false
+users:
+    - name: root
+      ssh_authorized_keys:
+        - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDcMGA0k+oQ6WjgohOe5EtOhj+nGo2N/0kitn/Lw5NhtZ9Mpxw1xsq7+s+9RlH7ooc4B9eTWrPWiA16mn02rWjB75SW4CGFnK2F6EBgri8AXFpB5HAfpyrn08pjJGz/Pl2GeAgRRvzHva/U6CcKuESj9cH02o6W/xlZQQqaiBYvWPTFB3Inwob/T7oXtqwTuJGSf4pMQ9nOZ48a1CBcAGF/8DUzBowpiqLSiAH7AEH/pEAPZD1yTCxM4KJDT0yfDoJByXHdStKW1s4JY7JOQhMxHMfLkxw2X1hJGLUOKXdaN6IqfjzuxyCLyn9c9GtLr+eo3Ayhi8TsAaNr1d6/wN4++WL5b44Jk01mJClj6NpxWTsuI+psZu2KsFMi12azsPW+e/2kTXCp04RsBvLxtnZzRQeC7eO8w7MX/cUsJeKMHporDNQ6NHkH1Le3/5yXqaTeuoplsipgB89gVolDFllScLhS7rJFnO5+VZV1LpD8fFB4aV7A+g8hV3a2TtYr5oE= ansible-generated on archlinux

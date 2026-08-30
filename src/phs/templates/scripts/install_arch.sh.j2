@@ -1,0 +1,238 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+die() {
+    echo "ERROR: $*" >&2
+    exit 1
+}
+
+if [[ $EUID -ne 0 ]]; then
+    die "must be run as root"
+fi
+
+DISK={{ hdd }}
+SSH_PUBLIC_KEY="{{ host_pubkey  }}"
+TARGET_HOSTNAME={{ hostname }}
+USERNAME={{ username }}
+GROUPNAME={{ groupname }}
+USER_PASSWORD={{ user_password }}
+
+
+if [[ ! -b "$DISK" ]]; then
+    die "'$DISK' is not a block device"
+fi
+
+if [[ ! -d /sys/firmware/efi/efivars ]]; then
+    die "system was not booted in UEFI mode"
+fi
+
+KEY_FILE=$(mktemp)
+printf '%s\n' "$SSH_PUBLIC_KEY" > "$KEY_FILE"
+
+if ! ssh-keygen -l -f "$KEY_FILE" >/dev/null 2>&1; then
+    rm -f "$KEY_FILE"
+    die "invalid SSH public key"
+fi
+
+rm -f "$KEY_FILE"
+
+#
+# Determine partition device names.
+#
+# /dev/sda      -> /dev/sda1
+# /dev/nvme0n1  -> /dev/nvme0n1p1
+# /dev/mmcblk0  -> /dev/mmcblk0p1
+#
+
+if [[ "$DISK" =~ [0-9]$ ]]; then
+    BOOT_PART="${DISK}p1"
+    ROOT_PART="${DISK}p2"
+else
+    BOOT_PART="${DISK}1"
+    ROOT_PART="${DISK}2"
+fi
+
+echo "Installing Arch Linux"
+echo "Install disk:   $DISK"
+echo "EFI partition: $BOOT_PART"
+echo "Root partition: $ROOT_PART"
+echo
+
+# Time
+timedatectl set-ntp true
+
+# Partition disk
+echo "==> unmounting old filesystems"
+umount -R /mnt 2>/dev/null || true
+echo "==> clearing partition table"
+sgdisk --zap-all "$DISK"
+echo "==> creating partitions"
+sgdisk --new=1:0:+1G "$DISK"
+sgdisk --new=2:0:0 "$DISK"
+echo "==> naming partitions"
+sgdisk --change-name=1:boot "$DISK"
+sgdisk --change-name=2:root "$DISK"
+echo "==> setting partition types"
+sgdisk --typecode=1:ef00 "$DISK"
+sgdisk --typecode=2:8300 "$DISK"
+udevadm settle
+
+# Give the kernel a short opportunity to expose the new partition devices.
+for _ in {1..20}; do
+    if [[ -b "$BOOT_PART" && -b "$ROOT_PART" ]]; then
+        break
+    fi
+    sleep 0.1
+done
+
+if [[ ! -b "$BOOT_PART" || ! -b "$ROOT_PART" ]]; then
+    die "partition devices did not appear"
+fi
+
+# Filesystems
+echo "==> formatting partitions"
+mkfs.fat -F32 "$BOOT_PART"
+mkfs.ext4 -F "$ROOT_PART"
+echo "==> mounting partitions"
+mount "$ROOT_PART" /mnt
+mkdir -p /mnt/boot
+mount "$BOOT_PART" /mnt/boot
+
+# Packages
+echo "==> determining CPU microcode package"
+MICROCODE_PACKAGE=""
+MICROCODE_INITRD=""
+CPU_VENDOR=$(awk '/vendor_id/ { print $3; exit }' /proc/cpuinfo || true)
+
+case "$CPU_VENDOR" in
+    GenuineIntel)
+        MICROCODE_PACKAGE="intel-ucode"
+        MICROCODE_INITRD="/intel-ucode.img"
+        ;;
+    AuthenticAMD)
+        MICROCODE_PACKAGE="amd-ucode"
+        MICROCODE_INITRD="/amd-ucode.img"
+        ;;
+esac
+
+PACKAGES=(
+    base
+    linux
+    linux-firmware
+    base-devel
+    dialog
+    openssh
+    dhcpcd
+    rsync
+    zsh
+    git
+    python
+    uv
+)
+
+if [[ -n "$MICROCODE_PACKAGE" ]]; then
+    PACKAGES+=("$MICROCODE_PACKAGE")
+fi
+
+echo "==> bootstrapping base installation"
+pacstrap -K /mnt "${PACKAGES[@]}"
+
+# Filesystem table
+echo "==> generating filesystem table"
+genfstab -U /mnt > /mnt/etc/fstab
+
+# Timezone
+echo "==> configuring timezone"
+
+ln -sf \
+    /usr/share/zoneinfo/Europe/Berlin \
+    /mnt/etc/localtime
+
+arch-chroot /mnt hwclock --systohc
+
+# Locale
+echo "==> configuring locale"
+printf '%s\n' \
+    'de_DE.UTF-8 UTF-8' \
+    >> /mnt/etc/locale.gen
+printf '%s\n' \
+    'LANG=de_DE.UTF-8' \
+    > /mnt/etc/locale.conf
+printf '%s\n' \
+    'KEYMAP=de-latin1' \
+    > /mnt/etc/vconsole.conf
+
+arch-chroot /mnt locale-gen
+
+# Initramfs
+echo "==> generating initramfs"
+arch-chroot /mnt mkinitcpio -P
+
+# SSH root access
+echo "==> configuring SSH access"
+install \
+    -d \
+    -m 700 \
+    /mnt/root/.ssh
+printf '%s\n' "$SSH_PUBLIC_KEY" \
+    > /mnt/root/.ssh/authorized_keys
+chmod 600 /mnt/root/.ssh/authorized_keys
+
+arch-chroot /mnt usermod --password '*NP*' root
+mkdir -p /mnt/etc/ssh/sshd_config.d
+cat > /mnt/etc/ssh/sshd_config.d/20-gaea-root.conf <<'EOF'
+PermitRootLogin prohibit-password
+PubkeyAuthentication yes
+EOF
+
+arch-chroot /mnt systemctl enable sshd
+
+# Networking
+echo "==> enabling networking"
+arch-chroot /mnt systemctl enable dhcpcd
+# Boot loader
+echo "==> installing systemd-boot"
+arch-chroot /mnt bootctl install
+ROOT_PARTUUID=$(blkid -s PARTUUID -o value "$ROOT_PART")
+cat > /mnt/boot/loader/loader.conf <<'EOF'
+default arch
+timeout 2
+editor 0
+EOF
+
+{
+    echo "title   Arch Linux"
+    echo "linux   /vmlinuz-linux"
+
+    if [[ -n "$MICROCODE_INITRD" ]]; then
+        echo "initrd  $MICROCODE_INITRD"
+    fi
+
+    echo "initrd  /initramfs-linux.img"
+    echo "options root=PARTUUID=$ROOT_PARTUUID rw module_blacklist=nouveau"
+} > /mnt/boot/loader/entries/arch.conf
+
+# add user
+arch-chroot /mnt groupadd --force "$GROUPNAME"
+arch-chroot /mnt useradd --create-home --gid "$GROUPNAME" --shell /bin/zsh "$USERNAME"
+printf '%s:%s\n' "$USERNAME" "$USER_PASSWORD" | arch-chroot /mnt chpasswd
+
+cat > /mnt/etc/sudoers.d/ko <<'EOF'
+ko ALL=(ALL:ALL) NOPASSWD:ALL
+EOF
+chmod 440 /mnt/etc/sudoers.d/ko
+arch-chroot /mnt visudo --check
+
+printf '%s\n' "$TARGET_HOSTNAME" > /mnt/etc/hostname
+
+
+
+# Finish
+echo "==> syncing filesystems"
+sync
+echo "==> unmounting installation"
+umount -R /mnt
+
+echo
+echo "Arch Linux installation complete."
+echo "The machine can now be powered off and booted from $DISK."

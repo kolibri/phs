@@ -1,0 +1,12 @@
+---
+packages:
+  - docker
+  - nano
+
+files:
+  -
+    target: ~/.zshrc
+    src: files/hojo/zshrc
+
+services:
+  - docker
