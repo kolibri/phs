@@ -1,0 +1,17 @@
+function shell_shrink {
+    PROMPT='%{$fg[red]%}%(?. .!)%{$reset_color%}> '
+}
+
+
+function get_last_time {
+    check_file=${1:?"first parameter 'host' must be set"}
+    if [ ! -f "$check_file" ]; then
+        echo 'n'
+        return
+    fi
+
+    old_time=`cat $check_file`
+    current_time=`date '+%s'`
+    age=$((($current_time - $old_time) / (60 * 60 * 24)))
+    echo $age
+}

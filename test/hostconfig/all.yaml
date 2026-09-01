@@ -11,6 +11,7 @@ git_email: entengelb@gmail.com
 shell: /bin/zsh
 
 packages:
+  - less
   - git
   - zsh
 #  - nfs

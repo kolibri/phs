@@ -47,7 +47,7 @@ def main(
         settings=settings,
         inventory=HostDataLoader(settings.config_dir),
         builtin_templates=TemplateRenderer.builtin(),
-        config_templates=TemplateRenderer.from_directory(settings.config_dir / "templates"),
+        config_templates=TemplateRenderer.from_directory(settings.config_dir / "files"),
         ssh=SSHRunner(),
     )
 

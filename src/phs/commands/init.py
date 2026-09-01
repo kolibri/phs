@@ -18,8 +18,8 @@ def init(
 ):
     execution = ExecutionFactory.create(
         context,
-        host=host,
-        dry_run=dry_run,
+        host=options.host,
+        dry_run=options.dry_run,
     )
 
     data = execution.data

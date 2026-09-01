@@ -1,0 +1,36 @@
+#[23:57] [sephiroth] [ko] [b:2 p:31] [~/Development/projects/ko] [master] ⚑ ◒
+# >
+
+setopt PROMPT_SUBST
+PROMPT='
+%{$fg[red]%}[%M]%{$reset_color%} %{$fg[green]%}[$(koprompt_backup_state)]%{$reset_color%} %{$fg[green]%}[%n]%{$reset_color%} %{$fg[cyan]%}[%~]%{$reset_color%} %{$fg[green]%}[$(git_prompt_info)$(git_prompt_status)]%{$reset_color%}%u
+%{$fg[blue]%}[%T]%{$reset_color%}${_return_status}> '
+
+local _return_status="%{$fg[red]%}%(?. .!)%{$reset_color%}"
+
+if [[ $USER == "root" ]]; then
+  CARETCOLOR="red"
+else
+  CARETCOLOR="white"
+fi
+
+ZSH_THEME_GIT_PROMPT_PREFIX=""
+ZSH_THEME_GIT_PROMPT_SUFFIX=""
+
+ZSH_THEME_GIT_PROMPT_DIRTY=" "
+ZSH_THEME_GIT_PROMPT_CLEAN=""
+ZSH_THEME_GIT_PROMPT_ADDED="+"
+ZSH_THEME_GIT_PROMPT_MODIFIED="&"
+ZSH_THEME_GIT_PROMPT_DELETED="-"
+ZSH_THEME_GIT_PROMPT_RENAMED=">"
+ZSH_THEME_GIT_PROMPT_UNMERGED="."
+ZSH_THEME_GIT_PROMPT_UNTRACKED="*"
+
+# LS colors, made with http://geoff.greer.fm/lscolors/
+export LSCOLORS="exfxcxdxbxegedabagacad"
+export LS_COLORS='di=34;40:ln=35;40:so=32;40:pi=33;40:ex=31;40:bd=34;46:cd=34;43:su=0;41:sg=0;46:tw=0;42:ow=0;43:'
+export GREP_COLOR='1;33'
+
+function koprompt_backup_state() {
+  echo "b:$(get_last_time './.ko/last_backup') p:$(get_last_time './.ko/last_provision')"
+}
