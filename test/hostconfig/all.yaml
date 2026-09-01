@@ -6,11 +6,13 @@ git_user: ko.libri
 git_email: entengelb@gmail.com
 shell: /bin/zsh
 
-packages:
-  - less
+modules:
+  - packages
   - git
   - zsh
-#  - nfs
+
+packages:
+  - less
 
 files:
   -

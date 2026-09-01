@@ -25,6 +25,7 @@ class AllHostDataFragment(BaseModel):
     git_user: str
     git_email: str
     shell: str
+    modules: list[str] = Field(default_factory=list)
     packages: list[str] = Field(default_factory=list)
     aur_packages: list[str] = Field(default_factory=list)
     files: list[FileConfig] = Field(default_factory=list)
@@ -44,6 +45,7 @@ class HostDataFragment(BaseModel):
     git_user: str | None = None
     git_email: str | None = None
     shell: str | None = None
+    modules: list[str] | None = None
     packages: list[str] = Field(default_factory=list)
     aur_packages: list[str] = Field(default_factory=list)
     files: list[FileConfig] = Field(default_factory=list)
@@ -63,6 +65,7 @@ class HostDataDict(TypedDict):
     git_user: str
     git_email: str
     shell: str
+    modules: list[str]
     packages: list[str]
     aur_packages: list[str]
     files: list[FileConfigDict]
@@ -83,6 +86,7 @@ class HostData:
     git_user: str
     git_email: str
     shell: str
+    modules: list[str]
     packages: list[str]
     aur_packages: list[str]
     files: list[FileConfig]
@@ -102,6 +106,7 @@ class HostData:
             "git_user": self.git_user,
             "git_email": self.git_email,
             "shell": self.shell,
+            "modules": self.modules,
             "packages": self.packages,
             "aur_packages": self.aur_packages,
             "files": [

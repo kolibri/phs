@@ -2,10 +2,32 @@ from collections.abc import Sequence
 from typing import Protocol
 
 from phs.context import AppContext
-from phs.execution import ExecutionFactory
+from phs.execution import Execution, ExecutionFactory
 from phs.executor import Executor
 from phs.inventory import HostData
 from phs.tasks.task import Task
+
+
+def execute_modules(
+        modules: Sequence[Module],
+        *,
+        context: AppContext,
+        execution: Execution,
+) -> None:
+    tasks: list[Task] = []
+
+    for module in modules:
+        tasks.extend(
+            module.tasks(
+                context,
+                execution.data,
+            )
+        )
+
+    Executor.execute(
+        tasks,
+        execution.target,
+    )
 
 
 def run_modules(
@@ -21,19 +43,10 @@ def run_modules(
         dry_run=dry_run,
     )
 
-    tasks: list[Task] = []
-
-    for module in modules:
-        tasks.extend(
-            module.tasks(
-                context,
-                execution.data,
-            )
-        )
-
-    Executor.execute(
-        tasks,
-        execution.target,
+    execute_modules(
+        modules,
+        context=context,
+        execution=execution,
     )
 
 

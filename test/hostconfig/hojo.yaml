@@ -4,6 +4,14 @@ ip: 127.0.0.1
 ssh_port: 2222
 hdd: /dev/nvme0n1
 
+modules:
+  - packages
+  - git
+  - zsh
+  - docker
+  - desktop
+
+
 packages:
 #  - docker
   - nano

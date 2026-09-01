@@ -6,6 +6,7 @@ from phs.inventory import HostData
 from phs.tasks.directory import Directory
 from phs.tasks.file import File
 from phs.tasks.git import Git
+from phs.tasks.pacman import Pacman
 from phs.tasks.task import Task
 
 
@@ -20,6 +21,8 @@ class Zsh:
         zsh_plugins: list[str] = ["git"]
 
         return [
+            Pacman.install(["git", "tig", "less", ]),
+
             Git.clone("https://github.com/ohmyzsh/ohmyzsh.git", Path(data.homedir) / ".oh-my-zsh"),
             Directory.create(zsh_custom_dir),
             File.write(

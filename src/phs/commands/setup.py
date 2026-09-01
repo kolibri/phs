@@ -8,8 +8,9 @@ from phs.commands.setup_commands.nfs import nfs
 from phs.commands.setup_commands.packages import packages
 from phs.commands.setup_commands.zsh import zsh
 from phs.context import AppContext
-from phs.execution import ExecutionOptions
-from phs.modules.base import run_modules
+from phs.execution import ExecutionFactory, ExecutionOptions
+from phs.modules.base import Module, execute_modules
+from phs.modules.docker import Docker
 from phs.modules.git import Git
 from phs.modules.nfs import Nfs
 from phs.modules.packages import Packages
@@ -25,21 +26,67 @@ setup_app.command(nfs, name="nfs")
 setup_app.command(desktop, name="desktop")
 setup_app.command(docker, name="docker")
 
+MODULES: dict[str, Module] = {
+    "packages": Packages(),
+    "git": Git(),
+    "zsh": Zsh(),
+    "nfs": Nfs(),
+    "desktop": Desktop(),
+    "docker": Docker(),
+}
+
+
+def _parse_ignored_modules(value: str) -> set[str]:
+    return {
+        module.strip()
+        for module in value.split(",")
+        if module.strip()
+    }
+
+
+def _select_modules(
+    configured: list[str],
+    ignored: set[str],
+) -> list[Module]:
+    unknown = set(configured).difference(MODULES)
+    if unknown:
+        raise ValueError(
+            f"Unknown configured module(s): {', '.join(sorted(unknown))}"
+        )
+
+    unknown_ignored = ignored.difference(MODULES)
+    if unknown_ignored:
+        raise ValueError(
+            f"Unknown ignored module(s): {', '.join(sorted(unknown_ignored))}"
+        )
+
+    return [
+        MODULES[name]
+        for name in configured
+        if name not in ignored
+    ]
+
+
 @setup_app.default
 def setup(
     *,
     options: ExecutionOptions = ExecutionOptions(),
+    ignore_modules: str = "",
     context: Annotated[AppContext, Parameter(parse=False)],
 ) -> None:
-    run_modules(
-        [
-            Packages(),
-            Git(),
-            Zsh(),
-            #Nfs(),
-            Desktop(),
-        ],
-        context=context,
+    execution = ExecutionFactory.create(
+        context,
         host=options.host,
         dry_run=options.dry_run,
+    )
+
+    modules = _select_modules(
+        execution.data.modules,
+        _parse_ignored_modules(ignore_modules),
+    )
+
+    execute_modules(
+        modules,
+        context=context,
+        execution=execution,
     )

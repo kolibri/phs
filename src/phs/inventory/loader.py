@@ -51,6 +51,11 @@ class HostDataLoader:
             git_user=host_config.git_user or all_config.git_user,
             git_email=host_config.git_email or all_config.git_email,
             shell=host_config.shell or all_config.shell,
+            modules=(
+                host_config.modules
+                if host_config.modules is not None
+                else all_config.modules
+            ),
             packages=self.merge_unique(all_config.packages, host_config.packages),
             aur_packages=self.merge_unique(all_config.aur_packages, host_config.aur_packages),
             files=self.merge_files(all_config.files, host_config.files),

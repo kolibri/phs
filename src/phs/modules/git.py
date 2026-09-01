@@ -4,6 +4,7 @@ from typing import final
 from phs.context import AppContext
 from phs.inventory import HostData
 from phs.tasks.bash import Bash
+from phs.tasks.pacman import Pacman
 from phs.tasks.task import Task
 
 
@@ -15,6 +16,8 @@ class Git:
             data: HostData,
     ) -> list[Task]:
         return [
+            Pacman.install(["git","tig","less",]),
+
             Bash.run(dedent(f"""
                 git config --global user.name "{data.git_user}"
                 git config --global user.email "{data.git_email}"
