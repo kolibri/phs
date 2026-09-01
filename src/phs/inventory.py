@@ -28,6 +28,12 @@ class FileConfig(BaseModel):
     src: Path
     root: bool = False
 
+class NfsSource(BaseModel):
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra="forbid")
+    source: str
+    target: Path
+    options: str
+
 
 class AllHostDataFragment(BaseModel):
     model_config: ClassVar[ConfigDict] = ConfigDict(extra="forbid")
@@ -44,6 +50,7 @@ class AllHostDataFragment(BaseModel):
     packages: list[str] = Field(default_factory=list)
     aur_packages: list[str] = Field(default_factory=list)
     files: list[FileConfig] = Field(default_factory=list)
+    nfs_sources: list[NfsSource] = Field(default_factory=list)
     services: list[str] = Field(default_factory=list)
 
 
@@ -62,6 +69,7 @@ class HostDataFragment(BaseModel):
     packages: list[str] = Field(default_factory=list)
     aur_packages: list[str] = Field(default_factory=list)
     files: list[FileConfig] = Field(default_factory=list)
+    nfs_sources: list[NfsSource] = Field(default_factory=list)
     services: list[str] = Field(default_factory=list)
 
 
@@ -69,6 +77,11 @@ class FileConfigDict(TypedDict):
     target: str
     src: str
     root: bool
+
+class NfsSourcesDict(TypedDict):
+    source: str
+    target: Path
+    options: str
 
 
 class HostDataDict(TypedDict):
@@ -85,6 +98,7 @@ class HostDataDict(TypedDict):
     packages: list[str]
     aur_packages: list[str]
     files: list[FileConfigDict]
+    nfs_sources: list[NfsSourcesDict]
     services: list[str]
 
 
@@ -103,6 +117,7 @@ class HostData:
     packages: list[str]
     aur_packages: list[str]
     files: list[FileConfig]
+    nfs_sources: list[NfsSource]
     services: list[str]
 
     def to_dict(self) -> HostDataDict:
@@ -126,6 +141,14 @@ class HostData:
                     "root": file.root,
                 }
                 for file in self.files
+            ],
+            "nfs_sources": [
+                {
+                    "source": str(nfs.source),
+                    "target": str(nfs.target),
+                    "options": str(nfs.options),
+                }
+                for nfs in self.nfs_sources
             ],
             "services": self.services,
         }
@@ -166,6 +189,7 @@ class HostDataLoader:
             packages=self.merge_unique(all_config.packages, host_config.packages),
             aur_packages=self.merge_unique(all_config.aur_packages, host_config.aur_packages),
             files=self.merge_files(all_config.files, host_config.files),
+            nfs_sources=self.merge_nfs_sources(all_config.nfs_sources, host_config.nfs_sources),
             services=self.merge_unique(all_config.services, host_config.services),
         )
 
@@ -182,3 +206,13 @@ class HostDataLoader:
         for file in override:
             files[file.target] = file
         return list(files.values())
+
+    @staticmethod
+    def merge_nfs_sources(
+            base: list[NfsSource],
+            override: list[NfsSource],
+    ) -> list[NfsSource]:
+        nfs_sources = {nfs.source: nfs for nfs in base}
+        for nfs in override:
+            nfs_sources[nfs.source] = nfs
+        return list(nfs_sources.values())
