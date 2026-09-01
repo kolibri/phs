@@ -18,10 +18,10 @@ class DryRunFilesystem(Filesystem):
 
     @override
     def exists(
-        self,
-        path: Path,
-        *,
-        root: bool = False,
+            self,
+            path: Path,
+            *,
+            root: bool = False,
     ) -> bool:
         return self.filesystem.exists(
             path,
@@ -30,10 +30,10 @@ class DryRunFilesystem(Filesystem):
 
     @override
     def read_text(
-        self,
-        path: Path,
-        *,
-        root: bool = False,
+            self,
+            path: Path,
+            *,
+            root: bool = False,
     ) -> str:
         return self.filesystem.read_text(
             path,
@@ -42,11 +42,11 @@ class DryRunFilesystem(Filesystem):
 
     @override
     def write_text(
-        self,
-        path: Path,
-        content: str,
-        *,
-        root: bool = False,
+            self,
+            path: Path,
+            content: str,
+            *,
+            root: bool = False,
     ) -> None:
         prefix = "sudo " if root else ""
 

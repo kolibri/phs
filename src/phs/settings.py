@@ -1,6 +1,7 @@
+import socket
 from dataclasses import dataclass
 from pathlib import Path
-import socket
+
 from cyclopts import Parameter
 
 

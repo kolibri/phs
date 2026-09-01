@@ -10,9 +10,9 @@ from phs.target.runner import Runner
 class LocalRunner(Runner):
     @staticmethod
     def _command(
-        command: Sequence[str],
-        *,
-        root: bool,
+            command: Sequence[str],
+            *,
+            root: bool,
     ) -> list[str]:
         result = list(command)
 
@@ -36,13 +36,13 @@ class LocalRunner(Runner):
 
     @override
     def run(
-        self,
-        command: Sequence[str],
-        *,
-        root: bool = False,
-        input_text: str | None = None,
-        capture_output: bool = False,
-        check: bool = True,
+            self,
+            command: Sequence[str],
+            *,
+            root: bool = False,
+            input_text: str | None = None,
+            capture_output: bool = False,
+            check: bool = True,
     ) -> CommandResult:
         actual_command = self._command(
             command,

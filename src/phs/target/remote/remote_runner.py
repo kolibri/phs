@@ -15,12 +15,12 @@ class RemoteRunner(Runner):
     identity_file: Path | None
 
     def __init__(
-        self,
-        host: str,
-        user: str,
-        *,
-        port: int = 22,
-        identity_file: Path | None = None,
+            self,
+            host: str,
+            user: str,
+            *,
+            port: int = 22,
+            identity_file: Path | None = None,
     ) -> None:
         self.host = host
         self.user = user
@@ -42,10 +42,10 @@ class RemoteRunner(Runner):
         return options
 
     def _ssh_command(
-        self,
-        command: Sequence[str],
-        *,
-        root: bool,
+            self,
+            command: Sequence[str],
+            *,
+            root: bool,
     ) -> list[str]:
         remote_command = list(command)
 
@@ -74,13 +74,13 @@ class RemoteRunner(Runner):
 
     @override
     def run(
-        self,
-        command: Sequence[str],
-        *,
-        root: bool = False,
-        input_text: str | None = None,
-        capture_output: bool = False,
-        check: bool = True,
+            self,
+            command: Sequence[str],
+            *,
+            root: bool = False,
+            input_text: str | None = None,
+            capture_output: bool = False,
+            check: bool = True,
     ) -> CommandResult:
         actual_command = self._ssh_command(
             command,

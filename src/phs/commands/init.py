@@ -5,10 +5,6 @@ from cyclopts import Parameter
 
 from phs.context import AppContext
 from phs.executor import Executor
-from phs.modules.aur import Aur
-from phs.modules.copy import Copy
-from phs.modules.pacman import Pacman
-from phs.modules.task import Task
 from phs.target.context import TargetContext
 from phs.target.dryrun.dryrun_filesystem import DryRunFilesystem
 from phs.target.dryrun.dryrun_runner import DryRunRunner
@@ -20,6 +16,9 @@ from phs.target.remote.remote_runner import RemoteRunner
 from phs.target.remote.remote_transfer import RemoteTransfer
 from phs.target.runner import Runner
 from phs.target.transfer import Transfer
+from phs.tasks.copy import Copy
+from phs.tasks.pacman import Pacman
+from phs.tasks.task import Task
 
 
 def init(
@@ -59,7 +58,6 @@ def init(
 
     tasks: list[Task] = [
         Pacman.update(),
-        Pacman.install(data.packages),
         Copy.path(
             Path.cwd(),
             Path(data.homedir) / "projects" / "phs",
@@ -71,8 +69,20 @@ def init(
                 ".venv",
                 "__pycache__",
             ],
-        )
-#        Aur.install(data.aur_packages, context.builtin_templates),
+        ),
+        Copy.path(
+            Path(context.settings.config_dir),
+            Path(data.homedir) / ".phs",
+            create_dirs=True,
+            exclude=[
+                "test/qemu/iso",
+                "test/qemu/state",
+                ".idea",
+                ".venv",
+                "__pycache__",
+            ],
+        ),
+        #        Aur.install(data.aur_packages, context.builtin_templates),
     ]
 
     if dry_run:

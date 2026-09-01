@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import final
 
-from phs.modules.task import Task
 from phs.target.context import TargetContext
+from phs.tasks.task import Task
 from phs.template import TemplateRenderer
 
 
@@ -33,10 +33,9 @@ class AurInstall:
 class Aur:
     @staticmethod
     def install(
-        packages: list[str],
-        renderer: TemplateRenderer,
+            packages: list[str],
+            renderer: TemplateRenderer,
     ) -> Task:
-
         return AurInstall(
             packages=tuple(packages),
             renderer=renderer

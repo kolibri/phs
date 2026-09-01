@@ -18,13 +18,13 @@ class DryRunRunner(Runner):
 
     @override
     def run(
-        self,
-        command: Sequence[str],
-        *,
-        root: bool = False,
-        input_text: str | None = None,
-        capture_output: bool = False,
-        check: bool = True,
+            self,
+            command: Sequence[str],
+            *,
+            root: bool = False,
+            input_text: str | None = None,
+            capture_output: bool = False,
+            check: bool = True,
     ) -> CommandResult:
         prefix = "sudo " if root else ""
 

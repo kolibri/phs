@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import final
 
-from phs.modules.task import Task
 from phs.target.context import TargetContext
+from phs.tasks.task import Task
 
 
 @final

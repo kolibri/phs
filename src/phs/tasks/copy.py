@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import final
 
-from phs.modules.task import Task
 from phs.target.context import TargetContext
+from phs.tasks.task import Task
 
 
 @final
@@ -29,12 +29,12 @@ class CopyPath:
 class Copy:
     @staticmethod
     def path(
-        source: Path,
-        destination: Path,
-        *,
-        root: bool = False,
-        create_dirs: bool = False,
-        exclude: list[str] | None = None,
+            source: Path,
+            destination: Path,
+            *,
+            root: bool = False,
+            create_dirs: bool = False,
+            exclude: list[str] | None = None,
     ) -> Task:
         return CopyPath(
             source=source,

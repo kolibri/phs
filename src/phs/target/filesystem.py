@@ -10,27 +10,27 @@ class Filesystem(Protocol):
         ...
 
     def exists(
-        self,
-        path: Path,
-        *,
-        root: bool = False,
+            self,
+            path: Path,
+            *,
+            root: bool = False,
     ) -> bool:
         ...
 
     def read_text(
-        self,
-        path: Path,
-        *,
-        root: bool = False,
+            self,
+            path: Path,
+            *,
+            root: bool = False,
     ) -> str:
         ...
 
     def write_text(
-        self,
-        path: Path,
-        content: str,
-        *,
-        root: bool = False,
+            self,
+            path: Path,
+            content: str,
+            *,
+            root: bool = False,
     ) -> None:
         ...
 
@@ -49,10 +49,10 @@ class RunnerFilesystem(Filesystem):
 
     @override
     def exists(
-        self,
-        path: Path,
-        *,
-        root: bool = False,
+            self,
+            path: Path,
+            *,
+            root: bool = False,
     ) -> bool:
         result = self.runner.run(
             ["test", "-e", str(path)],
@@ -65,10 +65,10 @@ class RunnerFilesystem(Filesystem):
 
     @override
     def read_text(
-        self,
-        path: Path,
-        *,
-        root: bool = False,
+            self,
+            path: Path,
+            *,
+            root: bool = False,
     ) -> str:
         result = self.runner.run(
             ["cat", "--", str(path)],
@@ -83,11 +83,11 @@ class RunnerFilesystem(Filesystem):
 
     @override
     def write_text(
-        self,
-        path: Path,
-        content: str,
-        *,
-        root: bool = False,
+            self,
+            path: Path,
+            content: str,
+            *,
+            root: bool = False,
     ) -> None:
         self.runner.run(
             ["tee", "--", str(path)],

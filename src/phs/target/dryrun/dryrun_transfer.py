@@ -18,13 +18,13 @@ class DryRunTransfer(Transfer):
 
     @override
     def transfer(
-        self,
-        source: Path,
-        destination: Path,
-        *,
-        root: bool = False,
-        create_dirs: bool = False,
-        exclude: Sequence[str] = (),
+            self,
+            source: Path,
+            destination: Path,
+            *,
+            root: bool = False,
+            create_dirs: bool = False,
+            exclude: Sequence[str] = (),
     ) -> None:
         prefix = "sudo " if root else ""
 
