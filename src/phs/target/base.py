@@ -30,6 +30,10 @@ class TargetCommandError(RuntimeError):
 
 
 class Target(Protocol):
+    @property
+    def description(self) -> str:
+        ...
+
     def run(
         self,
         command: Sequence[str],
@@ -63,5 +67,16 @@ class Target(Protocol):
         content: str,
         *,
         root: bool = False,
+    ) -> None:
+        ...
+
+    def transfer(
+        self,
+        source: Path,
+        destination: Path,
+        *,
+        root: bool = False,
+        create_dirs: bool = False,
+        exclude: Sequence[str] = (),
     ) -> None:
         ...

@@ -1,8 +1,8 @@
 ---
 packages:
-  - docker
+#  - docker
   - nano
-  - firefox
+#  - firefox
 aur_packages:
   - firefox-profile-switcher-connector-bin
 files:

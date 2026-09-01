@@ -1,37 +1,74 @@
-import os
+import shlex
 import subprocess
 from pathlib import Path
-from typing import final, Sequence, override
+from typing import Sequence, final, override
 
-from phs.target.base import Target, CommandResult, TargetCommandError
+from phs.target.base import CommandResult, Target, TargetCommandError
 
 
 @final
-class LocalTarget(Target):
-    @staticmethod
-    def _command(
+class RemoteTarget(Target):
+    host: str
+    user: str
+    port: int
+    identity_file: Path | None
+
+    def __init__(
+        self,
+        host: str,
+        user: str,
+        *,
+        port: int = 22,
+        identity_file: Path | None = None,
+    ) -> None:
+        self.host = host
+        self.user = user
+        self.port = port
+        self.identity_file = identity_file
+
+    def _ssh_options(self) -> list[str]:
+        options = [
+            "-p",
+            str(self.port),
+        ]
+
+        if self.identity_file is not None:
+            options.extend([
+                "-i",
+                str(self.identity_file),
+            ])
+
+        return options
+
+    def _ssh_command(
+        self,
         command: Sequence[str],
         *,
         root: bool,
     ) -> list[str]:
-        result = list(command)
+        remote_command = list(command)
 
-        if not result:
+        if not remote_command:
             raise ValueError("Command must not be empty")
 
-        if root and os.geteuid() != 0:
-            return [
+        if root:
+            remote_command = [
                 "sudo",
                 "-n",
                 "--",
-                *result,
+                *remote_command,
             ]
 
-        return result
+        return [
+            "ssh",
+            *self._ssh_options(),
+            f"{self.user}@{self.host}",
+            shlex.join(remote_command),
+        ]
 
     @property
     def description(self) -> str:
-        return "local"
+        return f"ssh {self.user}@{self.host}:{self.port}"
 
     @override
     def run(
@@ -43,7 +80,7 @@ class LocalTarget(Target):
         capture_output: bool = False,
         check: bool = True,
     ) -> CommandResult:
-        actual_command = self._command(
+        actual_command = self._ssh_command(
             command,
             root=root,
         )
@@ -110,16 +147,9 @@ class LocalTarget(Target):
         *,
         root: bool = False,
     ) -> None:
-        if not root or os.geteuid() == 0:
-            path.write_text(
-                content,
-                encoding="utf-8",
-            )
-            return
-
         self.run(
             ["tee", "--", str(path)],
-            root=True,
+            root=root,
             input_text=content,
             capture_output=True,
         )
@@ -162,14 +192,41 @@ class LocalTarget(Target):
             else str(source)
         )
 
-        self.run(
-            [
-                "rsync",
-                "-a",
-                *exclude_args,
-                "--",
-                source_arg,
-                str(destination),
-            ],
-            root=root,
+        command = [
+            "rsync",
+            "-a",
+            "--protect-args",
+            "-e",
+            shlex.join([
+                "ssh",
+                *self._ssh_options(),
+            ]),
+            *exclude_args,
+        ]
+
+        if root:
+            command.extend([
+                "--rsync-path",
+                "sudo -n -- rsync",
+            ])
+
+        command.extend([
+            "--",
+            source_arg,
+            f"{self.user}@{self.host}:{destination}",
+        ])
+
+        completed = subprocess.run(
+            command,
+            check=False,
         )
+
+        if completed.returncode != 0:
+            raise TargetCommandError(
+                CommandResult(
+                    command=tuple(command),
+                    returncode=completed.returncode,
+                    stdout=None,
+                    stderr=None,
+                )
+            )

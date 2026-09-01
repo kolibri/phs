@@ -5,6 +5,7 @@ ssh_port: 2222
 hdd: /dev/nvme0n1
 username: ko
 groupname: ko
+homedir: /home/ko
 git_user: ko.libri
 git_email: entengelb@gmail.com
 shell: /bin/zsh
@@ -12,7 +13,7 @@ shell: /bin/zsh
 packages:
   - git
   - zsh
-  - nfs
+#  - nfs
 
 files:
   -

@@ -23,7 +23,10 @@ class DryRunTarget(Target):
         check: bool = True,
     ) -> CommandResult:
         prefix = "sudo " if root else ""
-        print(f"[dry-run] {prefix}{' '.join(command)}")
+        print(
+            f"[dry-run] [{self.target.description}] "
+            f"{prefix}{' '.join(command)}"
+        )
 
         if input_text is not None:
             print("[dry-run] stdin:")
@@ -63,3 +66,11 @@ class DryRunTarget(Target):
         root: bool = False,
     ) -> None:
         print(f"[dry-run] write {path}")
+
+    @override
+    def transfer(
+            self,
+            source: Path,
+            destination: Path,
+    ) -> None:
+        print(f"[dry-run] transfer {source} to {destination}")

@@ -37,6 +37,7 @@ class AllHostDataFragment(BaseModel):
     hdd: str
     username: str
     groupname: str
+    homedir: str
     git_user: str
     git_email: str
     shell: str
@@ -54,6 +55,7 @@ class HostDataFragment(BaseModel):
     hdd: str | None = None
     username: str | None = None
     groupname: str | None = None
+    homedir: str | None = None
     git_user: str | None = None
     git_email: str | None = None
     shell: str | None = None
@@ -76,6 +78,7 @@ class HostDataDict(TypedDict):
     hdd: str
     username: str
     groupname: str
+    homedir: str
     git_user: str
     git_email: str
     shell: str
@@ -93,6 +96,7 @@ class HostData:
     hdd: str
     username: str
     groupname: str
+    homedir: str
     git_user: str
     git_email: str
     shell: str
@@ -109,6 +113,7 @@ class HostData:
             "hdd": self.hdd,
             "username": self.username,
             "groupname": self.groupname,
+            "homedir": self.homedir,
             "git_user": self.git_user,
             "git_email": self.git_email,
             "shell": self.shell,
@@ -154,6 +159,7 @@ class HostDataLoader:
             hdd=host_config.hdd or all_config.hdd,
             username=host_config.username or all_config.username,
             groupname=host_config.groupname or all_config.groupname,
+            homedir=host_config.homedir or all_config.homedir,
             git_user=host_config.git_user or all_config.git_user,
             git_email=host_config.git_email or all_config.git_email,
             shell=host_config.shell or all_config.shell,
