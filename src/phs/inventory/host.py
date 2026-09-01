@@ -1,0 +1,120 @@
+from typing import ClassVar, TypedDict
+
+from attr import dataclass
+from pydantic import BaseModel, ConfigDict, Field
+
+from phs.inventory.config import (
+    DesktopConfig,
+    DesktopConfigDict,
+    FileConfig,
+    FileConfigDict,
+    NfsSource,
+    NfsSourceDict,
+    desktop_to_dict,
+    file_config_to_dict,
+    nfs_source_to_dict,
+)
+from phs.yaml import dump_yaml
+
+
+class AllHostDataFragment(BaseModel):
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra="forbid")
+    username: str
+    groupname: str
+    homedir: str
+    git_user: str
+    git_email: str
+    shell: str
+    packages: list[str] = Field(default_factory=list)
+    aur_packages: list[str] = Field(default_factory=list)
+    files: list[FileConfig] = Field(default_factory=list)
+    nfs_sources: list[NfsSource] = Field(default_factory=list)
+    services: list[str] = Field(default_factory=list)
+
+
+class HostDataFragment(BaseModel):
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra="forbid")
+    hostname: str
+    ip: str
+    ssh_port: int
+    hdd: str
+    username: str | None = None
+    groupname: str | None = None
+    homedir: str | None = None
+    git_user: str | None = None
+    git_email: str | None = None
+    shell: str | None = None
+    packages: list[str] = Field(default_factory=list)
+    aur_packages: list[str] = Field(default_factory=list)
+    files: list[FileConfig] = Field(default_factory=list)
+    nfs_sources: list[NfsSource] = Field(default_factory=list)
+    services: list[str] = Field(default_factory=list)
+    desktop: DesktopConfig | None = None
+
+
+class HostDataDict(TypedDict):
+    hostname: str
+    ip: str
+    ssh_port: int
+    hdd: str
+    username: str
+    groupname: str
+    homedir: str
+    git_user: str
+    git_email: str
+    shell: str
+    packages: list[str]
+    aur_packages: list[str]
+    files: list[FileConfigDict]
+    nfs_sources: list[NfsSourceDict]
+    services: list[str]
+    desktop: DesktopConfigDict | None
+
+
+@dataclass
+class HostData:
+    hostname: str
+    ip: str
+    ssh_port: int
+    hdd: str
+    username: str
+    groupname: str
+    homedir: str
+    git_user: str
+    git_email: str
+    shell: str
+    packages: list[str]
+    aur_packages: list[str]
+    files: list[FileConfig]
+    nfs_sources: list[NfsSource]
+    services: list[str]
+    desktop: DesktopConfig | None
+
+    def to_dict(self) -> HostDataDict:
+        return {
+            "hostname": self.hostname,
+            "ip": self.ip,
+            "ssh_port": self.ssh_port,
+            "hdd": self.hdd,
+            "username": self.username,
+            "groupname": self.groupname,
+            "homedir": self.homedir,
+            "git_user": self.git_user,
+            "git_email": self.git_email,
+            "shell": self.shell,
+            "packages": self.packages,
+            "aur_packages": self.aur_packages,
+            "files": [
+                file_config_to_dict(file)
+                for file in self.files
+            ],
+            "nfs_sources": [
+                nfs_source_to_dict(nfs)
+                for nfs in self.nfs_sources
+            ],
+            "services": self.services,
+            "desktop": desktop_to_dict(self.desktop),
+        }
+
+    def to_yaml(self) -> str:
+        return dump_yaml(self.to_dict())
