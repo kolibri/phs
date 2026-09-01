@@ -29,6 +29,7 @@ class Qtile:
             Pacman.install([
                 "qtile",
                 "greetd",
+                "polkit",
                 "xorg-xwayland",
                 "xdg-desktop-portal-wlr",
                 "xdg-desktop-portal-gtk",

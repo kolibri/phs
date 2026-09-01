@@ -2,6 +2,7 @@ from typing import Annotated
 
 from cyclopts import App, Parameter
 
+from phs.commands.setup_commands.docker import docker
 from phs.commands.setup_commands.git import git
 from phs.commands.setup_commands.nfs import nfs
 from phs.commands.setup_commands.packages import packages
@@ -22,6 +23,7 @@ setup_app.command(git, name="git")
 setup_app.command(zsh, name="zsh")
 setup_app.command(nfs, name="nfs")
 setup_app.command(desktop, name="desktop")
+setup_app.command(docker, name="docker")
 
 @setup_app.default
 def setup(
