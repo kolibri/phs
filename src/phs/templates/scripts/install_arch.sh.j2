@@ -232,6 +232,14 @@ arch-chroot /mnt sudo -u ko -H bash -lc '
     uv tool install --editable .
 '
 
+arch-chroot /mnt install \
+    -m 600 \
+    -o "{{ username }}" \
+    -g "{{ groupname }}" \
+    /dev/stdin \
+    "/home/{{ username }}/.phs.yaml" <<'PHS_CONFIG_EOF'
+my_hostname: {{ hostname }}
+PHS_CONFIG_EOF
 
 
 # Finish

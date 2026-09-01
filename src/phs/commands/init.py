@@ -12,12 +12,11 @@ from phs.target.dryrun import DryRunTarget
 
 
 def init(
-        host: str,
         *,
         dry_run: bool = False,
         context: Annotated[AppContext, Parameter(parse=False)],
 ):
-    data = context.inventory.load(host)
+    data = context.inventory.load(context.settings.my_hostname)
     print("init system")
 
     tasks: list[Task] = [
