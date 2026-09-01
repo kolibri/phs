@@ -2,14 +2,14 @@ from dataclasses import dataclass
 from typing import final
 
 from phs.modules.task import Task
-from phs.target.base import Target
+from phs.target.context import TargetContext
 
 
 @final
 @dataclass(frozen=True, slots=True)
 class PacmanUpdate:
-    def execute(self, target: Target) -> None:
-        target.run(
+    def execute(self, target: TargetContext) -> None:
+        target.runner.run(
             [
                 "pacman",
                 "-Syu",
@@ -24,11 +24,11 @@ class PacmanUpdate:
 class PacmanInstall:
     packages: tuple[str, ...]
 
-    def execute(self, target: Target) -> None:
+    def execute(self, target: TargetContext) -> None:
         if not self.packages:
             return
 
-        target.run(
+        target.runner.run(
             [
                 "pacman",
                 "-S",

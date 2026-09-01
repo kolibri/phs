@@ -1,8 +1,8 @@
 from typing import Protocol
 
-from phs.target.base import Target
+from phs.target.context import TargetContext
 
 
 class Task(Protocol):
-    def execute(self, target: Target) -> None:
+    def execute(self, target: TargetContext) -> None:
         ...

@@ -9,10 +9,17 @@ from phs.modules.aur import Aur
 from phs.modules.copy import Copy
 from phs.modules.pacman import Pacman
 from phs.modules.task import Task
-from phs.target.base import Target
-from phs.target.dryrun import DryRunTarget
-from phs.target.local import LocalTarget
-from phs.target.remote import RemoteTarget
+from phs.target.context import TargetContext
+from phs.target.dryrun.dryrun_filesystem import DryRunFilesystem
+from phs.target.dryrun.dryrun_runner import DryRunRunner
+from phs.target.dryrun.dryrun_transfer import DryRunTransfer
+from phs.target.filesystem import Filesystem, RunnerFilesystem
+from phs.target.local.local_runner import LocalRunner
+from phs.target.local.local_transfer import LocalTransfer
+from phs.target.remote.remote_runner import RemoteRunner
+from phs.target.remote.remote_transfer import RemoteTransfer
+from phs.target.runner import Runner
+from phs.target.transfer import Transfer
 
 
 def init(
@@ -24,8 +31,29 @@ def init(
     target_host = context.settings.my_hostname if host == 'local' else host
     data = context.inventory.load(target_host)
 
-    target = LocalTarget() if host == 'local' else RemoteTarget(data.ip, data.username, port=data.ssh_port)
+    runner: Runner
+    transfer: Transfer
 
+    if host == 'local':
+        local_runner = LocalRunner()
+        runner = local_runner
+        transfer = LocalTransfer(local_runner)
+    else:
+        remote_runner = RemoteRunner(
+            data.ip,
+            data.username,
+            port=data.ssh_port,
+        )
+        runner = remote_runner
+        transfer = RemoteTransfer(remote_runner)
+
+    filesystem: Filesystem = RunnerFilesystem(runner)
+
+    target = TargetContext(
+        runner=runner,
+        filesystem=filesystem,
+        transfer=transfer,
+    )
 
     print("init system")
 
@@ -48,7 +76,10 @@ def init(
     ]
 
     if dry_run:
-        target = DryRunTarget(target)
-
+        target = TargetContext(
+            runner=DryRunRunner(runner),
+            filesystem=DryRunFilesystem(filesystem),
+            transfer=DryRunTransfer(transfer),
+        )
 
     Executor.execute(tasks, target)

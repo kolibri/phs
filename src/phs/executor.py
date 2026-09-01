@@ -2,7 +2,7 @@ from collections.abc import Sequence
 from typing import final
 
 from phs.modules.task import Task
-from phs.target.base import Target
+from phs.target.context import TargetContext
 
 
 @final
@@ -10,7 +10,7 @@ class Executor:
     @staticmethod
     def execute(
         tasks: Sequence[Task],
-        target: Target,
+        target: TargetContext,
     ) -> None:
         for task in tasks:
             task.execute(target)

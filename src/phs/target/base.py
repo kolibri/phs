@@ -1,6 +1,5 @@
 from dataclasses import dataclass
-from pathlib import Path
-from typing import final, Protocol, Sequence
+from typing import final
 
 
 @dataclass(frozen=True, slots=True)
@@ -27,56 +26,3 @@ class TargetCommandError(RuntimeError):
             message += f"\n{result.stderr.rstrip()}"
 
         super().__init__(message)
-
-
-class Target(Protocol):
-    @property
-    def description(self) -> str:
-        ...
-
-    def run(
-        self,
-        command: Sequence[str],
-        *,
-        root: bool = False,
-        input_text: str | None = None,
-        capture_output: bool = False,
-        check: bool = True,
-    ) -> CommandResult:
-        ...
-
-    def exists(
-        self,
-        path: Path,
-        *,
-        root: bool = False,
-    ) -> bool:
-        ...
-
-    def read_text(
-        self,
-        path: Path,
-        *,
-        root: bool = False,
-    ) -> str:
-        ...
-
-    def write_text(
-        self,
-        path: Path,
-        content: str,
-        *,
-        root: bool = False,
-    ) -> None:
-        ...
-
-    def transfer(
-        self,
-        source: Path,
-        destination: Path,
-        *,
-        root: bool = False,
-        create_dirs: bool = False,
-        exclude: Sequence[str] = (),
-    ) -> None:
-        ...

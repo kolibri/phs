@@ -9,7 +9,6 @@ from phs.context import AppContext
 from phs.inventory import HostDataLoader
 from phs.settings import Settings
 from phs.ssh import SSHRunner
-from phs.target.local import LocalTarget
 from phs.template import TemplateRenderer
 from phs.commands.printconfig import printconfig
 from phs.commands.install import install
@@ -48,7 +47,6 @@ def main(
         builtin_templates=TemplateRenderer.builtin(),
         config_templates=TemplateRenderer.from_directory(settings.config_dir / "templates"),
         ssh=SSHRunner(),
-        target=LocalTarget(),
     )
 
     command, bound, ignored = app.parse_args(tokens)

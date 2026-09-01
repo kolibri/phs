@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import final
 
 from phs.modules.task import Task
-from phs.target.base import Target
+from phs.target.context import TargetContext
 
 
 @final
@@ -15,8 +15,8 @@ class CopyPath:
     create_dirs: bool
     exclude: tuple[str, ...]
 
-    def execute(self, target: Target) -> None:
-        target.transfer(
+    def execute(self, target: TargetContext) -> None:
+        target.transfer.transfer(
             self.source,
             self.destination,
             root=self.root,
