@@ -5,6 +5,7 @@ import cyclopts
 from cyclopts import App, Parameter
 
 from phs.commands.init import init
+from phs.commands.authorize import authorize
 from phs.commands.install import install
 from phs.commands.printconfig import printconfig
 from phs.context import AppContext
@@ -27,6 +28,7 @@ app = App(
 app.command(install)
 app.command(printconfig)
 app.command(init)
+app.command(authorize)
 app.command(setup_app)
 
 

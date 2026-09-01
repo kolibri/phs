@@ -8,6 +8,7 @@ from phs.execution import ExecutionFactory, ExecutionOptions
 from phs.executor import Executor
 from phs.tasks.copy import Copy
 from phs.tasks.pacman import Pacman
+from phs.tasks.sshkey import Sshkey
 from phs.tasks.task import Task
 
 
@@ -26,6 +27,7 @@ def init(
 
     tasks: list[Task] = [
         Pacman.update(),
+        Sshkey.ensure(Path(data.homedir) / ".ssh" / "id_ed25519"),
         Copy.path(
             Path.cwd(),
             Path(data.homedir) / "projects" / "phs",
@@ -50,7 +52,6 @@ def init(
                 "__pycache__",
             ],
         ),
-        #        Aur.install(data.aur_packages, context.builtin_templates),
     ]
 
     Executor.execute(

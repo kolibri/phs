@@ -37,10 +37,10 @@ class NfsSource(BaseModel):
 
 class AllHostDataFragment(BaseModel):
     model_config: ClassVar[ConfigDict] = ConfigDict(extra="forbid")
-    hostname: str
-    ip: str
-    ssh_port: int
-    hdd: str
+    hostname: str | None = None
+    ip: str | None = None
+    ssh_port: int | None = None
+    hdd: str | None = None
     username: str
     groupname: str
     homedir: str

@@ -9,6 +9,7 @@ from phs.tasks.directory import Directory
 from phs.tasks.file import File
 from phs.tasks.modprobe import Modprobe
 from phs.tasks.mount import Mount
+from phs.tasks.pacman import Pacman
 from phs.tasks.service import Service
 from phs.tasks.task import Task
 
@@ -21,6 +22,7 @@ class Nfs:
             data: HostData,
     ) -> list[Task]:
         tasks: list[Task] = [
+            Pacman.install(['nfs-utils']),
             Modprobe.load(['nfsd']),
             #Service.enable('rpcbind') #todo: check, if needed
         ]

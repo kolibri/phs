@@ -1,4 +1,9 @@
 ---
+hostname: hojo.ko
+ip: 127.0.0.1
+ssh_port: 2222
+hdd: /dev/nvme0n1
+
 packages:
 #  - docker
   - nano

@@ -10,6 +10,8 @@ from phs.context import AppContext
 from phs.execution import ExecutionOptions
 from phs.modules.base import run_modules
 from phs.modules.git import Git
+from phs.modules.nfs import Nfs
+from phs.modules.packages import Packages
 from phs.modules.zsh import Zsh
 
 setup_app = App(name="setup")
@@ -26,8 +28,10 @@ def setup(
 ) -> None:
     run_modules(
         [
+            Packages(),
             Git(),
             Zsh(),
+            Nfs(),
         ],
         context=context,
         host=options.host,
