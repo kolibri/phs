@@ -7,7 +7,7 @@ hdd: /dev/nvme0n1
 packages:
 #  - docker
   - nano
-#  - firefox
+  - firefox
 aur_packages:
   - firefox-profile-switcher-connector-bin
 files:
@@ -17,3 +17,11 @@ files:
 
 services:
   - docker
+
+desktop:
+  type: qtile
+  config_file: qtile/config.aerith.py
+
+#desktop:
+#  type: gnome
+#  #extensions: []

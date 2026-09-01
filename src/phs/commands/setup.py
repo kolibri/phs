@@ -13,12 +13,15 @@ from phs.modules.git import Git
 from phs.modules.nfs import Nfs
 from phs.modules.packages import Packages
 from phs.modules.zsh import Zsh
+from phs.commands.setup_commands.desktop import desktop
+from phs.modules.desktop import Desktop
 
 setup_app = App(name="setup")
 setup_app.command(packages, name="packages")
 setup_app.command(git, name="git")
 setup_app.command(zsh, name="zsh")
 setup_app.command(nfs, name="nfs")
+setup_app.command(desktop, name="desktop")
 
 @setup_app.default
 def setup(
@@ -31,7 +34,8 @@ def setup(
             Packages(),
             Git(),
             Zsh(),
-            Nfs(),
+            #Nfs(),
+            Desktop(),
         ],
         context=context,
         host=options.host,

@@ -1,8 +1,9 @@
 from pathlib import Path
-from typing import ClassVar, TypedDict
+from typing import Annotated, ClassVar, Literal, TypedDict
 
 from attr import dataclass
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
+
 
 from phs.yaml import dump_yaml, load_yaml
 
@@ -17,6 +18,43 @@ def format_validation_error(path: Path, error: ValidationError) -> str:
             lines.append(f"  {location}: {item['msg']}")
     return "\n".join(lines)
 
+def file_config_to_dict(
+    file: FileConfig,
+) -> FileConfigDict:
+    result: FileConfigDict = {
+        "target": str(file.target),
+        "src": str(file.src),
+        "root": file.root,
+    }
+    return result
+
+def nfs_source_to_dict(
+    nfs: NfsSource,
+) -> NfsSourceDict:
+    result: NfsSourceDict = {
+        "source": nfs.source,
+        "target": str(nfs.target),
+        "options": nfs.options,
+    }
+    return result
+
+def desktop_to_dict(
+        desktop: DesktopConfig | None,
+) -> DesktopConfigDict | None:
+    if isinstance(desktop, QtileDesktopConfig):
+        result: QtileDesktopConfigDict = {
+            "type": "qtile",
+            "config_file": str(desktop.config_file),
+        }
+        return result
+
+    if isinstance(desktop, GnomeDesktopConfig):
+        result: GnomeDesktopConfigDict = {
+            "type": "gnome",
+        }
+        return result
+
+    return None
 
 class InventoryError(Exception):
     pass
@@ -34,13 +72,38 @@ class NfsSource(BaseModel):
     target: Path
     options: str
 
+class QtileDesktopConfig(BaseModel):
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra="forbid")
+    type: Literal["qtile"]
+    config_file: Path
+
+
+class GnomeDesktopConfig(BaseModel):
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra="forbid")
+    type: Literal["gnome"]
+
+
+type DesktopConfig = Annotated[
+    QtileDesktopConfig | GnomeDesktopConfig,
+    Field(discriminator="type"),
+]
+
+class QtileDesktopConfigDict(TypedDict):
+    type: Literal["qtile"]
+    config_file: str
+
+
+class GnomeDesktopConfigDict(TypedDict):
+    type: Literal["gnome"]
+
+
+type DesktopConfigDict = (
+    QtileDesktopConfigDict
+    | GnomeDesktopConfigDict
+)
 
 class AllHostDataFragment(BaseModel):
     model_config: ClassVar[ConfigDict] = ConfigDict(extra="forbid")
-    hostname: str | None = None
-    ip: str | None = None
-    ssh_port: int | None = None
-    hdd: str | None = None
     username: str
     groupname: str
     homedir: str
@@ -56,10 +119,10 @@ class AllHostDataFragment(BaseModel):
 
 class HostDataFragment(BaseModel):
     model_config: ClassVar[ConfigDict] = ConfigDict(extra="forbid")
-    hostname: str | None = None
-    ip: str | None = None
-    ssh_port: int | None = None
-    hdd: str | None = None
+    hostname: str
+    ip: str
+    ssh_port: int
+    hdd: str
     username: str | None = None
     groupname: str | None = None
     homedir: str | None = None
@@ -71,6 +134,7 @@ class HostDataFragment(BaseModel):
     files: list[FileConfig] = Field(default_factory=list)
     nfs_sources: list[NfsSource] = Field(default_factory=list)
     services: list[str] = Field(default_factory=list)
+    desktop: DesktopConfig | None = None
 
 
 class FileConfigDict(TypedDict):
@@ -78,9 +142,9 @@ class FileConfigDict(TypedDict):
     src: str
     root: bool
 
-class NfsSourcesDict(TypedDict):
+class NfsSourceDict(TypedDict):
     source: str
-    target: Path
+    target: str
     options: str
 
 
@@ -98,8 +162,10 @@ class HostDataDict(TypedDict):
     packages: list[str]
     aur_packages: list[str]
     files: list[FileConfigDict]
-    nfs_sources: list[NfsSourcesDict]
+    nfs_sources: list[NfsSourceDict]
     services: list[str]
+    desktop: DesktopConfigDict | None
+
 
 
 @dataclass
@@ -119,6 +185,7 @@ class HostData:
     files: list[FileConfig]
     nfs_sources: list[NfsSource]
     services: list[str]
+    desktop: DesktopConfig | None
 
     def to_dict(self) -> HostDataDict:
         return {
@@ -135,23 +202,18 @@ class HostData:
             "packages": self.packages,
             "aur_packages": self.aur_packages,
             "files": [
-                {
-                    "target": str(file.target),
-                    "src": str(file.src),
-                    "root": file.root,
-                }
+                file_config_to_dict(file)
                 for file in self.files
             ],
             "nfs_sources": [
-                {
-                    "source": str(nfs.source),
-                    "target": str(nfs.target),
-                    "options": str(nfs.options),
-                }
+                nfs_source_to_dict(nfs)
                 for nfs in self.nfs_sources
             ],
             "services": self.services,
+            "desktop": desktop_to_dict(self.desktop),
         }
+
+
 
     def to_yaml(self) -> str:
         return dump_yaml(self.to_dict())
@@ -176,10 +238,10 @@ class HostDataLoader:
             ) from error
 
         return HostData(
-            hostname=host_config.hostname or all_config.hostname,
-            ip=host_config.ip or all_config.ip,
-            ssh_port=host_config.ssh_port or all_config.ssh_port,
-            hdd=host_config.hdd or all_config.hdd,
+            hostname=host_config.hostname,
+            ip=host_config.ip,
+            ssh_port=host_config.ssh_port,
+            hdd=host_config.hdd,
             username=host_config.username or all_config.username,
             groupname=host_config.groupname or all_config.groupname,
             homedir=host_config.homedir or all_config.homedir,
@@ -191,6 +253,7 @@ class HostDataLoader:
             files=self.merge_files(all_config.files, host_config.files),
             nfs_sources=self.merge_nfs_sources(all_config.nfs_sources, host_config.nfs_sources),
             services=self.merge_unique(all_config.services, host_config.services),
+            desktop=host_config.desktop,
         )
 
     @staticmethod

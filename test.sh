@@ -120,7 +120,7 @@ EOF
     ;;
 
     shutdown) ## shuts down the machine via ssh
-        ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@127.0.0.1 shutdown now
+        ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null 127.0.0.1 shutdown now
         sleep 2
     ;;
 

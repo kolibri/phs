@@ -1,12 +1,11 @@
 import re
 from dataclasses import dataclass
 from pathlib import Path
+from textwrap import dedent
 from typing import final
 
 from phs.target.context import TargetContext
 from phs.tasks.task import Task
-
-
 
 
 @final
@@ -22,16 +21,6 @@ class FileWrite:
             self.content,
             root=self.root,
         )
-
-
-
-import re
-from dataclasses import dataclass
-from pathlib import Path
-from typing import final
-
-from phs.target.context import TargetContext
-from phs.tasks.task import Task
 
 
 @final
@@ -102,7 +91,11 @@ class File:
         content: str,
         *,
         root: bool = False,
+        as_given: bool = False,
     ) -> Task:
+        if not as_given:
+            content = dedent(content).strip() + "\n"
+
         return FileWrite(
             path=path,
             content=content,

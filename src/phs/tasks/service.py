@@ -9,16 +9,19 @@ from phs.tasks.task import Task
 @dataclass(frozen=True, slots=True)
 class ServiceEnable:
     services: tuple[str, ...]
+    start: bool
 
     def execute(self, target: TargetContext) -> None:
         for service in self.services:
+            command = ["systemctl", "enable"]
+
+            if self.start:
+                command.append("--now")
+
+            command.append(service)
+
             target.runner.run(
-                [
-                    "systemctl",
-                    "enable",
-                    "--now",
-                    service,
-                ],
+                command,
                 root=True,
             )
 
@@ -26,7 +29,12 @@ class ServiceEnable:
 @final
 class Service:
     @staticmethod
-    def enable(services: list[str]) -> Task:
+    def enable(
+        services: list[str],
+        *,
+        start: bool = True,
+    ) -> Task:
         return ServiceEnable(
             services=tuple(services),
+            start=start,
         )
