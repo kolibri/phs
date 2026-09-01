@@ -1,30 +1,20 @@
 from typing import Annotated
 
-from cyclopts import App, Parameter
+from cyclopts import Parameter
 
-from phs.commands.setup_commands.git import git
-from phs.commands.setup_commands.zsh import zsh
 from phs.context import AppContext
 from phs.execution import ExecutionOptions
 from phs.modules.base import run_modules
-from phs.modules.git import Git
 from phs.modules.zsh import Zsh
 
-setup_app = App(name="setup")
-setup_app.command(git, name="git")
-setup_app.command(zsh, name="zsh")
 
-@setup_app.default
-def setup(
+def zsh(
     *,
     options: ExecutionOptions = ExecutionOptions(),
     context: Annotated[AppContext, Parameter(parse=False)],
 ) -> None:
     run_modules(
-        [
-            Git(),
-            Zsh(),
-        ],
+        [Zsh()],
         context=context,
         host=options.host,
         dry_run=options.dry_run,

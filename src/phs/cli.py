@@ -12,6 +12,7 @@ from phs.inventory import HostDataLoader
 from phs.settings import Settings
 from phs.ssh import SSHRunner
 from phs.template import TemplateRenderer
+from phs.commands.setup import setup_app
 
 CONFIG_FILE = Path.home() / ".phs.yaml"
 
@@ -26,6 +27,7 @@ app = App(
 app.command(install)
 app.command(printconfig)
 app.command(init)
+app.command(setup_app)
 
 
 @app.meta.default
