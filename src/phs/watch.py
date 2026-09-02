@@ -37,6 +37,7 @@ class WatchCache:
         self._seen: set[str] = set()
         self._refresh = False
         self._dirty = False
+        self._force = False
 
     def _load(self) -> WatchCacheData:
         if self._data is not None:
@@ -54,6 +55,13 @@ class WatchCache:
             raise RuntimeError(f"Invalid watch cache: {self.path}") from error
 
         return self._data
+
+    @property
+    def force(self) -> bool:
+        return self._force
+
+    def set_force(self, force: bool) -> None:
+        self._force = force
 
     def begin_refresh(self) -> None:
         self._load()

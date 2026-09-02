@@ -84,6 +84,7 @@ def setup(
         *,
         options: ExecutionOptions = ExecutionOptions(),
         ignore_modules: str = "",
+        force: bool = False,
         context: Annotated[AppContext, Parameter(parse=False)],
 ) -> None:
     execution = ExecutionFactory.create(
@@ -91,6 +92,8 @@ def setup(
         host=options.host,
         dry_run=options.dry_run,
     )
+
+    execution.target.watch.set_force(force)
 
     ignored_modules = _parse_ignored_modules(ignore_modules)
     modules = _select_modules(

@@ -17,6 +17,13 @@ def _watch_action(
         can_restore: bool,
         can_apply: bool,
 ) -> WatchAction:
+    if target.watch.force:
+        target.output.warning("forced change")
+        if can_apply:
+            return "apply"
+        if can_restore:
+            return "restore"
+
     choices: list[str] = ["[k]eep current"]
     valid: dict[str, WatchAction] = {"k": "keep"}
 
