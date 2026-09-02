@@ -22,7 +22,7 @@ aur_packages:
   - ttf-merriweather-sans
   - ttf-quintessential
   - ttf-signika
-#  - ttf-google-fonts-git
+  - ttf-google-fonts-git
 
 files:
   -

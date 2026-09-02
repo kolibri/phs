@@ -6,15 +6,15 @@ from phs.target.transfer import Transfer
 
 @final
 class DryRunTransfer(Transfer):
-    transferer: Transfer
+    transfer: Transfer
 
-    def __init__(self, transferer: Transfer) -> None:
-        self.transferer = transferer
+    def __init__(self, transfer: Transfer) -> None:
+        self.transfer = transfer
 
     @property
     @override
     def description(self) -> str:
-        return self.transferer.description
+        return self.transfer.description
 
     @override
     def transfer(
@@ -29,7 +29,7 @@ class DryRunTransfer(Transfer):
         prefix = "sudo " if root else ""
 
         print(
-            f"[dry-run] [{self.transferer.description}] "
+            f"[dry-run] [{self.transfer.description}] "
             f"{prefix}transfer {source} to {destination}"
         )
 

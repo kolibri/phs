@@ -12,9 +12,10 @@ from phs.commands.printconfig import printconfig
 from phs.commands.setup import setup_app
 from phs.context import AppContext
 from phs.inventory import HostDataLoader
-from phs.output import Output, RichOutput
+from phs.output import RichOutput
 from phs.settings import Settings
 from phs.ssh import SSHRunner
+from phs.target.base import TargetCommandError
 from phs.template import TemplateRenderer
 
 console = Console()
@@ -65,11 +66,24 @@ def main(
     if "context" in ignored:
         additional_kwargs["context"] = context
 
-    return command(
-        *bound.args,
-        **bound.kwargs,
-        **additional_kwargs,
-    )
+    try:
+        return command(
+            *bound.args,
+            **bound.kwargs,
+            **additional_kwargs,
+        )
+    except TargetCommandError as error:
+        result = error.result
+        context.output.error(f"Command failed with exit code {result.returncode}")
+        context.output.result(" ".join(result.command))
+
+        if result.stdout:
+            context.output.text(result.stdout.rstrip())
+
+        if result.stderr:
+            context.output.error(result.stderr.rstrip())
+
+        raise SystemExit(result.returncode or 1) from None
 
 
 def run():

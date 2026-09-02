@@ -24,14 +24,14 @@ class RichOutput:
         self.console = console
 
     def text(self, message: str) -> None:
-        self.console.print(message)
+        self.console.print(message, markup=False, highlight=False)
     def info(self, message: str) -> None:
-        self.console.print(f"[bold]{message}[/bold]")
+        self.console.print(f"{message}", style="bold")
     def error(self, message: str) -> None:
-        self.console.print(f"[bold][red]{message}[/red][/bold]")
+        self.console.print(f"{message}", style="bold red")
     def success(self, message: str) -> None:
-        self.console.print(f"[bold][green]{message}[/green][/bold]")
+        self.console.print(f"{message}", style="bold green")
     def warning(self, message: str) -> None:
-        self.console.print(f"[bold][orange]{message}[/orange][/bold]")
+        self.console.print(f"{message}", style="bold orange")
     def result(self, message: str) -> None:
-        self.console.print(f"[blue]{message}[/blue]")
+        self.console.print(f"{message}", style="blue")

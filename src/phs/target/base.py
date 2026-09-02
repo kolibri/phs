@@ -16,13 +16,4 @@ class TargetCommandError(RuntimeError):
 
     def __init__(self, result: CommandResult) -> None:
         self.result = result
-
-        message = (
-            f"Command failed with exit code {result.returncode}: "
-            f"{' '.join(result.command)}"
-        )
-
-        if result.stderr:
-            message += f"\n{result.stderr.rstrip()}"
-
-        super().__init__(message)
+        super().__init__("Target command failed")

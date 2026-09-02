@@ -12,7 +12,7 @@ from phs.target.local.local_runner import LocalRunner
 from phs.target.local.local_transfer import LocalTransfer
 from phs.target.remote.remote_runner import RemoteRunner
 from phs.target.remote.remote_transfer import RemoteTransfer
-from phs.target.runner import Runner
+from phs.target.runner import Runner, OutputRunner
 from phs.target.transfer import Transfer
 from cyclopts import Parameter
 
@@ -66,6 +66,7 @@ class ExecutionFactory:
             runner = remote_runner
             transfer = RemoteTransfer(remote_runner)
 
+        runner = OutputRunner(runner, context.output)
         filesystem: Filesystem = RunnerFilesystem(runner)
 
         if dry_run:
@@ -73,6 +74,7 @@ class ExecutionFactory:
                 runner=DryRunRunner(runner),
                 filesystem=DryRunFilesystem(filesystem),
                 transfer=DryRunTransfer(transfer),
+                output = context.output
             )
         else:
             target = TargetContext(
