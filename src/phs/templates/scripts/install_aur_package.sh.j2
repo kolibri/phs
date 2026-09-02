@@ -1,7 +1,89 @@
 set -euo pipefail
 
-tmpdir="$(mktemp -d -t phs-aur.XXXXXX)"
-trap 'rm -rf "$tmpdir"' EXIT
-git clone "https://aur.archlinux.org/{{ package }}.git" "$tmpdir/{{ package }}"
-cd "$tmpdir/{{ package }}"
-makepkg --syncdeps --install --needed --noconfirm
+is_vcs_package() {
+    case "$1" in
+        *-bzr|*-cvs|*-darcs|*-fossil|*-git|*-hg|*-svn) return 0;;
+        *) return 1;;
+    esac
+}
+
+rpc_response="$(curl -fsSL --get --data-urlencode "arg[]={{ package }}" "https://aur.archlinux.org/rpc/v5/info")"
+result_count="$(printf '%s\n' "$rpc_response" |sed -n 's/.*"resultcount"[[:space:]]*:[[:space:]]*\([0-9][0-9]*\).*/\1/p')"
+
+if [[ "$result_count" != "1" ]]; then
+    echo "AUR package not found: {{ package }}" >&2
+    exit 1
+fi
+
+package_base="$(printf '%s\n' "$rpc_response" | sed -n 's/.*"PackageBase"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')"
+aur_version="$(printf '%s\n' "$rpc_response" | sed -n 's/.*"Version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')"
+
+if [[ -z "$package_base" || -z "$aur_version" ]]; then
+    echo "Invalid AUR response for package: {{ package }}" >&2
+    exit 1
+fi
+
+installed_version="$(pacman -Q "{{ package }}" 2>/dev/null | awk '{print $2}' || true)"
+
+if ! is_vcs_package "{{ package }}" && ! is_vcs_package "$package_base"; then
+    if [[ -n "$installed_version" ]]; then
+        comparison="$(vercmp "$aur_version" "$installed_version")"
+
+        if (( comparison <= 0 )); then
+            echo "{{ package }} is up to date ($installed_version)"
+            exit 0
+        fi
+    fi
+
+    tmpdir="$(mktemp -d -t phs-aur.XXXXXX)"
+    trap 'rm -rf "$tmpdir"' EXIT
+
+    build_dir="$tmpdir/$package_base"
+    git clone "https://aur.archlinux.org/${package_base}.git" "$build_dir"
+    cd "$build_dir"
+
+    makepkg --syncdeps --install --needed --noconfirm
+    exit 0
+fi
+
+cache_root="${XDG_CACHE_HOME:-$HOME/.cache}/phs/aur"
+build_dir="$cache_root/$package_base"
+mkdir -p "$cache_root"
+
+if [[ -d "$build_dir/.git" ]]; then
+    git -C "$build_dir" fetch --prune origin
+    git -C "$build_dir" reset --hard '@{upstream}'
+else
+    rm -rf "$build_dir"
+    git clone "https://aur.archlinux.org/${package_base}.git" "$build_dir"
+fi
+
+cd "$build_dir"
+
+makepkg --cleanbuild --nobuild --syncdeps --noconfirm
+
+srcinfo="$(makepkg --printsrcinfo)"
+pkgver="$(printf '%s\n' "$srcinfo" | sed -n 's/^[[:space:]]*pkgver = //p' | head -n 1)"
+pkgrel="$(printf '%s\n' "$srcinfo" | sed -n 's/^[[:space:]]*pkgrel = //p' | head -n 1)"
+epoch="$(printf '%s\n' "$srcinfo" | sed -n 's/^[[:space:]]*epoch = //p' | head -n 1)"
+
+if [[ -z "$pkgver" || -z "$pkgrel" ]]; then
+    echo "Could not determine package version: {{ package }}" >&2
+    exit 1
+fi
+
+candidate_version="${pkgver}-${pkgrel}"
+if [[ -n "$epoch" ]]; then
+    candidate_version="${epoch}:${candidate_version}"
+fi
+
+if [[ -n "$installed_version" ]]; then
+    comparison="$(vercmp "$candidate_version" "$installed_version")"
+
+    if (( comparison <= 0 )); then
+        echo "{{ package }} is up to date ($installed_version)"
+        exit 0
+    fi
+fi
+
+makepkg --noextract --syncdeps --install --needed --noconfirm

@@ -9,6 +9,8 @@ from phs.tasks.task import Task
 @dataclass(frozen=True, slots=True)
 class PacmanUpdate:
     def execute(self, target: TargetContext) -> None:
+        target.output.info(f'Updating pacman')
+
         target.runner.run(
             [
                 "pacman",
@@ -27,6 +29,8 @@ class PacmanInstall:
     def execute(self, target: TargetContext) -> None:
         if not self.packages:
             return
+
+        target.output.info(f'Ensuring packages {" ".join(self.packages)}')
 
         target.runner.run(
             [

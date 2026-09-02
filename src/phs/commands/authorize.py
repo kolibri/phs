@@ -14,9 +14,9 @@ from phs.tasks.sshkey import Sshkey
 
 
 def _can_connect(
-    source: TargetContext,
-    private_key: Path,
-    destination: HostData,
+        source: TargetContext,
+        private_key: Path,
+        destination: HostData,
 ) -> bool:
     result = source.runner.run(
         [
@@ -44,8 +44,8 @@ def _can_connect(
 
 
 def _install_public_key(
-    public_key: str,
-    destination: HostData,
+        public_key: str,
+        destination: HostData,
 ) -> None:
     quoted_key = shlex.quote(public_key.strip())
 
@@ -53,7 +53,6 @@ def _install_public_key(
 set -eu
 
 umask 077
-
 mkdir -p "$HOME/.ssh"
 touch "$HOME/.ssh/authorized_keys"
 
@@ -98,36 +97,20 @@ def _inventory_hosts(context: AppContext) -> list[str]:
 
 
 def authorize(
-    *,
-    host: str = "local",
-    context: Annotated[AppContext, Parameter(parse=False)],
+        *,
+        host: str = "local",
+        context: Annotated[AppContext, Parameter(parse=False)],
 ) -> None:
-    source = ExecutionFactory.create(
-        context,
-        host=host,
-        dry_run=False,
-    )
+    source = ExecutionFactory.create(context, host=host, dry_run=False)
 
-    private_key = (
-        Path(source.data.homedir)
-        / ".ssh"
-        / "id_ed25519"
-    )
-
+    private_key = (Path(source.data.homedir) / ".ssh" / "id_ed25519")
     public_key_path = Path(f"{private_key}.pub")
-
-    Executor.execute(
-        [
-            Sshkey.ensure(private_key),
-        ],
-        source.target,
-    )
-
-    public_key = source.target.filesystem.read_text(
-        public_key_path,
-    )
-
+    public_key = source.target.filesystem.read_text(public_key_path)
     source_hostname = source.data.hostname
+
+    Executor.execute([Sshkey.ensure(private_key)], source.target, )
+
+    context.output.info(f"Authorizing host '{source_hostname}' to the other hosts.")
 
     for inventory_host in _inventory_hosts(context):
         destination = context.inventory.load(inventory_host)
@@ -135,35 +118,22 @@ def authorize(
         if destination.hostname == source_hostname:
             continue
 
-        print(
-            f"Authorize {source_hostname} -> "
-            f"{destination.hostname}"
-        )
+        context.output.info(f"Authorizing host '{source_hostname}' to {destination.hostname}..")
 
-        if _can_connect(
-            source.target,
-            private_key,
-            destination,
-        ):
-            print("  already authorized")
+        if _can_connect(source.target, private_key, destination):
+            context.output.info(f"already authorized on {destination}.")
             continue
 
         print("  authentication required")
+        context.output.warning(f"authentication required for {destination}.")
 
-        _install_public_key(
-            public_key,
-            destination,
-        )
+        _install_public_key(public_key, destination)
 
-        if not _can_connect(
-            source.target,
-            private_key,
-            destination,
-        ):
+        if not _can_connect(source.target, private_key, destination):
             raise RuntimeError(
                 f"Authorization succeeded, but "
                 f"{source_hostname} cannot connect to "
                 f"{destination.hostname}"
             )
 
-        print("  authorized")
+        context.output.success(f"Successfully authorized on {destination}.")

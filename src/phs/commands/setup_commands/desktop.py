@@ -16,10 +16,10 @@ def desktop(
         Parameter(parse=False),
     ],
 ) -> None:
+    context.output.info(f"Setting up desktop")
+
     run_modules(
-        [
-            Desktop(),
-        ],
+        [Desktop()],
         context=context,
         host=options.host,
         dry_run=options.dry_run,

@@ -23,7 +23,8 @@ def install(
         groupname=data.groupname,
         user_password=userpassword
     )
-    # print(install_script)
+
+    context.output.info(f"Starting installation of {data.hostname} at {data.ip}.")
 
     target = SSHTarget(
         host=data.ip,
@@ -31,3 +32,6 @@ def install(
         port=data.ssh_port,
     )
     context.ssh.run_script(target, install_script)
+
+    context.output.success(f"Finished installation of {data.hostname} at {data.ip}.")
+    context.output.success("Next step: Reboot, and run the 'authorize', 'init' and 'setup' command.")

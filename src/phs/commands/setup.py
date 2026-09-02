@@ -85,8 +85,13 @@ def setup(
         _parse_ignored_modules(ignore_modules),
     )
 
+    context.output.info(f"Starting setup host {execution.data.hostname}.")
+    context.output.info(f"Configured modules: {' '.join(type(module).__name__.lower() for module in modules)}.")
+
     execute_modules(
         modules,
         context=context,
         execution=execution,
     )
+
+    context.output.success(f"Finished setup host {execution.data.hostname}.")

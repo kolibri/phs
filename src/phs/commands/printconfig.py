@@ -11,4 +11,5 @@ def printconfig(
         context: Annotated[AppContext, Parameter(parse=False)],
 ):
     data = context.inventory.load(host)
-    print(data.to_yaml())
+    context.output.info(f"Showing configuration for {data.hostname}")
+    context.output.info(data.to_yaml())

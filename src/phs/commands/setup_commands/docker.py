@@ -13,6 +13,8 @@ def docker(
         options: ExecutionOptions = ExecutionOptions(),
         context: Annotated[AppContext, Parameter(parse=False)],
 ) -> None:
+    context.output.info(f"Setting up docker")
+
     run_modules(
         [Docker()],
         context=context,

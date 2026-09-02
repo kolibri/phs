@@ -13,6 +13,8 @@ def nfs(
         options: ExecutionOptions = ExecutionOptions(),
         context: Annotated[AppContext, Parameter(parse=False)],
 ) -> None:
+    context.output.info(f"Setting up nfs")
+
     run_modules(
         [Nfs()],
         context=context,

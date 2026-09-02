@@ -13,9 +13,9 @@ class ModprobeLoad:
 
     def execute(self, target: TargetContext) -> None:
         for module in self.modules:
-            config_path = Path(
-                f"/etc/modules-load.d/phs-{module}.conf"
-            )
+            target.output.info(f'Ensuring module {module}')
+
+            config_path = Path(f"/etc/modules-load.d/phs-{module}.conf")
 
             content = f"{module}\n"
 

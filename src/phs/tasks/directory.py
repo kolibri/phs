@@ -13,6 +13,8 @@ class DirectoryCreate:
     root: bool
 
     def execute(self, target: TargetContext) -> None:
+        target.output.info(f'Ensuring directory {str(self.path)}')
+
         target.runner.run(
             [
                 "mkdir",

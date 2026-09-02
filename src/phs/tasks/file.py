@@ -16,6 +16,8 @@ class FileWrite:
     root: bool
 
     def execute(self, target: TargetContext) -> None:
+        target.output.info(f'Ensuring file {str(self.path)}')
+
         target.filesystem.write_text(
             self.path,
             self.content,
@@ -32,6 +34,8 @@ class FileEnsureLine:
     root: bool
 
     def execute(self, target: TargetContext) -> None:
+        target.output.info(f'Ensuring line for {self.match} in {str(self.path)}')
+
         content = target.filesystem.read_text(
             self.path,
             root=self.root,

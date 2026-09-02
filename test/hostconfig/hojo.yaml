@@ -18,6 +18,12 @@ packages:
   - firefox
 aur_packages:
   - firefox-profile-switcher-connector-bin
+  - ttf-merriweather
+  - ttf-merriweather-sans
+  - ttf-quintessential
+  - ttf-signika
+#  - ttf-google-fonts-git
+
 files:
   -
     target: ~/.zshrc

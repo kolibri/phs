@@ -19,11 +19,11 @@ class AurInstall:
                 package=package
             )
 
+            target.output.info(f'Ensuring aur package {package}')
             target.runner.run(
                 [
                     "bash",
                     "-s",
-                    package,
                 ],
                 input_text=script,
             )

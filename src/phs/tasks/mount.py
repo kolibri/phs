@@ -12,6 +12,8 @@ class MountEnsure:
     target: Path
 
     def execute(self, target: TargetContext) -> None:
+        target.output.info(f'Mounting {str(self.target)}')
+
         result = target.runner.run(
             [
                 "mountpoint",

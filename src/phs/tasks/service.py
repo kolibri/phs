@@ -13,6 +13,9 @@ class ServiceEnable:
 
     def execute(self, target: TargetContext) -> None:
         for service in self.services:
+            target.output.info(f'Enabling service {service}.')
+
+
             command = ["systemctl", "enable"]
 
             if self.start:

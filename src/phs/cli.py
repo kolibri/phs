@@ -3,21 +3,25 @@ from typing import Annotated
 
 import cyclopts
 from cyclopts import App, Parameter
+from rich.console import Console
 
-from phs.commands.init import init
 from phs.commands.authorize import authorize
+from phs.commands.init import init
 from phs.commands.install import install
 from phs.commands.printconfig import printconfig
+from phs.commands.setup import setup_app
 from phs.context import AppContext
 from phs.inventory import HostDataLoader
+from phs.output import Output, RichOutput
 from phs.settings import Settings
 from phs.ssh import SSHRunner
 from phs.template import TemplateRenderer
-from phs.commands.setup import setup_app
 
+console = Console()
 CONFIG_FILE = Path.home() / ".phs.yaml"
 
 app = App(
+    console=console,
     config=cyclopts.config.Yaml(
         CONFIG_FILE,
         must_exist=False,
@@ -46,6 +50,7 @@ def main(
     )
 
     context = AppContext(
+        output=RichOutput(console),
         settings=settings,
         inventory=HostDataLoader(settings.config_dir),
         builtin_templates=TemplateRenderer.builtin(),

@@ -15,6 +15,8 @@ class SshkeyEnsure:
     comment: str | None
 
     def execute(self, target: TargetContext) -> None:
+        target.output.info(f'Ensuring ssh key in  {str(self.path)}')
+
         public_path = self.path.with_name(
             f"{self.path.name}.pub"
         )

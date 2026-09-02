@@ -12,6 +12,9 @@ class BashRun:
     root: bool
 
     def execute(self, target: TargetContext) -> None:
+
+        target.output.info(f'Running command {self.script}')
+
         target.runner.run(
             ["bash", "-s"],
             root=self.root,

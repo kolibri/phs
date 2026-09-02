@@ -20,14 +20,10 @@ class DesktopFactory:
         config: DesktopConfig,
     ) -> list[Module]:
         if isinstance(config, QtileDesktopConfig):
-            return [
-                Qtile(config),
-            ]
+            return [Qtile(config)]
 
         if isinstance(config, GnomeDesktopConfig):
-            return [
-                Gnome(),
-            ]
+            return [Gnome()]
 
         raise TypeError(
             f"Unsupported desktop config: {type(config)}"
@@ -44,6 +40,7 @@ class Desktop:
         if data.desktop is None:
             return []
 
+        context.output.info(f"[bold]Desktop is set to {data.desktop.type}[/bold]")
         tasks: list[Task] = []
 
         for module in DesktopFactory.create(data.desktop):

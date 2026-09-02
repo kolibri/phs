@@ -17,13 +17,10 @@ def init(
         options: ExecutionOptions = ExecutionOptions(),
         context: Annotated[AppContext, Parameter(parse=False)],
 ):
-    execution = ExecutionFactory.create(
-        context,
-        host=options.host,
-        dry_run=options.dry_run,
-    )
-
+    execution = ExecutionFactory.create(context, host=options.host, dry_run=options.dry_run)
     data = execution.data
+
+    context.output.info(f"Starting initializing new host {data.hostname}.")
 
     tasks: list[Task] = [
         Pacman.update(),
@@ -58,3 +55,6 @@ def init(
         tasks,
         execution.target,
     )
+
+    context.output.success(f"Done initializing new host {data.hostname}.")
+

@@ -16,6 +16,7 @@ class CopyPath:
     exclude: tuple[str, ...]
 
     def execute(self, target: TargetContext) -> None:
+        target.output.info(f'Copy directory {str(self.source)} to {str(self.destination)}')
         target.transfer.transfer(
             self.source,
             self.destination,

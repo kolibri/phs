@@ -79,6 +79,7 @@ class ExecutionFactory:
                 runner=runner,
                 filesystem=filesystem,
                 transfer=transfer,
+                output=context.output
             )
 
         return Execution(
