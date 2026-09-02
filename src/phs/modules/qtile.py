@@ -4,6 +4,7 @@ from typing import final
 
 from phs.context import AppContext
 from phs.inventory import HostData, QtileDesktopConfig
+from phs.tasks.copy import Copy
 from phs.tasks.directory import Directory
 from phs.tasks.file import File
 from phs.tasks.pacman import Pacman
@@ -25,7 +26,7 @@ class Qtile:
         environment_dir = (Path(data.homedir) / ".config" / "environment.d")
         portal_dir = (Path(data.homedir) / ".config" / "xdg-desktop-portal")
 
-        return [
+        tasks: list[Task] = [
             Pacman.install([
                 "qtile",
                 "greetd",
@@ -47,7 +48,6 @@ class Qtile:
                 XDG_CURRENT_DESKTOP=qtile
                 DESKTOP_SESSION=qtile,
                 """
-
             ),
 
             File.write(
@@ -69,9 +69,7 @@ class Qtile:
 
             File.write(
                 config_dir / "config.py",
-                context.config_templates.render(
-                    str(self.config.config_file),
-                ),
+                context.config_templates.render(str(self.config.config_file)),
             ),
 
             File.write(
@@ -87,3 +85,13 @@ class Qtile:
                 start=False,
             ),
         ]
+
+        wallpaper_source_path = Path(context.settings.config_dir) / "files" / "wallpaper"
+        if wallpaper_source_path.is_dir():
+            tasks.append(Copy.path(
+                wallpaper_source_path,
+                Path(data.homedir) / ".ko" / "wallpaper",
+                create_dirs=True,
+            ))
+
+        return tasks
