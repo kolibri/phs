@@ -5,6 +5,7 @@ import cyclopts
 from cyclopts import App, Parameter
 from rich.console import Console
 
+from phs.commands.add import add_app
 from phs.commands.authorize import authorize
 from phs.commands.init import init
 from phs.commands.install import install
@@ -31,6 +32,7 @@ app = App(
     )
 )
 
+app.command(add_app)
 app.command(install)
 app.command(printconfig)
 app.command(init)

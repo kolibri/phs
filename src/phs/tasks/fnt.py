@@ -40,9 +40,6 @@ class FntInstall:
     fonts: tuple[str, ...]
 
     def execute(self, target: TargetContext) -> None:
-        if not _is_available(target):
-            return
-
         for font in self.fonts:
             target.output.info(f"Ensuring font {font}")
             target.runner.run([
