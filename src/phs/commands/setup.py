@@ -92,10 +92,14 @@ def setup(
         dry_run=options.dry_run,
     )
 
+    ignored_modules = _parse_ignored_modules(ignore_modules)
     modules = _select_modules(
         execution.data.modules,
-        _parse_ignored_modules(ignore_modules),
+        ignored_modules,
     )
+
+    if not ignored_modules:
+        execution.target.watch.begin_refresh()
 
     context.output.info(f"Starting setup host {execution.data.hostname}.")
     context.output.info(f"Configured modules: {' '.join(type(module).__name__.lower() for module in modules)}.")

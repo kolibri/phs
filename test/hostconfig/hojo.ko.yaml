@@ -12,6 +12,7 @@ modules:
   - desktop
   - font
   - file_associations
+  - services
 
 
 packages:
@@ -28,7 +29,7 @@ fonts:
 
 file_associations:
   pdf: pdfarranger
-  txt: zed
+  txt: zeditor
 
 desktop:
   type: qtile

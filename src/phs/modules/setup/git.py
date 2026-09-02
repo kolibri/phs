@@ -1,9 +1,8 @@
-from textwrap import dedent
 from typing import final
 
 from phs.context import AppContext
 from phs.inventory import HostData
-from phs.tasks.bash import Bash
+from phs.tasks.git import Git as GitTask
 from phs.tasks.pacman import Pacman
 from phs.tasks.task import Task
 
@@ -16,13 +15,17 @@ class Git:
             data: HostData,
     ) -> list[Task]:
         return [
-            Pacman.install(["git","tig","less",]),
+            Pacman.install([
+                "git",
+                "tig",
+                "less",
+            ]),
 
-            Bash.run(dedent(f"""
-                git config --global user.name "{data.git_user}"
-                git config --global user.email "{data.git_email}"
-                git config --global push.default simple            
-                git config --global core.excludesfile {data.homedir}/.gitignore
-                git config --global init.defaultBranch main
-            """).strip()),
+            GitTask.config({
+                "user.name": data.git_user,
+                "user.email": data.git_email,
+                "push.default": "simple",
+                "core.excludesfile": f"{data.homedir}/.gitignore",
+                "init.defaultBranch": "main",
+            }),
         ]

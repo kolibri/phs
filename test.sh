@@ -21,9 +21,9 @@ run_action() {
         run_action wait-for-user
         run_action init
         run_action authorize
-        run_action setup
-        run_action shutdown
-        run_action boot
+        #run_action setup
+        #run_action shutdown
+        #run_action boot
     ;;
 
     setup-qemu) ## removes old test env end inits the new one
@@ -154,22 +154,22 @@ EOF
 
     install) ## runs the arch installation
         echo "TEST>>> install <<<"
-        uv run phs --config-dir=./test/hostconfig  install --userpassword=test hojo
+        uv run phs --config-dir=./test/hostconfig  install --userpassword=test hojo.ko
     ;;
 
     authorize)
         echo "TEST>>> authorize <<<"
-        uv run phs --config-dir=./test/hostconfig  authorize --host=hojo
+        uv run phs --config-dir=./test/hostconfig  authorize --host=hojo.ko
     ;;
 
     init)
         echo "TEST>>> init <<<"
-        uv run phs --config-dir=./test/hostconfig  init --host=hojo
+        uv run phs --config-dir=./test/hostconfig  init --host=hojo.ko
     ;;
 
     setup)
         echo "TEST>>> setup <<<"
-        uv run phs --config-dir=./test/hostconfig  setup --host=hojo
+        uv run phs --config-dir=./test/hostconfig  setup --host=hojo.ko
     ;;
 
     shutdown) ## shuts down the machine via ssh

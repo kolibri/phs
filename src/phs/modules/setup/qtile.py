@@ -43,12 +43,13 @@ class Qtile:
 
             File.write(
                 environment_dir / "qtile.conf",
-                """"
+                """
                 XDG_SESSION_TYPE=wayland
                 XDG_SESSION_DESKTOP=qtile
                 XDG_CURRENT_DESKTOP=qtile
                 DESKTOP_SESSION=qtile
-                """
+                """,
+                watched=True,
             ),
 
             File.write(
@@ -66,11 +67,13 @@ class Qtile:
                 user = "{data.username}"
                 """,
                 root=True,
+                watched=True,
             ),
 
             File.write(
                 config_dir / "config.py",
                 context.config_templates.render(str(self.config.config_file)),
+                watched=True,
             ),
 
             File.write(
@@ -78,8 +81,8 @@ class Qtile:
                 """
                 [preferred]
                 default=wlr;gtk
-                """
-
+                """,
+                watched=True,
             ),
             Service.enable(
                 ["greetd"],

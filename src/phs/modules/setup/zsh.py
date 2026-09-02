@@ -23,7 +23,7 @@ class Zsh:
         return [
             Pacman.install(["git", "tig", "less", ]),
 
-            Git.clone("https://github.com/ohmyzsh/ohmyzsh.git", Path(data.homedir) / ".oh-my-zsh"),
+            Git.clone("https://github.com/ohmyzsh/ohmyzsh.git", Path(data.homedir) / ".oh-my-zsh", update=True),
             Directory.create(zsh_custom_dir),
             File.write(
                 Path(data.homedir) / ".zshrc",
@@ -31,15 +31,18 @@ class Zsh:
                     "zsh/zshrc.j2",
                     zsh_custom_dir=str(zsh_custom_dir),
                     zsh_plugins=" ".join(zsh_plugins)
-                )
+                ),
+                watched=True,
             ),
             File.write(
                 zsh_custom_dir / "ko.zsh-theme",
-                context.config_templates.render("zsh/ko.zsh-theme.j2")
+                context.config_templates.render("zsh/ko.zsh-theme.j2"),
+                watched=True,
             ),
             File.write(
                 zsh_custom_dir / "ko_functions.zsh",
-                context.config_templates.render("zsh/ko_functions.zsh.j2")
+                context.config_templates.render("zsh/ko_functions.zsh.j2"),
+                watched=True,
             )
 
         ]

@@ -1,5 +1,8 @@
 from dataclasses import dataclass
+from pathlib import Path
 from typing import final
+
+from cyclopts import Parameter
 
 from phs.context import AppContext
 from phs.inventory import HostData
@@ -14,7 +17,7 @@ from phs.target.remote.remote_runner import RemoteRunner
 from phs.target.remote.remote_transfer import RemoteTransfer
 from phs.target.runner import Runner, OutputRunner
 from phs.target.transfer import Transfer
-from cyclopts import Parameter
+from phs.watch import WatchCache
 
 
 @Parameter(name="*")
@@ -69,20 +72,31 @@ class ExecutionFactory:
         runner = OutputRunner(runner, context.output)
         filesystem: Filesystem = RunnerFilesystem(runner)
 
+        target_runner: Runner
+        target_filesystem: Filesystem
+        target_transfer: Transfer
+
         if dry_run:
-            target = TargetContext(
-                runner=DryRunRunner(runner),
-                filesystem=DryRunFilesystem(filesystem),
-                transfer=DryRunTransfer(transfer),
-                output = context.output
-            )
+            target_runner = DryRunRunner(runner)
+            target_filesystem = DryRunFilesystem(filesystem)
+            target_transfer = DryRunTransfer(transfer)
         else:
-            target = TargetContext(
-                runner=runner,
-                filesystem=filesystem,
-                transfer=transfer,
-                output=context.output
-            )
+            target_runner = runner
+            target_filesystem = filesystem
+            target_transfer = transfer
+
+        target = TargetContext(
+            runner=target_runner,
+            filesystem=target_filesystem,
+            transfer=target_transfer,
+            output=context.output,
+            watch=WatchCache(
+                Path(data.homedir) / ".phs.cache.json",
+                target_filesystem,
+                target_runner,
+                context.output,
+            ),
+        )
 
         return Execution(
             data=data,

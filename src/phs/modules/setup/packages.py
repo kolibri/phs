@@ -20,7 +20,8 @@ class Packages:
             File.write(
                 Path("/etc/pacman.conf"),
                 context.config_templates.render("pacman/pacman.conf.j2"),
-                root=True
+                root=True,
+                watched=True,
             ),
 
             Pacman.update(),

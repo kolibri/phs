@@ -10,7 +10,7 @@ from phs.commands.init import init
 from phs.commands.install import install
 from phs.commands.printconfig import printconfig
 from phs.commands.setup import setup_app
-from phs.commands.update import update_app
+from phs.commands.watch import watch
 from phs.context import AppContext
 from phs.inventory import HostDataLoader
 from phs.output import RichOutput
@@ -36,7 +36,7 @@ app.command(printconfig)
 app.command(init)
 app.command(authorize)
 app.command(setup_app)
-app.command(update_app)
+app.command(watch)
 
 
 @app.meta.default

@@ -16,6 +16,8 @@ class Output(Protocol):
         ...
     def warning(self, message: str) -> None:
         ...
+    def prompt(self, message: str) -> str:
+        ...
 
 
 @final
@@ -35,3 +37,5 @@ class RichOutput:
         self.console.print(f"{message}", style="bold yellow")
     def result(self, message: str) -> None:
         self.console.print(f"{message}", style="blue")
+    def prompt(self, message: str) -> str:
+        return self.console.input(message, markup=False)

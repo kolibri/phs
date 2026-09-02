@@ -12,5 +12,11 @@ class Executor:
             tasks: Sequence[Task],
             target: TargetContext,
     ) -> None:
-        for task in tasks:
-            task.execute(target)
+        try:
+            for task in tasks:
+                task.execute(target)
+        except Exception:
+            target.watch.save(success=False)
+            raise
+
+        target.watch.save(success=True)

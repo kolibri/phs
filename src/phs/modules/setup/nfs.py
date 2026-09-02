@@ -4,12 +4,12 @@ from typing import final
 
 from phs.context import AppContext
 from phs.inventory import HostData
-from phs.tasks.bash import Bash
 from phs.tasks.directory import Directory
 from phs.tasks.file import File
 from phs.tasks.modprobe import Modprobe
 from phs.tasks.mount import Mount
 from phs.tasks.pacman import Pacman
+from phs.tasks.service import Service
 from phs.tasks.task import Task
 
 
@@ -37,7 +37,7 @@ class Nfs:
                 ),
             ])
 
-        tasks.append(Bash.run("systemctl daemon-reload", root=True))
+        tasks.append(Service.daemon_reload())
 
         for nfs in data.nfs_sources:
             tasks.append(Mount.ensure(nfs.target))

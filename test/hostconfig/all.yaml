@@ -10,6 +10,7 @@ modules:
   - packages
   - git
   - zsh
+  - services
 
 packages:
   - less

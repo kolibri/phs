@@ -16,5 +16,6 @@ class Font:
     ) -> list[Task]:
         return [
             Aur.install(["fnt"], context.builtin_templates),
-            Fnt.install(data.fonts)
+            Fnt.update(),
+            Fnt.install(data.fonts),
         ]
