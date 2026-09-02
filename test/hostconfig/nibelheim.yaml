@@ -2,7 +2,7 @@
 hostname: nibelheim.ko
 ip: 192.168.178.71
 ssh_port: 22
-hdd: ~
+hdd: ''
 
 packages: []
 aur_packages: []

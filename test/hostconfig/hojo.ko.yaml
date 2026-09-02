@@ -10,6 +10,7 @@ modules:
   - zsh
   - docker
   - desktop
+  - font
 
 
 packages:
@@ -18,19 +19,9 @@ packages:
   - firefox
 aur_packages:
   - firefox-profile-switcher-connector-bin
-  - ttf-merriweather
-  - ttf-merriweather-sans
-  - ttf-quintessential
-  - ttf-signika
-  - ttf-google-fonts-git
 
-files:
-  -
-    target: ~/.zshrc
-    src: files/hojo/zshrc
-
-services:
-  - docker
+fonts:
+  - google-annie-use-your-telescope
 
 desktop:
   type: qtile

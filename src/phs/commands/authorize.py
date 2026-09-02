@@ -124,7 +124,6 @@ def authorize(
             context.output.info(f"already authorized on {destination}.")
             continue
 
-        print("  authentication required")
         context.output.warning(f"authentication required for {destination}.")
 
         _install_public_key(public_key, destination)

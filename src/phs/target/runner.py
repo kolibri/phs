@@ -1,9 +1,12 @@
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from typing import Protocol
 from typing import final, override
 
 from phs.output import Output
-from phs.target.base import CommandResult, TargetCommandError
+from phs.target.base import CommandResult
+
+
+type OutputCallback = Callable[[str], None]
 
 
 class Runner(Protocol):
@@ -19,6 +22,7 @@ class Runner(Protocol):
             input_text: str | None = None,
             capture_output: bool = False,
             check: bool = True,
+            on_output: OutputCallback | None = None,
     ) -> CommandResult:
         ...
 
@@ -47,6 +51,7 @@ class OutputRunner(Runner):
             input_text: str | None = None,
             capture_output: bool = False,
             check: bool = True,
+            on_output: OutputCallback | None = None,
     ) -> CommandResult:
         if capture_output:
             return self.runner.run(
@@ -57,26 +62,14 @@ class OutputRunner(Runner):
                 check=check,
             )
 
-        result = self.runner.run(
+        return self.runner.run(
             command,
             root=root,
             input_text=input_text,
-            capture_output=True,
-            check=False,
-        )
-
-        if result.stdout:
-            self.output.text(result.stdout.rstrip())
-
-        if result.stderr:
-            self.output.text(result.stderr.rstrip())
-
-        if check and result.returncode != 0:
-            raise TargetCommandError(result)
-
-        return CommandResult(
-            command=result.command,
-            returncode=result.returncode,
-            stdout=None,
-            stderr=None,
+            check=check,
+            on_output=(
+                on_output
+                if on_output is not None
+                else self.output.text
+            ),
         )

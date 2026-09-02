@@ -1,7 +1,7 @@
 from typing import final, override, Sequence
 
 from phs.target.base import CommandResult
-from phs.target.runner import Runner
+from phs.target.runner import OutputCallback, Runner
 
 
 @final
@@ -25,6 +25,7 @@ class DryRunRunner(Runner):
             input_text: str | None = None,
             capture_output: bool = False,
             check: bool = True,
+            on_output: OutputCallback | None = None,
     ) -> CommandResult:
         prefix = "sudo " if root else ""
 

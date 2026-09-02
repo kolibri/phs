@@ -32,6 +32,6 @@ class RichOutput:
     def success(self, message: str) -> None:
         self.console.print(f"{message}", style="bold green")
     def warning(self, message: str) -> None:
-        self.console.print(f"{message}", style="bold orange")
+        self.console.print(f"{message}", style="bold yellow")
     def result(self, message: str) -> None:
         self.console.print(f"{message}", style="blue")

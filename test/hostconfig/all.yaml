@@ -14,15 +14,8 @@ modules:
 packages:
   - less
 
-files:
-  -
-    target: '/etc/pacman.conf'
-    src: files/pacman.conf
-    root: true
-
 services:
   - sshd
-  - nfs
 
 nfs_sources:
   - source: 192.168.178.71:/volume1/nibelheim

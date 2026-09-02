@@ -11,18 +11,23 @@ run_action() {
     ;;
 
     run) ## runs test test scripts
-        run_action setup
+        run_action setup-qemu
         run_action create-cloudiso
         run_action boot-with-installer
-        run_action wait
+        run_action wait-for-root
         run_action install
         run_action shutdown
         run_action boot
-        #run_action wait
-        #run_action init
+        run_action wait-for-user
+        run_action init
+        run_action authorize
+        run_action setup
+        run_action shutdown
+        run_action boot
     ;;
 
-    setup) ## removes old test env end inits the new one
+    setup-qemu) ## removes old test env end inits the new one
+        echo "TEST>>> setup <<<"
         mkdir -p test/qemu/state
         rm -f \
             test/qemu/state/disk.raw \
@@ -34,6 +39,7 @@ run_action() {
     ;;
 
     boot) ## boots the qemu machine
+        echo "TEST>>> boot <<<"
         qemu-system-x86_64 \
             -name gaea-test \
             -machine q35,accel=kvm \
@@ -52,6 +58,7 @@ run_action() {
     ;;
 
     boot-with-installer) ## boots the qemu machine with the archiso mounted
+        echo "TEST>>> boot-with-installer <<<"
         run_action boot \
             -drive file=test/qemu/iso/archlinux-x86_64.iso,if=ide,index=2,media=cdrom,readonly=on,id=archiso \
             -drive file=test/qemu/iso/cloud-init.iso,if=ide,index=3,media=cdrom,readonly=on,id=cloudinit \
@@ -59,10 +66,27 @@ run_action() {
     ;;
 
     create-cloudiso) ## configures and creates the cloud iso for unattended installation (test only)
-       run_action create-cloudiso-data
-       run_action create-cloudiso-image
+        echo "TEST>>> create-cloudiso <<<"
+        run_action create-cloudiso-data
+        run_action create-cloudiso-image
     ;;
+
+    create-cloudiso-data) ## configures the cloud iso
+        echo "TEST>>> create-cloudiso-data <<<"
+
+        PUBKEY="$(cat ~/.ssh/id_rsa.pub)"
+        cat > test/qemu/cloud-init/user-data <<EOF
+#cloud-config
+disable_root: false
+users:
+    - name: root
+      ssh_authorized_keys:
+        - $PUBKEY
+EOF
+    ;;
+
     create-cloudiso-image) ## create the cloud iso
+        echo "TEST>>> create-cloudiso-image <<<"
         xorriso \
             -as genisoimage \
             -output test/qemu/iso/cloud-init.iso \
@@ -73,19 +97,10 @@ run_action() {
             test/qemu/cloud-init/meta-data
     ;;
 
-    create-cloudiso-data) ## configures the cloud iso
-      PUBKEY="$(cat ~/.ssh/id_rsa.pub)"
-      cat > test/qemu/cloud-init/user-data <<EOF
-#cloud-config
-disable_root: false
-users:
-    - name: root
-      ssh_authorized_keys:
-        - $PUBKEY
-EOF
-    ;;
 
-    wait) ## wait for ssh to be available
+    wait-for-root) ## wait for ssh to be available
+        echo "TEST>>> wait <<<"
+
         timeout=300
         start=$SECONDS
 
@@ -110,17 +125,57 @@ EOF
         echo "SSH is available now"
     ;;
 
+    wait-for-user) ## wait for ssh to be available
+        echo "TEST>>> wait <<<"
+
+        timeout=300
+        start=$SECONDS
+
+        until ssh \
+            -p 2222 \
+            -o BatchMode=yes \
+            -o ConnectTimeout=1 \
+            -o StrictHostKeyChecking=no \
+            -o UserKnownHostsFile=/dev/null \
+            127.0.0.1 \
+            true \
+            >/dev/null 2>&1
+        do
+            if (( SECONDS - start >= timeout )); then
+                echo "ERROR: SSH did not become available within 5 minutes" >&2
+                exit 1
+            fi
+            printf "."
+            sleep 0.25
+        done
+
+        echo "SSH is available now"
+    ;;
+
     install) ## runs the arch installation
+        echo "TEST>>> install <<<"
         uv run phs --config-dir=./test/hostconfig  install --userpassword=test hojo
     ;;
 
+    authorize)
+        echo "TEST>>> authorize <<<"
+        uv run phs --config-dir=./test/hostconfig  authorize --host=hojo
+    ;;
+
     init)
-        ./run.sh copy hojo
-        #todo: run init script
+        echo "TEST>>> init <<<"
+        uv run phs --config-dir=./test/hostconfig  init --host=hojo
+    ;;
+
+    setup)
+        echo "TEST>>> setup <<<"
+        uv run phs --config-dir=./test/hostconfig  setup --host=hojo
     ;;
 
     shutdown) ## shuts down the machine via ssh
-        ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null 127.0.0.1 shutdown now
+        echo "TEST>>> shutdown <<<"
+        printf 'system_powerdown\n' | socat - UNIX-CONNECT:test/qemu/state/monitor.sock
+
         sleep 2
     ;;
 
