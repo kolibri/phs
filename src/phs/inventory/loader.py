@@ -62,6 +62,10 @@ class HostDataLoader:
             nfs_sources=self.merge_nfs_sources(all_config.nfs_sources, host_config.nfs_sources),
             services=self.merge_unique(all_config.services, host_config.services),
             fonts=self.merge_unique(all_config.fonts, host_config.fonts),
+            file_associations={
+                **all_config.file_associations,
+                **host_config.file_associations,
+            },
             desktop=host_config.desktop,
         )
 

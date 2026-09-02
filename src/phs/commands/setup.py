@@ -4,6 +4,7 @@ from cyclopts import App, Parameter
 
 from phs.commands.setup_commands.desktop import desktop
 from phs.commands.setup_commands.docker import docker
+from phs.commands.setup_commands.file_associations import file_associations
 from phs.commands.setup_commands.font import font
 from phs.commands.setup_commands.git import git
 from phs.commands.setup_commands.nfs import nfs
@@ -15,6 +16,7 @@ from phs.execution import ExecutionFactory, ExecutionOptions
 from phs.modules.base import Module, execute_modules
 from phs.modules.setup.desktop import Desktop
 from phs.modules.setup.docker import Docker
+from phs.modules.setup.file_associations import FileAssociations
 from phs.modules.setup.font import Font
 from phs.modules.setup.git import Git
 from phs.modules.setup.nfs import Nfs
@@ -30,6 +32,7 @@ setup_app.command(nfs, name="nfs")
 setup_app.command(desktop, name="desktop")
 setup_app.command(docker, name="docker")
 setup_app.command(font, name="font")
+setup_app.command(file_associations, name="file-associations")
 setup_app.command(services, name="services")
 
 MODULES: dict[str, Module] = {
@@ -40,6 +43,7 @@ MODULES: dict[str, Module] = {
     "desktop": Desktop(),
     "docker": Docker(),
     "font": Font(),
+    "file_associations": FileAssociations(),
     "services": Services(),
 }
 

@@ -11,17 +11,24 @@ modules:
   - docker
   - desktop
   - font
+  - file_associations
 
 
 packages:
 #  - docker
   - nano
   - firefox
+  - pdfarranger
+  - zed
 aur_packages:
   - firefox-profile-switcher-connector-bin
 
 fonts:
   - google-annie-use-your-telescope
+
+file_associations:
+  pdf: pdfarranger
+  txt: zed
 
 desktop:
   type: qtile

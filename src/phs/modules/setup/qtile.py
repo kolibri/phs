@@ -31,6 +31,7 @@ class Qtile:
                 "qtile",
                 "greetd",
                 "polkit",
+                "wlopm",
                 "xorg-xwayland",
                 "xdg-desktop-portal-wlr",
                 "xdg-desktop-portal-gtk",

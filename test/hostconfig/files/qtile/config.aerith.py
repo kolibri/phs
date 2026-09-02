@@ -1,13 +1,21 @@
 import socket
 
 from libqtile import bar, extension, layout, qtile, widget
-from libqtile.config import Click, Drag, Group, Key, Match, Screen
+from libqtile.config import Click, Drag, Group, Key, Match, Screen, IdleTimer
 from libqtile.lazy import lazy
 from libqtile.utils import guess_terminal
 from libqtile.backend.wayland import InputConfig
 
 mod = "mod4"
 terminal = "qterminal"  # guess_terminal()
+
+idle_timers = [
+    IdleTimer(
+        1800,
+        action=lazy.spawn("wlopm --off '*'"),
+        resume=lazy.spawn("wlopm --on '*'"),
+    ),
+]
 
 keys = [
     Key([mod], "h", lazy.layout.left(), desc="Move focus to left"),

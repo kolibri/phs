@@ -32,6 +32,7 @@ class AllHostDataFragment(BaseModel):
     nfs_sources: list[NfsSource] = Field(default_factory=list)
     services: list[str] = Field(default_factory=list)
     fonts: list[str] = Field(default_factory=list)
+    file_associations: dict[str, str] = Field(default_factory=dict)
 
 
 class HostDataFragment(BaseModel):
@@ -53,6 +54,7 @@ class HostDataFragment(BaseModel):
     nfs_sources: list[NfsSource] = Field(default_factory=list)
     services: list[str] = Field(default_factory=list)
     fonts: list[str] = Field(default_factory=list)
+    file_associations: dict[str, str] = Field(default_factory=dict)
     desktop: DesktopConfig | None = None
 
 
@@ -74,6 +76,7 @@ class HostDataDict(TypedDict):
     nfs_sources: list[NfsSourceDict]
     services: list[str]
     fonts: list[str]
+    file_associations: dict[str, str]
     desktop: DesktopConfigDict | None
 
 
@@ -96,6 +99,7 @@ class HostData:
     nfs_sources: list[NfsSource]
     services: list[str]
     fonts: list[str]
+    file_associations: dict[str, str]
     desktop: DesktopConfig | None
 
     def to_dict(self) -> HostDataDict:
@@ -123,6 +127,7 @@ class HostData:
             ],
             "services": self.services,
             "fonts": self.fonts,
+            "file_associations": self.file_associations,
             "desktop": desktop_to_dict(self.desktop),
         }
 
