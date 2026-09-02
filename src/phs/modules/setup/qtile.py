@@ -46,7 +46,7 @@ class Qtile:
                 XDG_SESSION_TYPE=wayland
                 XDG_SESSION_DESKTOP=qtile
                 XDG_CURRENT_DESKTOP=qtile
-                DESKTOP_SESSION=qtile,
+                DESKTOP_SESSION=qtile
                 """
             ),
 
@@ -75,8 +75,8 @@ class Qtile:
             File.write(
                 portal_dir / "qtile-portals.conf",
                 """
-                [preferred]"
-                default=wlr;gtk",
+                [preferred]
+                default=wlr;gtk
                 """
 
             ),
