@@ -10,7 +10,6 @@ from phs.tasks.file import File
 from phs.tasks.modprobe import Modprobe
 from phs.tasks.mount import Mount
 from phs.tasks.pacman import Pacman
-from phs.tasks.service import Service
 from phs.tasks.task import Task
 
 

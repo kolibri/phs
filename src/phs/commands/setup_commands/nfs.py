@@ -5,7 +5,7 @@ from cyclopts import Parameter
 from phs.context import AppContext
 from phs.execution import ExecutionOptions
 from phs.modules.base import run_modules
-from phs.modules.nfs import Nfs
+from phs.modules.setup.nfs import Nfs
 
 
 def nfs(

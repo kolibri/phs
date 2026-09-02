@@ -11,14 +11,14 @@ from phs.commands.setup_commands.zsh import zsh
 from phs.context import AppContext
 from phs.execution import ExecutionFactory, ExecutionOptions
 from phs.modules.base import Module, execute_modules
-from phs.modules.docker import Docker
-from phs.modules.font import Font
-from phs.modules.git import Git
-from phs.modules.nfs import Nfs
-from phs.modules.packages import Packages
-from phs.modules.zsh import Zsh
+from phs.modules.setup.docker import Docker
+from phs.modules.setup.font import Font
+from phs.modules.setup.git import Git
+from phs.modules.setup.nfs import Nfs
+from phs.modules.setup.packages import Packages
+from phs.modules.setup.zsh import Zsh
 from phs.commands.setup_commands.desktop import desktop
-from phs.modules.desktop import Desktop
+from phs.modules.setup.desktop import Desktop
 
 setup_app = App(name="setup")
 setup_app.command(packages, name="packages")

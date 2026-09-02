@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import final
 
 from phs.context import AppContext
-from phs.inventory import HostData, QtileDesktopConfig
+from phs.inventory import QtileDesktopConfig, HostData
 from phs.tasks.copy import Copy
 from phs.tasks.directory import Directory
 from phs.tasks.file import File

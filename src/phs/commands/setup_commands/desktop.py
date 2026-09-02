@@ -5,7 +5,7 @@ from cyclopts import Parameter
 from phs.context import AppContext
 from phs.execution import ExecutionOptions
 from phs.modules.base import run_modules
-from phs.modules.desktop import Desktop
+from phs.modules.setup.desktop import Desktop
 
 
 def desktop(
