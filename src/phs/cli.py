@@ -7,11 +7,13 @@ from rich.console import Console
 
 from phs.commands.add import add_app
 from phs.commands.authorize import authorize
+from phs.commands.configsync import configsync
 from phs.commands.init import init
 from phs.commands.install import install
 from phs.commands.printconfig import printconfig
 from phs.commands.setup import setup_app
 from phs.commands.watch import watch
+from phs.config_repository import ConfigRepositoryError
 from phs.context import AppContext
 from phs.inventory import HostDataLoader
 from phs.output import RichOutput
@@ -33,6 +35,7 @@ app = App(
 )
 
 app.command(add_app)
+app.command(configsync)
 app.command(install)
 app.command(printconfig)
 app.command(init)
@@ -76,6 +79,9 @@ def main(
             **bound.kwargs,
             **additional_kwargs,
         )
+    except ConfigRepositoryError as error:
+        context.output.error(str(error))
+        raise SystemExit(1) from None
     except TargetCommandError as error:
         result = error.result
         context.output.error(f"Command failed with exit code {result.returncode}")
