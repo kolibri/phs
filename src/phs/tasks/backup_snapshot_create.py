@@ -14,6 +14,8 @@ from phs.target.context import TargetContext
 @dataclass(frozen=True, slots=True)
 class BackupSnapshotCreate:
     rsync: BackupRsyncData
+    user: str
+    group: str
 
     def execute(self, target: TargetContext) -> None:
         target.output.info(
@@ -22,7 +24,18 @@ class BackupSnapshotCreate:
         )
 
         target.runner.run(
-            ["mkdir", "-p", "--", str(self.rsync.partial_dir)],
+            [
+                "install",
+                "-d",
+                "-o",
+                self.user,
+                "-g",
+                self.group,
+                "-m",
+                "0750",
+                "--",
+                str(self.rsync.partial_dir),
+            ],
             root=True,
         )
 

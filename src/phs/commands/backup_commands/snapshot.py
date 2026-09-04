@@ -54,7 +54,7 @@ def backup_snapshot(
         )
 
         Executor.execute(
-            [BackupSnapshotCreate(rsync_data)],
+            [BackupSnapshotCreate(rsync=rsync_data, user=data.username, group=data.groupname)],
             execution.target,
         )
     except BackupSnapshotError as error:
