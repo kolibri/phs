@@ -6,9 +6,9 @@ from cyclopts import Parameter
 from phs.context import AppContext
 from phs.execution import ExecutionFactory, ExecutionOptions
 from phs.executor import Executor
-from phs.tasks.copy import Copy
-from phs.tasks.pacman import Pacman
-from phs.tasks.sshkey import Sshkey
+from phs.tasks.copy_path import CopyPath
+from phs.tasks.pacman_update import PacmanUpdate
+from phs.tasks.sshkey_ensure import SshkeyEnsure
 from phs.tasks.task import Task
 
 
@@ -23,31 +23,31 @@ def init(
     context.output.info(f"Starting initializing new host {data.hostname}.")
 
     tasks: list[Task] = [
-        Pacman.update(),
-        Sshkey.ensure(Path(data.homedir) / ".ssh" / "id_ed25519"),
-        Copy.path(
+        PacmanUpdate(),
+        SshkeyEnsure(Path(data.homedir) / ".ssh" / "id_ed25519"),
+        CopyPath(
             Path.cwd(),
             Path(data.homedir) / "projects" / "phs",
             create_dirs=True,
-            exclude=[
+            exclude=(
                 "test/qemu/iso",
                 "test/qemu/state",
                 ".idea",
                 ".venv",
                 "__pycache__",
-            ],
+            ),
         ),
-        Copy.path(
+        CopyPath(
             Path(context.settings.config_dir),
             Path(data.homedir) / ".phs",
             create_dirs=True,
-            exclude=[
+            exclude=(
                 "test/qemu/iso",
                 "test/qemu/state",
                 ".idea",
                 ".venv",
                 "__pycache__",
-            ],
+            ),
         ),
     ]
 
@@ -57,4 +57,3 @@ def init(
     )
 
     context.output.success(f"Done initializing new host {data.hostname}.")
-

@@ -75,13 +75,13 @@ class GnomeDesktopConfigDict(TypedDict):
 
 
 type DesktopConfigDict = (
-    QtileDesktopConfigDict
-    | GnomeDesktopConfigDict
+        QtileDesktopConfigDict
+        | GnomeDesktopConfigDict
 )
 
 
 def desktop_to_dict(
-    desktop: DesktopConfig | None,
+        desktop: DesktopConfig | None,
 ) -> DesktopConfigDict | None:
     if isinstance(desktop, QtileDesktopConfig):
         result: QtileDesktopConfigDict = {
@@ -97,3 +97,32 @@ def desktop_to_dict(
         return result
 
     return None
+
+
+class BackupConfig(BaseModel):
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra="forbid")
+    manifest_path: Path
+    source_dir: Path
+    excludes: list[str] = Field(default_factory=list)
+    target_dir: Path
+
+
+class BackupConfigDict(TypedDict):
+    manifest_path: Path
+    source_dir: Path
+    excludes: list[str]
+    target_dir: Path
+
+
+def backup_config_to_dict(backup: BackupConfig | None) -> BackupConfigDict | None:
+    if backup is None:
+        return None
+
+    result: BackupConfigDict = {
+        "manifest_path": backup.manifest_path,
+        "source_dir": backup.source_dir,
+        "excludes": backup.excludes,
+        "target_dir": backup.target_dir,
+    }
+
+    return result

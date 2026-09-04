@@ -3,10 +3,10 @@ from typing import final
 
 from phs.context import AppContext
 from phs.inventory import HostData
-from phs.tasks.directory import Directory
-from phs.tasks.file import File
-from phs.tasks.git import Git
-from phs.tasks.pacman import Pacman
+from phs.tasks.directory_create import DirectoryCreate
+from phs.tasks.file_write import FileWrite
+from phs.tasks.git_clone import GitClone
+from phs.tasks.pacman_install import PacmanInstall
 from phs.tasks.task import Task
 
 
@@ -21,11 +21,11 @@ class Zsh:
         zsh_plugins: list[str] = ["git"]
 
         return [
-            Pacman.install(["git", "tig", "less", ]),
+            PacmanInstall(("git", "tig", "less")),
 
-            Git.clone("https://github.com/ohmyzsh/ohmyzsh.git", Path(data.homedir) / ".oh-my-zsh", update=True),
-            Directory.create(zsh_custom_dir),
-            File.write(
+            GitClone("https://github.com/ohmyzsh/ohmyzsh.git", Path(data.homedir) / ".oh-my-zsh", update=True),
+            DirectoryCreate(zsh_custom_dir),
+            FileWrite(
                 Path(data.homedir) / ".zshrc",
                 context.config_templates.render(
                     "zsh/zshrc.j2",
@@ -34,12 +34,12 @@ class Zsh:
                 ),
                 watched=True,
             ),
-            File.write(
+            FileWrite(
                 zsh_custom_dir / "ko.zsh-theme",
                 context.config_templates.render("zsh/ko.zsh-theme.j2"),
                 watched=True,
             ),
-            File.write(
+            FileWrite(
                 zsh_custom_dir / "ko_functions.zsh",
                 context.config_templates.render("zsh/ko_functions.zsh.j2"),
                 watched=True,

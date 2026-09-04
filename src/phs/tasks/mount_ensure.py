@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import final
 
 from phs.target.context import TargetContext
-from phs.tasks.task import Task
 
 
 @final
@@ -12,7 +11,7 @@ class MountEnsure:
     target: Path
 
     def execute(self, target: TargetContext) -> None:
-        target.output.info(f'Mounting {str(self.target)}')
+        target.output.info(f"Mounting {self.target}")
 
         result = target.runner.run(
             [
@@ -32,13 +31,4 @@ class MountEnsure:
                 str(self.target),
             ],
             root=True,
-        )
-
-
-@final
-class Mount:
-    @staticmethod
-    def ensure(target: Path) -> Task:
-        return MountEnsure(
-            target=target,
         )

@@ -10,7 +10,7 @@ from phs.execution import ExecutionFactory
 from phs.executor import Executor
 from phs.inventory import HostData
 from phs.target.context import TargetContext
-from phs.tasks.sshkey import Sshkey
+from phs.tasks.sshkey_ensure import SshkeyEnsure
 
 
 def _can_connect(
@@ -116,7 +116,7 @@ def authorize(
     public_key_path = Path(f"{private_key}.pub")
 
     Executor.execute([
-        Sshkey.ensure(private_key),
+        SshkeyEnsure(private_key),
     ], source.target)
 
     public_key = source.target.filesystem.read_text(public_key_path)

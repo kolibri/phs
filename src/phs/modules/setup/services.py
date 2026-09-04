@@ -2,7 +2,7 @@ from typing import final
 
 from phs.context import AppContext
 from phs.inventory import HostData
-from phs.tasks.service import Service
+from phs.tasks.service_enable import ServiceEnable
 from phs.tasks.task import Task
 
 
@@ -14,5 +14,5 @@ class Services:
             data: HostData,
     ) -> list[Task]:
         return [
-            Service.enable(data.services),
+            ServiceEnable(tuple(data.services)),
         ]

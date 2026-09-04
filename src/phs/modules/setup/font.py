@@ -2,8 +2,9 @@ from typing import final
 
 from phs.context import AppContext
 from phs.inventory import HostData
-from phs.tasks.aur import Aur
-from phs.tasks.fnt import Fnt
+from phs.tasks.aur_install import AurInstall
+from phs.tasks.fnt_install import FntInstall
+from phs.tasks.fnt_update import FntUpdate
 from phs.tasks.task import Task
 
 
@@ -15,7 +16,7 @@ class Font:
             data: HostData,
     ) -> list[Task]:
         return [
-            Aur.install(["fnt"], context.builtin_templates),
-            Fnt.update(),
-            Fnt.install(data.fonts),
+            AurInstall(("fnt",), context.builtin_templates),
+            FntUpdate(),
+            FntInstall(tuple(data.fonts)),
         ]

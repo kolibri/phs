@@ -117,9 +117,7 @@ class InventoryEditor:
         if (
                 not isinstance(value, MutableSequence)
                 or isinstance(value, str)
-                or not all(
-            isinstance(item, str)
-            for item in value
+                or not all(isinstance(item, str) for item in value
         )
         ):
             raise TypeError(f"Expected {key} to be a list of strings in {path}")

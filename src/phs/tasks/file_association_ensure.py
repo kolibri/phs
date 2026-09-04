@@ -3,7 +3,6 @@ from mimetypes import guess_file_type
 from typing import final
 
 from phs.target.context import TargetContext
-from phs.tasks.task import Task
 
 
 @final
@@ -33,9 +32,9 @@ class FileAssociationEnsure:
 
     @classmethod
     def _desktop_file(
-            cls,
-            target: TargetContext,
-            application: str,
+        cls,
+        target: TargetContext,
+        application: str,
     ) -> str:
         result = target.runner.run(
             [
@@ -57,9 +56,9 @@ class FileAssociationEnsure:
 
     @classmethod
     def _current_desktop_file(
-            cls,
-            target: TargetContext,
-            mime_type: str,
+        cls,
+        target: TargetContext,
+        mime_type: str,
     ) -> str | None:
         result = target.runner.run(
             [
@@ -91,12 +90,3 @@ class FileAssociationEnsure:
                 mime_type,
                 desktop_file,
             ])
-
-
-@final
-class FileAssociation:
-    @staticmethod
-    def ensure(associations: dict[str, str]) -> Task:
-        return FileAssociationEnsure(
-            associations=tuple(associations.items()),
-        )

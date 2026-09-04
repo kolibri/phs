@@ -4,11 +4,11 @@ from typing import final
 
 from phs.context import AppContext
 from phs.inventory import QtileDesktopConfig, HostData
-from phs.tasks.copy import Copy
-from phs.tasks.directory import Directory
-from phs.tasks.file import File
-from phs.tasks.pacman import Pacman
-from phs.tasks.service import Service
+from phs.tasks.copy_path import CopyPath
+from phs.tasks.directory_create import DirectoryCreate
+from phs.tasks.file_write import FileWrite
+from phs.tasks.pacman_install import PacmanInstall
+from phs.tasks.service_enable import ServiceEnable
 from phs.tasks.task import Task
 
 
@@ -27,7 +27,7 @@ class Qtile:
         portal_dir = (Path(data.homedir) / ".config" / "xdg-desktop-portal")
 
         tasks: list[Task] = [
-            Pacman.install([
+            PacmanInstall((
                 "qtile",
                 "greetd",
                 "polkit",
@@ -35,13 +35,13 @@ class Qtile:
                 "xorg-xwayland",
                 "xdg-desktop-portal-wlr",
                 "xdg-desktop-portal-gtk",
-            ]),
+            )),
 
-            Directory.create(environment_dir),
-            Directory.create(portal_dir),
-            Directory.create(config_dir),
+            DirectoryCreate(environment_dir),
+            DirectoryCreate(portal_dir),
+            DirectoryCreate(config_dir),
 
-            File.write(
+            FileWrite(
                 environment_dir / "qtile.conf",
                 """
                 XDG_SESSION_TYPE=wayland
@@ -52,7 +52,7 @@ class Qtile:
                 watched=True,
             ),
 
-            File.write(
+            FileWrite(
                 Path("/etc/greetd/config.toml"),
                 f"""
                 [terminal]
@@ -70,13 +70,13 @@ class Qtile:
                 watched=True,
             ),
 
-            File.write(
+            FileWrite(
                 config_dir / "config.py",
                 context.config_templates.render(str(self.config.config_file)),
                 watched=True,
             ),
 
-            File.write(
+            FileWrite(
                 portal_dir / "qtile-portals.conf",
                 """
                 [preferred]
@@ -84,15 +84,15 @@ class Qtile:
                 """,
                 watched=True,
             ),
-            Service.enable(
-                ["greetd"],
+            ServiceEnable(
+                ("greetd",),
                 start=False,
             ),
         ]
 
         wallpaper_source_path = Path(context.settings.config_dir) / "files" / "wallpaper"
         if wallpaper_source_path.is_dir():
-            tasks.append(Copy.path(
+            tasks.append(CopyPath(
                 wallpaper_source_path,
                 Path(data.homedir) / ".ko" / "wallpaper",
                 create_dirs=True,

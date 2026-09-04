@@ -3,23 +3,20 @@ from pathlib import Path
 from typing import final
 
 from phs.target.context import TargetContext
-from phs.tasks.task import Task
 
 
 @final
 @dataclass(frozen=True, slots=True)
 class SshkeyEnsure:
     path: Path
-    replace: bool
-    key_type: str
-    comment: str | None
+    replace: bool = False
+    key_type: str = "ed25519"
+    comment: str | None = None
 
     def execute(self, target: TargetContext) -> None:
-        target.output.info(f'Ensuring ssh key in  {str(self.path)}')
+        target.output.info(f"Ensuring ssh key in  {self.path}")
 
-        public_path = self.path.with_name(
-            f"{self.path.name}.pub"
-        )
+        public_path = self.path.with_name(f"{self.path.name}.pub")
 
         private_exists = target.filesystem.exists(self.path)
         public_exists = target.filesystem.exists(public_path)
@@ -28,12 +25,16 @@ class SshkeyEnsure:
             return
 
         if private_exists != public_exists and not self.replace:
-            raise RuntimeError(
-                f"Incomplete SSH key pair at {self.path}"
-            )
+            raise RuntimeError(f"Incomplete SSH key pair at {self.path}")
 
         if self.replace:
-            target.runner.run(["rm", "-f", "--", str(self.path), str(public_path)])
+            target.runner.run([
+                "rm",
+                "-f",
+                "--",
+                str(self.path),
+                str(public_path),
+            ])
 
         target.runner.run(["mkdir", "-p", "--", str(self.path.parent)])
         target.runner.run(["chmod", "700", str(self.path.parent)])
@@ -52,21 +53,3 @@ class SshkeyEnsure:
             command.extend(["-C", self.comment])
 
         target.runner.run(command)
-
-
-@final
-class Sshkey:
-    @staticmethod
-    def ensure(
-        path: Path,
-        *,
-        replace: bool = False,
-        key_type: str = "ed25519",
-        comment: str | None = None,
-    ) -> Task:
-        return SshkeyEnsure(
-            path=path,
-            replace=replace,
-            key_type=key_type,
-            comment=comment,
-        )

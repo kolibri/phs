@@ -2,10 +2,10 @@ from typing import final
 
 from phs.context import AppContext
 from phs.inventory import HostData
-from phs.tasks.pacman import Pacman
-from phs.tasks.service import Service
+from phs.tasks.pacman_install import PacmanInstall
+from phs.tasks.service_enable import ServiceEnable
 from phs.tasks.task import Task
-from phs.tasks.user import User
+from phs.tasks.user_ensure_groups import UserEnsureGroups
 
 
 @final
@@ -16,18 +16,16 @@ class Docker:
         data: HostData,
     ) -> list[Task]:
         return [
-            Pacman.install([
+            PacmanInstall((
                 "docker",
                 "docker-buildx",
                 "docker-compose",
-            ]),
+            )),
 
-            User.ensure_groups(
+            UserEnsureGroups(
                 data.username,
-                ["docker"],
+                ("docker",),
             ),
 
-            Service.enable([
-                "docker",
-            ]),
+            ServiceEnable(("docker",)),
         ]

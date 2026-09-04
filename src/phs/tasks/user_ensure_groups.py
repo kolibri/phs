@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from typing import final
 
 from phs.target.context import TargetContext
-from phs.tasks.task import Task
 
 
 @final
@@ -27,7 +26,7 @@ class UserEnsureGroups:
             return
 
         target.output.info(
-            f"Adding {self.username} to groups {' '.join(missing_groups)}"
+            f'Adding {self.username} to groups {" ".join(missing_groups)}'
         )
         target.runner.run(
             [
@@ -38,17 +37,4 @@ class UserEnsureGroups:
                 self.username,
             ],
             root=True,
-        )
-
-
-@final
-class User:
-    @staticmethod
-    def ensure_groups(
-            username: str,
-            groups: list[str],
-    ) -> Task:
-        return UserEnsureGroups(
-            username=username,
-            groups=tuple(groups),
         )

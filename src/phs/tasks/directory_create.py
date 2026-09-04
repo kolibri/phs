@@ -3,17 +3,16 @@ from pathlib import Path
 from typing import final
 
 from phs.target.context import TargetContext
-from phs.tasks.task import Task
 
 
 @final
 @dataclass(frozen=True, slots=True)
 class DirectoryCreate:
     path: Path
-    root: bool
+    root: bool = False
 
     def execute(self, target: TargetContext) -> None:
-        target.output.info(f'Ensuring directory {str(self.path)}')
+        target.output.info(f"Ensuring directory {self.path}")
 
         target.runner.run(
             [
@@ -23,18 +22,4 @@ class DirectoryCreate:
                 str(self.path),
             ],
             root=self.root,
-        )
-
-
-@final
-class Directory:
-    @staticmethod
-    def create(
-        path: Path,
-        *,
-        root: bool = False,
-    ) -> Task:
-        return DirectoryCreate(
-            path=path,
-            root=root,
         )

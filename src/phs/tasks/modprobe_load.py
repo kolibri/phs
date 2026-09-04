@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import final
 
 from phs.target.context import TargetContext
-from phs.tasks.task import Task
 
 
 @final
@@ -13,10 +12,9 @@ class ModprobeLoad:
 
     def execute(self, target: TargetContext) -> None:
         for module in self.modules:
-            target.output.info(f'Ensuring module {module}')
+            target.output.info(f"Ensuring module {module}")
 
             config_path = Path(f"/etc/modules-load.d/phs-{module}.conf")
-
             content = f"{module}\n"
 
             current_content = (
@@ -32,12 +30,3 @@ class ModprobeLoad:
                 ["modprobe", module],
                 root=True,
             )
-
-
-@final
-class Modprobe:
-    @staticmethod
-    def load(modules: list[str]) -> Task:
-        return ModprobeLoad(
-            modules=tuple(modules),
-        )

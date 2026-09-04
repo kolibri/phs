@@ -5,7 +5,8 @@ import cyclopts
 from cyclopts import App, Parameter
 from rich.console import Console
 
-from phs.commands.add import add_app
+from phs.commands.backup import backup
+from phs.commands.add import add
 from phs.commands.authorize import authorize
 from phs.commands.configsync import configsync
 from phs.commands.init import init
@@ -34,7 +35,6 @@ app = App(
     )
 )
 
-app.command(add_app)
 app.command(configsync)
 app.command(install)
 app.command(printconfig)
@@ -42,6 +42,8 @@ app.command(init)
 app.command(authorize)
 app.command(setup_app)
 app.command(watch)
+app.command(add)
+app.command(backup)
 
 
 @app.meta.default

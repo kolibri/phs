@@ -2,14 +2,13 @@ from dataclasses import dataclass
 from typing import final
 
 from phs.target.context import TargetContext
-from phs.tasks.task import Task
 
 
 @final
 @dataclass(frozen=True, slots=True)
 class ServiceEnable:
     services: tuple[str, ...]
-    start: bool
+    start: bool = True
 
     def execute(self, target: TargetContext) -> None:
         for service in self.services:
@@ -47,32 +46,3 @@ class ServiceEnable:
                 command,
                 root=True,
             )
-
-
-@final
-@dataclass(frozen=True, slots=True)
-class ServiceDaemonReload:
-    def execute(self, target: TargetContext) -> None:
-        target.output.info("Reloading systemd configuration")
-        target.runner.run(
-            ["systemctl", "daemon-reload"],
-            root=True,
-        )
-
-
-@final
-class Service:
-    @staticmethod
-    def daemon_reload() -> Task:
-        return ServiceDaemonReload()
-
-    @staticmethod
-    def enable(
-        services: list[str],
-        *,
-        start: bool = True,
-    ) -> Task:
-        return ServiceEnable(
-            services=tuple(services),
-            start=start,
-        )

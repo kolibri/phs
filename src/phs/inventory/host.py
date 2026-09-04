@@ -12,7 +12,7 @@ from phs.inventory.config import (
     NfsSourceDict,
     desktop_to_dict,
     file_config_to_dict,
-    nfs_source_to_dict,
+    nfs_source_to_dict, BackupConfig, backup_config_to_dict, BackupConfigDict,
 )
 from phs.yaml import dump_yaml
 
@@ -33,6 +33,7 @@ class AllHostDataFragment(BaseModel):
     services: list[str] = Field(default_factory=list)
     fonts: list[str] = Field(default_factory=list)
     file_associations: dict[str, str] = Field(default_factory=dict)
+    backup: BackupConfig | None = None
 
 
 class HostDataFragment(BaseModel):
@@ -56,6 +57,8 @@ class HostDataFragment(BaseModel):
     fonts: list[str] = Field(default_factory=list)
     file_associations: dict[str, str] = Field(default_factory=dict)
     desktop: DesktopConfig | None = None
+    backup: BackupConfig | None = None
+
 
 
 class HostDataDict(TypedDict):
@@ -78,6 +81,8 @@ class HostDataDict(TypedDict):
     fonts: list[str]
     file_associations: dict[str, str]
     desktop: DesktopConfigDict | None
+    backup: BackupConfigDict | None
+
 
 
 @dataclass
@@ -101,6 +106,8 @@ class HostData:
     fonts: list[str]
     file_associations: dict[str, str]
     desktop: DesktopConfig | None
+    backup: BackupConfig | None
+
 
     def to_dict(self) -> HostDataDict:
         return {
@@ -129,6 +136,7 @@ class HostData:
             "fonts": self.fonts,
             "file_associations": self.file_associations,
             "desktop": desktop_to_dict(self.desktop),
+            "backup": backup_config_to_dict(self.backup),
         }
 
     def to_yaml(self) -> str:

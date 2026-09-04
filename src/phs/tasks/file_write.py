@@ -1,21 +1,19 @@
-import re
-from dataclasses import dataclass
+from dataclasses import InitVar, dataclass
 from pathlib import Path
 from textwrap import dedent
 from typing import Literal, final
 
 from phs.target.context import TargetContext
-from phs.tasks.task import Task
 
 
 type WatchAction = Literal["keep", "restore", "apply"]
 
 
 def _watch_action(
-        target: TargetContext,
-        *,
-        can_restore: bool,
-        can_apply: bool,
+    target: TargetContext,
+    *,
+    can_restore: bool,
+    can_apply: bool,
 ) -> WatchAction:
     if target.watch.force:
         target.output.warning("forced change")
@@ -51,13 +49,18 @@ def _watch_action(
 class FileWrite:
     path: Path
     content: str
-    root: bool
-    watched: bool
+    root: bool = False
+    watched: bool = False
+    as_given: InitVar[bool] = False
+
+    def __post_init__(self, as_given: bool) -> None:
+        if not as_given:
+            object.__setattr__(self, "content", dedent(self.content).strip() + "\n")
 
     def _write(
-            self,
-            target: TargetContext,
-            content: str,
+        self,
+        target: TargetContext,
+        content: str,
     ) -> None:
         target.filesystem.write_text(
             self.path,
@@ -183,103 +186,4 @@ class FileWrite:
             self.path,
             self.content,
             root=self.root,
-        )
-
-
-@final
-@dataclass(frozen=True, slots=True)
-class FileEnsureLine:
-    path: Path
-    line: str
-    match: str
-    root: bool
-
-    def execute(self, target: TargetContext) -> None:
-        target.output.info(f"Ensuring line for {self.match} in {self.path}")
-
-        content = target.filesystem.read_text(
-            self.path,
-            root=self.root,
-        )
-
-        pattern = re.compile(self.match)
-
-        lines = content.splitlines(keepends=True)
-
-        for index, current_line in enumerate(lines):
-            line = current_line.rstrip("\r\n")
-
-            if not pattern.search(line):
-                continue
-
-            line_ending = (
-                "\r\n"
-                if current_line.endswith("\r\n")
-                else "\n"
-                if current_line.endswith("\n")
-                else ""
-            )
-
-            new_line = f"{self.line}{line_ending}"
-
-            if current_line == new_line:
-                return
-
-            lines[index] = new_line
-
-            target.filesystem.write_text(
-                self.path,
-                "".join(lines),
-                root=self.root,
-            )
-            return
-
-        new_content = content
-
-        if new_content and not new_content.endswith("\n"):
-            new_content += "\n"
-
-        new_content += f"{self.line}\n"
-
-        target.filesystem.write_text(
-            self.path,
-            new_content,
-            root=self.root,
-        )
-
-
-@final
-class File:
-    @staticmethod
-    def write(
-        path: Path,
-        content: str,
-        *,
-        root: bool = False,
-        as_given: bool = False,
-        watched: bool = False,
-    ) -> Task:
-        if not as_given:
-            content = dedent(content).strip() + "\n"
-
-        return FileWrite(
-            path=path,
-            content=content,
-            root=root,
-            watched=watched,
-        )
-
-    @staticmethod
-    def ensure_line(
-        path: Path,
-        line: str,
-        *,
-        match: str | None = None,
-        root: bool = False,
-    ) -> Task:
-        return FileEnsureLine(
-            path=path,
-            line=line,
-            match=match or rf"^{re.escape(line)}$",
-            root=root,
         )

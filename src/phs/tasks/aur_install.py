@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from typing import final
 
 from phs.target.context import TargetContext
-from phs.tasks.task import Task
 from phs.template import TemplateRenderer
 
 
@@ -16,10 +15,10 @@ class AurInstall:
         for package in self.packages:
             script = self.renderer.render(
                 "scripts/install_aur_package.sh.j2",
-                package=package
+                package=package,
             )
 
-            target.output.info(f'Ensuring aur package {package}')
+            target.output.info(f"Ensuring aur package {package}")
             target.runner.run(
                 [
                     "bash",
@@ -27,16 +26,3 @@ class AurInstall:
                 ],
                 input_text=script,
             )
-
-
-@final
-class Aur:
-    @staticmethod
-    def install(
-            packages: list[str],
-            renderer: TemplateRenderer,
-    ) -> Task:
-        return AurInstall(
-            packages=tuple(packages),
-            renderer=renderer
-        )

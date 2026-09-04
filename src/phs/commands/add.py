@@ -7,14 +7,14 @@ from phs.context import AppContext
 from phs.execution import Execution, ExecutionFactory, ExecutionOptions
 from phs.executor import Executor
 from phs.inventory.editor import InventoryChange, InventoryEditor
-from phs.tasks.aur import Aur as AurTask
-from phs.tasks.file_association import FileAssociation
-from phs.tasks.fnt import Fnt
-from phs.tasks.pacman import Pacman
-from phs.tasks.service import Service
+from phs.tasks.aur_install import AurInstall
+from phs.tasks.file_association_ensure import FileAssociationEnsure
+from phs.tasks.fnt_install import FntInstall
+from phs.tasks.pacman_install import PacmanInstall
+from phs.tasks.service_enable import ServiceEnable
 from phs.tasks.task import Task
 
-add_app = App(name="add")
+add = App(name="add")
 
 
 def _execute_add(
@@ -84,7 +84,7 @@ def pkg(
         description=f"pacman package {package}",
         change=change,
         commit_message=f"Add package {package} to {execution.data.hostname}",
-        task=Pacman.install([package]),
+        task=PacmanInstall((package,)),
         execution=execution,
         options=options,
         context=context,
@@ -105,7 +105,7 @@ def aur(
         description=f"AUR package {package}",
         change=change,
         commit_message=f"Add AUR package {package} to {execution.data.hostname}",
-        task=AurTask.install([package], context.builtin_templates),
+        task=AurInstall((package,), context.builtin_templates),
         execution=execution,
         options=options,
         context=context,
@@ -126,7 +126,7 @@ def font(
         description=f"font {name}",
         change=change,
         commit_message=f"Add font {name} to {execution.data.hostname}",
-        task=Fnt.install([name]),
+        task=FntInstall((name,)),
         execution=execution,
         options=options,
         context=context,
@@ -147,7 +147,7 @@ def service(
         description=f"service {name}",
         change=change,
         commit_message=f"Add service {name} to {execution.data.hostname}",
-        task=Service.enable([name]),
+        task=ServiceEnable((name,)),
         execution=execution,
         options=options,
         context=context,
@@ -177,7 +177,7 @@ def app_for(
             f"Set .{extension} application to {application} "
             f"on {execution.data.hostname}"
         ),
-        task=FileAssociation.ensure({extension: application}),
+        task=FileAssociationEnsure(((extension, application),)),
         execution=execution,
         options=options,
         context=context,
@@ -185,8 +185,8 @@ def app_for(
     )
 
 
-add_app.command(pkg, name="pkg")
-add_app.command(aur, name="aur")
-add_app.command(font, name="font")
-add_app.command(service, name="service")
-add_app.command(app_for, name="app-for")
+add.command(pkg, name="pkg")
+add.command(aur, name="aur")
+add.command(font, name="font")
+add.command(service, name="service")
+add.command(app_for, name="app-for")

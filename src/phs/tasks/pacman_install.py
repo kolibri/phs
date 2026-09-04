@@ -2,23 +2,6 @@ from dataclasses import dataclass
 from typing import final
 
 from phs.target.context import TargetContext
-from phs.tasks.task import Task
-
-
-@final
-@dataclass(frozen=True, slots=True)
-class PacmanUpdate:
-    def execute(self, target: TargetContext) -> None:
-        target.output.info(f'Updating pacman')
-
-        target.runner.run(
-            [
-                "pacman",
-                "-Syu",
-                "--noconfirm",
-            ],
-            root=True,
-        )
 
 
 @final
@@ -42,14 +25,3 @@ class PacmanInstall:
             ],
             root=True,
         )
-
-
-@final
-class Pacman:
-    @staticmethod
-    def update() -> Task:
-        return PacmanUpdate()
-
-    @staticmethod
-    def install(packages: list[str]) -> Task:
-        return PacmanInstall(tuple(packages))
