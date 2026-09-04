@@ -21,6 +21,7 @@ def create_rsync_backup_command(
         "--numeric-ids",
         "--from0",
         "--ignore-missing-args",
+        "--info=progress2,stats1",
         f"--files-from={manifest}",
         "--stats",
     ]
