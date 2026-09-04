@@ -102,14 +102,14 @@ def desktop_to_dict(
 class BackupConfig(BaseModel):
     model_config: ClassVar[ConfigDict] = ConfigDict(extra="forbid")
     manifest_path: Path
-    source_dir: Path
+    include: list[Path] = Field(min_length=1)
     excludes: list[str] = Field(default_factory=list)
     target_dir: Path
 
 
 class BackupConfigDict(TypedDict):
     manifest_path: Path
-    source_dir: Path
+    include: list[Path]
     excludes: list[str]
     target_dir: Path
 
@@ -120,7 +120,7 @@ def backup_config_to_dict(backup: BackupConfig | None) -> BackupConfigDict | Non
 
     result: BackupConfigDict = {
         "manifest_path": backup.manifest_path,
-        "source_dir": backup.source_dir,
+        "include": backup.include,
         "excludes": backup.excludes,
         "target_dir": backup.target_dir,
     }

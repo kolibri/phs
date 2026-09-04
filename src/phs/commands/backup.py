@@ -18,7 +18,7 @@ def backup_manifest(
         dry_run: bool = False,
         context: Annotated[AppContext, Parameter(parse=False)],
 ) -> None:
-    context.output.info("Backup")
+    context.output.info("Creating backup manifest")
 
     data = context.inventory.load(context.settings.my_hostname)
 
@@ -26,22 +26,23 @@ def backup_manifest(
         context.output.error("No backup configured. Aborting")
         return
 
-    source_dir = Path(data.backup.source_dir)
-    manifest_path = Path(data.backup.manifest_path)
-
     execution = ExecutionFactory.create(
         context,
         host='local',
         dry_run=dry_run,
     )
-    manifest = BackupManifestGenerator.generate(source=source_dir)
+    manifest = BackupManifestGenerator.generate(
+        source=Path(data.homedir),
+        includes=data.backup.include,
+        excludes=data.backup.excludes,
+    )
 
     if show:
         context.output.text(manifest.as_text())
         return
 
     Executor.execute(
-        [BackupManifestWrite(manifest=manifest, path=manifest_path)],
+        [BackupManifestWrite(manifest=manifest, path=Path(data.backup.manifest_path))],
         execution.target,
     )
 

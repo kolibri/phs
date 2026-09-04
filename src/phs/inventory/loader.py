@@ -67,6 +67,7 @@ class HostDataLoader:
                 **host_config.file_associations,
             },
             desktop=host_config.desktop,
+            backup=host_config.backup
         )
 
     @staticmethod
