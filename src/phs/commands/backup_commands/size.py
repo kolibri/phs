@@ -3,7 +3,7 @@ from typing import Annotated
 
 from cyclopts import Parameter, validators
 
-from phs.backup.base import BackupRsyncData
+from phs.backup.base import BackupRsyncData, BackupSnapshotError
 from phs.backup.size import BackupSizeCalculator, BackupSizeRenderer
 from phs.commands.backup_commands.base import _validate_snapshot_inputs
 from phs.context import AppContext
@@ -45,11 +45,15 @@ def backup_size(
         dry_run=False,
     )
 
-    rsync_data = BackupRsyncData.create(
-        manifest=manifest,
-        source=Path(data.homedir),
-        target=target_dir
-    )
+    try:
+        rsync_data = BackupRsyncData.create(
+            manifest=manifest,
+            source=Path(data.homedir),
+            target=target_dir,
+        )
+    except BackupSnapshotError as error:
+        context.output.error(str(error))
+        return
 
     size = BackupSizeCalculator.calculate(execution.target, rsync_data)
 
