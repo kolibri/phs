@@ -1,13 +1,9 @@
 import fnmatch
 import os
-import re
 import subprocess
-from collections.abc import Sequence
 from dataclasses import dataclass
-from pathlib import Path
-from pathlib import PurePosixPath
-
-from phs.target.context import TargetContext
+from pathlib import Path, PurePosixPath
+from typing import Sequence
 
 
 @dataclass(frozen=True, slots=True)
@@ -22,6 +18,7 @@ class BackupManifest:
 
 
 class BackupManifestGenerator:
+
     @classmethod
     def generate(
             cls,
@@ -359,82 +356,3 @@ class BackupManifestGenerator:
                 return True
 
         return False
-
-
-@dataclass(frozen=True, slots=True)
-class BackupSize:
-    total: int
-    increment: int
-
-
-class BackupSizeCalculator:
-    @staticmethod
-    def calculate(
-            target: TargetContext,
-            *,
-            manifest: Path,
-            source: Path,
-            destination: Path,
-            previous: Path | None = None,
-    ) -> BackupSize:
-        command = [
-            "env",
-            "LC_ALL=C",
-            "rsync",
-            "-aHAX",
-            "--numeric-ids",
-            "--dry-run",
-            "--from0",
-            f"--files-from={manifest}",
-            "--stats",
-        ]
-
-        if previous is not None:
-            command.append(
-                f"--link-dest={previous}"
-            )
-
-        command.extend([
-            f"{source}/",
-            f"{destination}/",
-        ])
-
-        result = target.runner.run(
-            command,
-            capture_output=True,
-        )
-
-        total = BackupSizeCalculator._parse_stat(
-            result.stdout,
-            "Total file size",
-        )
-
-        increment = BackupSizeCalculator._parse_stat(
-            result.stdout,
-            "Total transferred file size",
-        )
-
-        return BackupSize(
-            total=total,
-            increment=increment,
-        )
-
-    @staticmethod
-    def _parse_stat(
-            output: str,
-            name: str,
-    ) -> int:
-        match = re.search(
-            rf"^{re.escape(name)}:\s+([\d,]+)\s+bytes$",
-            output,
-            re.MULTILINE,
-        )
-
-        if match is None:
-            raise RuntimeError(
-                f"Could not find rsync statistic: {name}"
-            )
-
-        return int(
-            match.group(1).replace(",", "")
-        )
