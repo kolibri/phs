@@ -3,9 +3,9 @@ from typing import Annotated
 
 from cyclopts import Parameter, validators
 
-from phs.backup.base import BackupRsync
+from phs.backup.base import BackupRsyncData
 from phs.backup.size import BackupSizeCalculator, BackupSizeRenderer
-from phs.commands.backup_commands.base import _validate_snapshot_inputs, _latest_snapshot, _new_snapshot_path
+from phs.commands.backup_commands.base import _validate_snapshot_inputs
 from phs.context import AppContext
 from phs.execution import ExecutionFactory
 
@@ -39,23 +39,18 @@ def backup_size(
     ):
         return
 
-    previous = _latest_snapshot(target_dir)
-
     execution = ExecutionFactory.create(
         context,
         host="local",
         dry_run=False,
     )
 
-    rsync = BackupRsync(
+    rsync_data = BackupRsyncData.create(
         manifest=manifest,
         source=Path(data.homedir),
-        destination=_new_snapshot_path(target_dir),
-        previous=previous,
+        target=target_dir
     )
 
-    size = BackupSizeCalculator.calculate(execution.target, rsync)
+    size = BackupSizeCalculator.calculate(execution.target, rsync_data)
 
-    context.output.text(
-        BackupSizeRenderer.render(size, depth=depth)
-    )
+    context.output.text(BackupSizeRenderer.render(size, depth=depth))

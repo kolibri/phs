@@ -3,8 +3,8 @@ from typing import Annotated
 
 from cyclopts import Parameter
 
-from phs.backup.base import BackupRsync
-from phs.commands.backup_commands.base import _new_snapshot_path, _latest_snapshot, _validate_snapshot_inputs
+from phs.backup.base import BackupRsyncData
+from phs.commands.backup_commands.base import _validate_snapshot_inputs
 from phs.context import AppContext
 from phs.execution import ExecutionFactory
 from phs.executor import Executor
@@ -24,18 +24,15 @@ def backup_snapshot(
         context.output.error("No backup configured. Aborting")
         return
 
-    manifest = Path(data.backup.manifest_path)
+    manifest_path = Path(data.backup.manifest_path)
     target_dir = Path(data.backup.target_dir)
 
     if not _validate_snapshot_inputs(
-            manifest=manifest,
+            manifest=manifest_path,
             target_dir=target_dir,
             context=context,
     ):
         return
-
-    destination = _new_snapshot_path(target_dir)
-    previous = _latest_snapshot(target_dir)
 
     execution = ExecutionFactory.create(
         context,
@@ -43,42 +40,18 @@ def backup_snapshot(
         dry_run=dry_run,
     )
 
-    rsync = BackupRsync(
-        manifest=manifest,
+    rsync_data = BackupRsyncData.create(
+        manifest=manifest_path,
         source=Path(data.homedir),
-        destination=_new_snapshot_path(target_dir),
-        previous=previous,
+        target=target_dir
     )
 
     Executor.execute(
-        [
-            BackupSnapshotCreate(rsync)
-        ],
+        [BackupSnapshotCreate(rsync_data)],
         execution.target,
     )
 
     if not dry_run:
         context.output.success(
-            f"Created backup snapshot {destination}"
+            f"Created backup snapshot {rsync_data.destination_dir}"
         )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

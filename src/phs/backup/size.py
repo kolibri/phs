@@ -4,7 +4,7 @@ import stat
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from phs.backup.base import BackupRsync
+from phs.backup.base import BackupRsyncData, create_rsync_backup_command
 from phs.target.context import TargetContext
 
 
@@ -263,10 +263,14 @@ class BackupSizeCalculator:
     @staticmethod
     def calculate(
             target: TargetContext,
-            rsync: BackupRsync
+            rsync: BackupRsyncData
     ) -> BackupSize:
         result = target.runner.run(
-            rsync.command(
+            create_rsync_backup_command(
+                manifest=rsync.manifest_path,
+                source=rsync.source_dir,
+                destination=rsync.partial_dir,
+                previous=rsync.previous_dir,
                 dry_run=True,
                 itemize_changes=True,
             ),
@@ -281,12 +285,12 @@ class BackupSizeCalculator:
 
         BackupSizeCalculator._accumulate_manifest(
             accumulator,
-            manifest=rsync.manifest,
-            source=rsync.source,
+            manifest=rsync.manifest_path,
+            source=rsync.source_dir,
         )
         BackupSizeCalculator._accumulate_increment(
             accumulator,
-            source=rsync.source,
+            source=rsync.source_dir,
             output=result.stdout,
         )
 
