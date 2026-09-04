@@ -27,17 +27,24 @@ class HostDataLoader:
         self.config_dir: Path = config_dir
 
     def load(self, hostname: str) -> HostData:
-        path = self.config_dir / "all.yaml"
+        all_path = self.config_dir / "all.yaml"
+        host_path = self.config_dir / f"{hostname}.yaml"
         try:
             all_config = AllHostDataFragment.model_validate(
                 load_yaml(self.config_dir / "all.yaml")
             )
+        except ValidationError as error:
+            raise InventoryError(
+                format_validation_error(all_path, error)
+            ) from error
+
+        try:
             host_config = HostDataFragment.model_validate(
-                load_yaml(self.config_dir / f"{hostname}.yaml")
+                load_yaml(host_path)
             )
         except ValidationError as error:
             raise InventoryError(
-                format_validation_error(path, error)
+                format_validation_error(host_path, error)
             ) from error
 
         return HostData(

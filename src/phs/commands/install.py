@@ -1,3 +1,4 @@
+import getpass
 from pathlib import Path
 from typing import Annotated
 
@@ -10,10 +11,26 @@ from phs.ssh import SSHTarget
 def install(
         host: str,
         *,
-        userpassword: str,
+        userpassword: str | None = None,
+        force: bool = False,
         context: Annotated[AppContext, Parameter(parse=False)],
 ):
     data = context.inventory.load(host)
+    if not force:
+        context.output.warning(f"This will ERASE the disk {data.hdd} on {data.hostname} ({data.ip}).")
+        answer = context.output.prompt("Continue? [y/N] ").strip().lower()
+        if answer != "yes":
+            context.output.info("Installation aborted.")
+            return
+
+    if userpassword is None:
+        userpassword = getpass.getpass(f"Password for {data.username}: ")
+        confirmation = getpass.getpass("Confirm password: ")
+
+        if userpassword != confirmation:
+            context.output.error("Passwords do not match.")
+            return
+
     install_script = context.builtin_templates.render(
         'scripts/install_arch.sh.j2',
         hdd=data.hdd,

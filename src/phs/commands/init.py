@@ -7,6 +7,8 @@ from phs.context import AppContext
 from phs.execution import ExecutionFactory, ExecutionOptions
 from phs.executor import Executor
 from phs.tasks.copy_path import CopyPath
+from phs.tasks.directory_create import DirectoryCreate
+from phs.tasks.git_clone import GitClone
 from phs.tasks.pacman_update import PacmanUpdate
 from phs.tasks.sshkey_ensure import SshkeyEnsure
 from phs.tasks.task import Task
@@ -25,21 +27,11 @@ def init(
     tasks: list[Task] = [
         PacmanUpdate(),
         SshkeyEnsure(Path(data.homedir) / ".ssh" / "id_ed25519"),
-        CopyPath(
-            Path.cwd(),
-            Path(data.homedir) / "projects" / "phs",
-            create_dirs=True,
-            exclude=(
-                "test/qemu/iso",
-                "test/qemu/state",
-                ".idea",
-                ".venv",
-                "__pycache__",
-            ),
-        ),
+        DirectoryCreate(Path(data.homedir) / "projects"),
+        GitClone("https://github.com/kolibri/phs.git", Path(data.homedir) / "projects" / "phs"),
         CopyPath(
             Path(context.settings.config_dir),
-            Path(data.homedir) / ".phs",
+            Path(data.homedir) / ".phs" / "hosts",
             create_dirs=True,
             exclude=(
                 "test/qemu/iso",

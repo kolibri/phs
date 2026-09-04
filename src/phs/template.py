@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Self
 
-from jinja2 import Environment, FileSystemLoader, PackageLoader
+from jinja2 import Environment, FileSystemLoader, PackageLoader, StrictUndefined
 
 
 class TemplateRenderer:
@@ -16,6 +16,7 @@ class TemplateRenderer:
             Environment(
                 loader=PackageLoader("phs", "templates"),
                 autoescape=False,
+                undefined=StrictUndefined,
             )
         )
 
@@ -25,6 +26,7 @@ class TemplateRenderer:
             Environment(
                 loader=FileSystemLoader(path),
                 autoescape=False,
+                undefined=StrictUndefined,
             )
         )
 

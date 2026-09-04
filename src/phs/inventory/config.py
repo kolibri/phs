@@ -108,8 +108,8 @@ class BackupConfig(BaseModel):
 
 
 class BackupConfigDict(TypedDict):
-    manifest_path: Path
-    include: list[Path]
+    manifest_path: str
+    include: list[str]
     excludes: list[str]
     target_dir: Path
 
@@ -119,10 +119,10 @@ def backup_config_to_dict(backup: BackupConfig | None) -> BackupConfigDict | Non
         return None
 
     result: BackupConfigDict = {
-        "manifest_path": backup.manifest_path,
-        "include": backup.include,
+        "manifest_path": str(backup.manifest_path),
+        "include": [str(path) for path in backup.include],
         "excludes": backup.excludes,
-        "target_dir": backup.target_dir,
+        "target_dir": str(backup.target_dir),
     }
 
     return result

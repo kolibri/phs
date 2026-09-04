@@ -33,7 +33,6 @@ class AllHostDataFragment(BaseModel):
     services: list[str] = Field(default_factory=list)
     fonts: list[str] = Field(default_factory=list)
     file_associations: dict[str, str] = Field(default_factory=dict)
-    backup: BackupConfig | None = None
 
 
 class HostDataFragment(BaseModel):

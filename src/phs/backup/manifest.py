@@ -41,7 +41,9 @@ class BackupManifestGenerator:
             absolute = source / relative
 
             if not os.path.lexists(absolute):
-                continue
+                raise FileNotFoundError(
+                    f"Backup include does not exist: {relative}"
+                )
 
             if cls._is_excluded(relative, excludes):
                 continue
