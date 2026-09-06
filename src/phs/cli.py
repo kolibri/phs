@@ -1,3 +1,4 @@
+from dataclasses import replace
 from pathlib import Path
 from typing import Annotated
 
@@ -11,6 +12,7 @@ from phs.commands.authorize import authorize
 from phs.commands.config import config
 from phs.commands.init import init
 from phs.commands.install import install
+from phs.commands.installerflash import InstallerFlashError, installerflash
 from phs.commands.setup import setup_app
 from phs.commands.watch import watch
 from phs.config_repository import ConfigRepositoryError
@@ -36,6 +38,7 @@ app = App(
 
 app.command(config)
 app.command(install)
+app.command(installerflash)
 app.command(init)
 app.command(authorize)
 app.command(setup_app)
@@ -52,7 +55,8 @@ def main(
         ],
         settings: Settings = Settings()
 ):
-    settings = Settings(
+    settings = replace(
+        settings,
         config_dir=settings.config_dir.expanduser(),
         sshkey=settings.sshkey.expanduser(),
     )
@@ -80,6 +84,9 @@ def main(
             **additional_kwargs,
         )
     except ConfigRepositoryError as error:
+        context.output.error(str(error))
+        raise SystemExit(1) from None
+    except InstallerFlashError as error:
         context.output.error(str(error))
         raise SystemExit(1) from None
     except TargetCommandError as error:

@@ -11,3 +11,4 @@ class Settings:
     config_dir: Path = Path(Path.home() / ".phs" / "hosts")
     sshkey: Path = Path.home() / ".ssh" / "id_rsa.pub"
     my_hostname: str = socket.gethostname()
+    installer_iso_url: str = "https://geo.mirror.pkgbuild.com/iso/latest/archlinux-x86_64.iso"
