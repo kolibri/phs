@@ -22,9 +22,9 @@ class Qtile:
             context: AppContext,
             data: HostData,
     ) -> list[Task]:
-        config_dir = (Path(data.homedir) / ".config_commands" / "qtile")
-        environment_dir = (Path(data.homedir) / ".config_commands" / "environment.d")
-        portal_dir = (Path(data.homedir) / ".config_commands" / "xdg-desktop-portal")
+        config_dir = (Path(data.homedir) / ".config" / "qtile")
+        environment_dir = (Path(data.homedir) / ".config" / "environment.d")
+        portal_dir = (Path(data.homedir) / ".config" / "xdg-desktop-portal")
 
         tasks: list[Task] = [
             PacmanInstall((
@@ -53,15 +53,15 @@ class Qtile:
             ),
 
             FileWrite(
-                Path("/etc/greetd/config_commands.toml"),
+                Path("/etc/greetd/config.toml"),
                 f"""
                 [terminal]
                 vt = 1
-        
+
                 [default_session]
                 command = "agreety --cmd 'systemctl --user start --wait qtile.service'"
                 user = "greeter"
-        
+
                 [initial_session]
                 command = "systemctl --user start --wait qtile.service"
                 user = "{data.username}"
@@ -71,7 +71,7 @@ class Qtile:
             ),
 
             FileWrite(
-                config_dir / "config_commands.py",
+                config_dir / "config.py",
                 context.config_templates.render(str(self.config.config_file)),
                 watched=True,
             ),

@@ -14,7 +14,7 @@ class GitConfigEnsure:
             result = target.runner.run(
                 [
                     "git",
-                    "config_commands",
+                    "config",
                     "--global",
                     "--get",
                     key,
@@ -32,10 +32,10 @@ class GitConfigEnsure:
             if current == value:
                 continue
 
-            target.output.info(f"Ensuring git config_commands {key}")
+            target.output.info(f"Ensuring git config {key}")
             target.runner.run([
                 "git",
-                "config_commands",
+                "config",
                 "--global",
                 key,
                 value,

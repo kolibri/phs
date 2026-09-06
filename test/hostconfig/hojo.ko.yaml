@@ -33,7 +33,7 @@ file_associations:
 
 desktop:
   type: qtile
-  config_file: qtile/config_commands.aerith.py
+  config_file: qtile/config.aerith.py
 
 #desktop:
 #  type: gnome

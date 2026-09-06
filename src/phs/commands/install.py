@@ -18,7 +18,7 @@ def install(
     data = context.inventory.load(host)
     if not force:
         context.output.warning(f"This will ERASE the disk {data.hdd} on {data.hostname} ({data.ip}).")
-        answer = context.output.prompt("Continue? [y/N] ").strip().lower()
+        answer = context.output.prompt("Continue? [yes/N] ").strip().lower()
         if answer != "yes":
             context.output.info("Installation aborted.")
             return
