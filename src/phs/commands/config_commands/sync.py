@@ -6,7 +6,7 @@ from phs.config_repository import ConfigRepository
 from phs.context import AppContext
 
 
-def configsync(
+def sync_config(
         *,
         context: Annotated[AppContext, Parameter(parse=False)],
 ) -> None:

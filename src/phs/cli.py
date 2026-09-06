@@ -8,10 +8,9 @@ from rich.console import Console
 from phs.commands.backup import backup
 from phs.commands.add import add
 from phs.commands.authorize import authorize
-from phs.commands.configsync import configsync
+from phs.commands.config import config
 from phs.commands.init import init
 from phs.commands.install import install
-from phs.commands.printconfig import printconfig
 from phs.commands.setup import setup_app
 from phs.commands.watch import watch
 from phs.config_repository import ConfigRepositoryError
@@ -35,9 +34,8 @@ app = App(
     )
 )
 
-app.command(configsync)
+app.command(config)
 app.command(install)
-app.command(printconfig)
 app.command(init)
 app.command(authorize)
 app.command(setup_app)
