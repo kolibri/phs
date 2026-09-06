@@ -1,10 +1,11 @@
 from typing import final
 
 from phs.context import AppContext
-from phs.inventory import DesktopConfig, QtileDesktopConfig, GnomeDesktopConfig, HostData
+from phs.inventory import DesktopConfig, HyprlandDesktopConfig, QtileDesktopConfig, GnomeDesktopConfig, HostData
 from phs.modules.base import Module
 from phs.modules.setup.gnome import Gnome
 from phs.modules.setup.qtile import Qtile
+from phs.modules.setup.hyprland import Hyprland
 from phs.tasks.task import Task
 
 
@@ -14,6 +15,9 @@ class DesktopFactory:
     def create(
         config: DesktopConfig,
     ) -> list[Module]:
+        if isinstance(config, HyprlandDesktopConfig):
+            return [Hyprland(config)]
+
         if isinstance(config, QtileDesktopConfig):
             return [Qtile(config)]
 

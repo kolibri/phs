@@ -48,6 +48,15 @@ def nfs_source_to_dict(nfs: NfsSource) -> NfsSourceDict:
     return result
 
 
+class HyprlandDesktopConfig(BaseModel):
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra="forbid")
+    type: Literal["hyprland"]
+    config_file: Path
+    waybar_config_file: Path
+    waybar_style_file: Path
+    idle_config_file: Path
+    paper_config_file: Path
+
 class QtileDesktopConfig(BaseModel):
     model_config: ClassVar[ConfigDict] = ConfigDict(extra="forbid")
     type: Literal["qtile"]
@@ -60,9 +69,18 @@ class GnomeDesktopConfig(BaseModel):
 
 
 type DesktopConfig = Annotated[
-    QtileDesktopConfig | GnomeDesktopConfig,
+    HyprlandDesktopConfig | QtileDesktopConfig | GnomeDesktopConfig,
     Field(discriminator="type"),
 ]
+
+
+class HyprlandDesktopConfigDict(TypedDict):
+    type: Literal["hyprland"]
+    config_file: str
+    waybar_config_file: str
+    waybar_style_file: str
+    idle_config_file: str
+    paper_config_file: str
 
 
 class QtileDesktopConfigDict(TypedDict):
@@ -75,7 +93,8 @@ class GnomeDesktopConfigDict(TypedDict):
 
 
 type DesktopConfigDict = (
-        QtileDesktopConfigDict
+        HyprlandDesktopConfigDict
+        | QtileDesktopConfigDict
         | GnomeDesktopConfigDict
 )
 
@@ -83,6 +102,17 @@ type DesktopConfigDict = (
 def desktop_to_dict(
         desktop: DesktopConfig | None,
 ) -> DesktopConfigDict | None:
+    if isinstance(desktop, HyprlandDesktopConfig):
+        result: HyprlandDesktopConfigDict = {
+            "type": "hyprland",
+            "config_file": str(desktop.config_file),
+            "waybar_config_file": str(desktop.waybar_config_file),
+            "waybar_style_file": str(desktop.waybar_style_file),
+            "idle_config_file": str(desktop.idle_config_file),
+            "paper_config_file": str(desktop.paper_config_file),
+        }
+        return result
+
     if isinstance(desktop, QtileDesktopConfig):
         result: QtileDesktopConfigDict = {
             "type": "qtile",

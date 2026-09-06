@@ -142,10 +142,10 @@ arch-chroot /mnt hwclock --systohc
 # Locale
 echo "==> configuring locale"
 printf '%s\n' \
-    'de_DE.UTF-8 UTF-8' \
+    'en_US.UTF-8 UTF-8' \
     >> /mnt/etc/locale.gen
 printf '%s\n' \
-    'LANG=de_DE.UTF-8' \
+    'LANG=en_US.UTF-8' \
     > /mnt/etc/locale.conf
 printf '%s\n' \
     'KEYMAP=de-latin1' \

@@ -4,7 +4,9 @@ from phs.inventory.config import (
     GnomeDesktopConfig,
     NfsSource,
     QtileDesktopConfig,
+    HyprlandDesktopConfig,
 )
+
 from phs.inventory.host import HostData
 from phs.inventory.loader import HostDataLoader, InventoryError
 
@@ -17,4 +19,5 @@ __all__ = [
     "InventoryError",
     "NfsSource",
     "QtileDesktopConfig",
+    "HyprlandDesktopConfig"
 ]
