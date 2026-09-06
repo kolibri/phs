@@ -111,7 +111,7 @@ class BackupConfigDict(TypedDict):
     manifest_path: str
     include: list[str]
     excludes: list[str]
-    target_dir: Path
+    target_dir: str
 
 
 def backup_config_to_dict(backup: BackupConfig | None) -> BackupConfigDict | None:

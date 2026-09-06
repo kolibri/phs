@@ -321,12 +321,15 @@ class BackupManifestGenerator:
         if not relative.parts:
             return False
 
+        path = PurePosixPath(relative.as_posix())
+
         for raw_pattern in excludes:
             pattern = raw_pattern.strip()
 
             if not pattern:
                 continue
 
+            anchored = pattern.startswith("/")
             pattern = pattern.removeprefix("./")
             pattern = pattern.removeprefix("/")
 
@@ -334,23 +337,17 @@ class BackupManifestGenerator:
                 continue
 
             if "/" in pattern:
-                path = PurePosixPath(relative.as_posix())
-
                 if path.full_match(pattern):
+                    return True
+
+                if (
+                        not anchored
+                        and path.full_match(f"**/{pattern}")
+                ):
                     return True
 
                 continue
 
-            # A pattern without "/" applies to every individual path
-            # component. Thus:
-            #
-            #   *.iso
-            #
-            # matches Downloads/foo.iso, and:
-            #
-            #   node_modules
-            #
-            # excludes a node_modules subtree wherever it occurs.
             if any(
                     fnmatch.fnmatchcase(part, pattern)
                     for part in relative.parts
