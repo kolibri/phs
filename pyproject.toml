@@ -47,3 +47,10 @@ extend-immutable-calls = [
 extend-exclude = [
     "test/hostconfig/files",
 ]
+
+[tool.ruff.lint]
+extend-select = [
+    "B",
+    "I",
+    "UP",
+]

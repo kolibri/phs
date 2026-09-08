@@ -6,7 +6,6 @@ from phs.commands.backup_commands.snapshot import backup_snapshot
 
 backup = App(name="backup")
 
-
 backup.command(backup_manifest, name="manifest")
 backup.command(backup_snapshot, name="snapshot")
 backup.command(backup_size, name="size")
