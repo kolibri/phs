@@ -1,9 +1,10 @@
 import shlex
 import subprocess
+from collections.abc import Sequence
 from pathlib import Path
-from typing import final, override, Sequence
+from typing import final, override
 
-from phs.target.base import TargetCommandError, CommandResult
+from phs.target.base import CommandResult, TargetCommandError
 from phs.target.remote.remote_runner import RemoteRunner
 from phs.target.transfer import Transfer
 
@@ -22,23 +23,19 @@ class RemoteTransfer(Transfer):
 
     @override
     def transfer(
-            self,
-            source: Path,
-            destination: Path,
-            *,
-            root: bool = False,
-            create_dirs: bool = False,
-            exclude: Sequence[str] = (),
+        self,
+        source: Path,
+        destination: Path,
+        *,
+        root: bool = False,
+        create_dirs: bool = False,
+        exclude: Sequence[str] = (),
     ) -> None:
         if not source.exists():
             raise FileNotFoundError(source)
 
         if create_dirs:
-            directory = (
-                destination
-                if source.is_dir()
-                else destination.parent
-            )
+            directory = destination if source.is_dir() else destination.parent
 
             self.runner.run(
                 ["mkdir", "-p", "--", str(directory)],
@@ -48,40 +45,44 @@ class RemoteTransfer(Transfer):
         exclude_args: list[str] = []
 
         for pattern in exclude:
-            exclude_args.extend([
-                "--exclude",
-                pattern,
-            ])
+            exclude_args.extend(
+                [
+                    "--exclude",
+                    pattern,
+                ]
+            )
 
-        source_arg = (
-            f"{source}/"
-            if source.is_dir()
-            else str(source)
-        )
+        source_arg = f"{source}/" if source.is_dir() else str(source)
 
         command = [
             "rsync",
             "-a",
             "--protect-args",
             "-e",
-            shlex.join([
-                "ssh",
-                *self.runner.ssh_options(),
-            ]),
+            shlex.join(
+                [
+                    "ssh",
+                    *self.runner.ssh_options(),
+                ]
+            ),
             *exclude_args,
         ]
 
         if root:
-            command.extend([
-                "--rsync-path",
-                "sudo -n -- rsync",
-            ])
+            command.extend(
+                [
+                    "--rsync-path",
+                    "sudo -n -- rsync",
+                ]
+            )
 
-        command.extend([
-            "--",
-            source_arg,
-            f"{self.runner.user}@{self.runner.host}:{destination}",
-        ])
+        command.extend(
+            [
+                "--",
+                source_arg,
+                f"{self.runner.user}@{self.runner.host}:{destination}",
+            ]
+        )
 
         completed = subprocess.run(
             command,

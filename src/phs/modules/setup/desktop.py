@@ -1,11 +1,17 @@
 from typing import final
 
 from phs.context import AppContext
-from phs.inventory import DesktopConfig, HyprlandDesktopConfig, QtileDesktopConfig, GnomeDesktopConfig, HostData
+from phs.inventory import (
+    DesktopConfig,
+    GnomeDesktopConfig,
+    HostData,
+    HyprlandDesktopConfig,
+    QtileDesktopConfig,
+)
 from phs.modules.base import Module
 from phs.modules.setup.gnome import Gnome
-from phs.modules.setup.qtile import Qtile
 from phs.modules.setup.hyprland import Hyprland
+from phs.modules.setup.qtile import Qtile
 from phs.tasks.task import Task
 
 
@@ -24,9 +30,7 @@ class DesktopFactory:
         if isinstance(config, GnomeDesktopConfig):
             return [Gnome()]
 
-        raise TypeError(
-            f"Unsupported desktop config: {type(config)}"
-        )
+        raise TypeError(f"Unsupported desktop config: {type(config)}")
 
 
 @final

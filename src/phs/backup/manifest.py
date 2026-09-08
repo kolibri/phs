@@ -1,9 +1,9 @@
 import fnmatch
 import os
 import subprocess
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
-from typing import Sequence
 
 
 @dataclass(frozen=True, slots=True)
@@ -18,21 +18,18 @@ class BackupManifest:
 
 
 class BackupManifestGenerator:
-
     @classmethod
     def generate(
-            cls,
-            source: Path,
-            *,
-            includes: Sequence[Path],
-            excludes: Sequence[str] = (),
+        cls,
+        source: Path,
+        *,
+        includes: Sequence[Path],
+        excludes: Sequence[str] = (),
     ) -> BackupManifest:
         source = source.expanduser()
 
         if not source.is_dir():
-            raise ValueError(
-                f"Backup source is not a directory: {source}"
-            )
+            raise ValueError(f"Backup source is not a directory: {source}")
 
         paths: set[Path] = set()
 
@@ -41,9 +38,7 @@ class BackupManifestGenerator:
             absolute = source / relative
 
             if not os.path.lexists(absolute):
-                raise FileNotFoundError(
-                    f"Backup include does not exist: {relative}"
-                )
+                raise FileNotFoundError(f"Backup include does not exist: {relative}")
 
             if cls._is_excluded(relative, excludes):
                 continue
@@ -72,12 +67,12 @@ class BackupManifestGenerator:
 
     @classmethod
     def _walk(
-            cls,
-            *,
-            source: Path,
-            current: Path,
-            excludes: Sequence[str],
-            paths: set[Path],
+        cls,
+        *,
+        source: Path,
+        current: Path,
+        excludes: Sequence[str],
+        paths: set[Path],
     ) -> None:
         relative = current.relative_to(source)
 
@@ -120,18 +115,16 @@ class BackupManifestGenerator:
                         )
 
         except PermissionError as error:
-            raise PermissionError(
-                f"Cannot read backup directory: {current}"
-            ) from error
+            raise PermissionError(f"Cannot read backup directory: {current}") from error
 
     @classmethod
     def _walk_git_repository(
-            cls,
-            *,
-            source: Path,
-            repository: Path,
-            excludes: Sequence[str],
-            paths: set[Path],
+        cls,
+        *,
+        source: Path,
+        repository: Path,
+        excludes: Sequence[str],
+        paths: set[Path],
     ) -> None:
         # git ls-files doesn't include .git itself.
         # For a backup, keep the repository metadata as well.
@@ -157,8 +150,7 @@ class BackupManifestGenerator:
                     "--exclude-per-directory=.gitignore",
                     "-z",
                 ],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
+                capture_output=True,
                 check=False,
             )
 
@@ -171,17 +163,14 @@ class BackupManifestGenerator:
             stderr = os.fsdecode(result.stderr).strip()
 
             raise RuntimeError(
-                f"Cannot enumerate Git repository "
-                f"{repository}: {stderr}"
+                f"Cannot enumerate Git repository {repository}: {stderr}"
             )
 
         for raw_path in result.stdout.split(b"\0"):
             if not raw_path:
                 continue
 
-            repository_relative = Path(
-                os.fsdecode(raw_path)
-            )
+            repository_relative = Path(os.fsdecode(raw_path))
             absolute = repository / repository_relative
 
             # A tracked file can still be present in the index after
@@ -196,9 +185,9 @@ class BackupManifestGenerator:
 
             # Mainly relevant for Git submodules.
             if (
-                    not absolute.is_symlink()
-                    and absolute.is_dir()
-                    and cls._is_git_repository(absolute)
+                not absolute.is_symlink()
+                and absolute.is_dir()
+                and cls._is_git_repository(absolute)
             ):
                 cls._walk(
                     source=source,
@@ -216,12 +205,12 @@ class BackupManifestGenerator:
 
     @classmethod
     def _walk_plain(
-            cls,
-            *,
-            source: Path,
-            current: Path,
-            excludes: Sequence[str],
-            paths: set[Path],
+        cls,
+        *,
+        source: Path,
+        current: Path,
+        excludes: Sequence[str],
+        paths: set[Path],
     ) -> None:
         """
         Walk without applying Git semantics.
@@ -264,33 +253,24 @@ class BackupManifestGenerator:
                         )
 
         except PermissionError as error:
-            raise PermissionError(
-                f"Cannot read backup directory: {current}"
-            ) from error
+            raise PermissionError(f"Cannot read backup directory: {current}") from error
 
     @classmethod
     def _add_with_parents(
-            cls,
-            *,
-            relative: Path,
-            excludes: Sequence[str],
-            paths: set[Path],
+        cls,
+        *,
+        relative: Path,
+        excludes: Sequence[str],
+        paths: set[Path],
     ) -> None:
         candidates = [
             relative,
-            *(
-                parent
-                for parent in relative.parents
-                if parent.parts
-            ),
+            *(parent for parent in relative.parents if parent.parts),
         ]
 
         # If the file itself or any parent directory is excluded,
         # the object must not enter the manifest.
-        if any(
-                cls._is_excluded(candidate, excludes)
-                for candidate in candidates
-        ):
+        if any(cls._is_excluded(candidate, excludes) for candidate in candidates):
             return
 
         paths.update(candidates)
@@ -298,14 +278,10 @@ class BackupManifestGenerator:
     @staticmethod
     def _validate_include(include: Path) -> Path:
         if include.is_absolute():
-            raise ValueError(
-                f"Backup include must be relative: {include}"
-            )
+            raise ValueError(f"Backup include must be relative: {include}")
 
         if ".." in include.parts:
-            raise ValueError(
-                f"Backup include must not contain '..': {include}"
-            )
+            raise ValueError(f"Backup include must not contain '..': {include}")
 
         return include
 
@@ -315,8 +291,8 @@ class BackupManifestGenerator:
 
     @staticmethod
     def _is_excluded(
-            relative: Path,
-            excludes: Sequence[str],
+        relative: Path,
+        excludes: Sequence[str],
     ) -> bool:
         if not relative.parts:
             return False
@@ -340,18 +316,12 @@ class BackupManifestGenerator:
                 if path.full_match(pattern):
                     return True
 
-                if (
-                        not anchored
-                        and path.full_match(f"**/{pattern}")
-                ):
+                if not anchored and path.full_match(f"**/{pattern}"):
                     return True
 
                 continue
 
-            if any(
-                    fnmatch.fnmatchcase(part, pattern)
-                    for part in relative.parts
-            ):
+            if any(fnmatch.fnmatchcase(part, pattern) for part in relative.parts):
                 return True
 
         return False

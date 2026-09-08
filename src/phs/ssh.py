@@ -11,9 +11,9 @@ class SSHTarget:
 
 class SSHRunner:
     def run_script(
-            self,
-            target: SSHTarget,
-            script: str,
+        self,
+        target: SSHTarget,
+        script: str,
     ) -> subprocess.CompletedProcess[str]:
         command = [
             "ssh",

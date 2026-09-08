@@ -23,11 +23,11 @@ class WatchCacheData(BaseModel):
 @final
 class WatchCache:
     def __init__(
-            self,
-            path: Path,
-            filesystem: Filesystem,
-            runner: Runner,
-            output: Output,
+        self,
+        path: Path,
+        filesystem: Filesystem,
+        runner: Runner,
+        output: Output,
     ) -> None:
         self.path = path
         self.filesystem = filesystem
@@ -76,11 +76,11 @@ class WatchCache:
         self._seen.add(str(path))
 
     def record(
-            self,
-            path: Path,
-            content: str,
-            *,
-            root: bool,
+        self,
+        path: Path,
+        content: str,
+        *,
+        root: bool,
     ) -> None:
         data = self._load()
         key = str(path)
@@ -98,20 +98,22 @@ class WatchCache:
         self._dirty = True
 
     def show_diff(
-            self,
-            path: Path,
-            before: str,
-            after: str,
-            *,
-            before_name: str,
-            after_name: str,
+        self,
+        path: Path,
+        before: str,
+        after: str,
+        *,
+        before_name: str,
+        after_name: str,
     ) -> None:
-        diff = "".join(unified_diff(
-            before.splitlines(keepends=True),
-            after.splitlines(keepends=True),
-            fromfile=f"{before_name}:{path}",
-            tofile=f"{after_name}:{path}",
-        ))
+        diff = "".join(
+            unified_diff(
+                before.splitlines(keepends=True),
+                after.splitlines(keepends=True),
+                fromfile=f"{before_name}:{path}",
+                tofile=f"{after_name}:{path}",
+            )
+        )
 
         if diff:
             self.output.text(diff.rstrip())
@@ -148,9 +150,7 @@ class WatchCache:
 
         if success and self._refresh:
             refreshed_files = {
-                key: data.files[key]
-                for key in sorted(self._seen)
-                if key in data.files
+                key: data.files[key] for key in sorted(self._seen) if key in data.files
             }
 
             if refreshed_files != data.files:
@@ -166,17 +166,21 @@ class WatchCache:
         temporary_path = self.path.with_name(f"{self.path.name}.tmp")
 
         self.filesystem.write_text(temporary_path, content)
-        self.runner.run([
-            "mv",
-            "--",
-            str(temporary_path),
-            str(self.path),
-        ])
-        self.runner.run([
-            "chmod",
-            "600",
-            str(self.path),
-        ])
+        self.runner.run(
+            [
+                "mv",
+                "--",
+                str(temporary_path),
+                str(self.path),
+            ]
+        )
+        self.runner.run(
+            [
+                "chmod",
+                "600",
+                str(self.path),
+            ]
+        )
 
         self._dirty = False
         self._refresh = False

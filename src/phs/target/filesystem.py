@@ -6,33 +6,29 @@ from phs.target.runner import Runner
 
 class Filesystem(Protocol):
     @property
-    def description(self) -> str:
-        ...
+    def description(self) -> str: ...
 
     def exists(
-            self,
-            path: Path,
-            *,
-            root: bool = False,
-    ) -> bool:
-        ...
+        self,
+        path: Path,
+        *,
+        root: bool = False,
+    ) -> bool: ...
 
     def read_text(
-            self,
-            path: Path,
-            *,
-            root: bool = False,
-    ) -> str:
-        ...
+        self,
+        path: Path,
+        *,
+        root: bool = False,
+    ) -> str: ...
 
     def write_text(
-            self,
-            path: Path,
-            content: str,
-            *,
-            root: bool = False,
-    ) -> None:
-        ...
+        self,
+        path: Path,
+        content: str,
+        *,
+        root: bool = False,
+    ) -> None: ...
 
 
 @final
@@ -49,10 +45,10 @@ class RunnerFilesystem(Filesystem):
 
     @override
     def exists(
-            self,
-            path: Path,
-            *,
-            root: bool = False,
+        self,
+        path: Path,
+        *,
+        root: bool = False,
     ) -> bool:
         result = self.runner.run(
             ["test", "-e", str(path)],
@@ -65,10 +61,10 @@ class RunnerFilesystem(Filesystem):
 
     @override
     def read_text(
-            self,
-            path: Path,
-            *,
-            root: bool = False,
+        self,
+        path: Path,
+        *,
+        root: bool = False,
     ) -> str:
         result = self.runner.run(
             ["cat", "--", str(path)],
@@ -83,11 +79,11 @@ class RunnerFilesystem(Filesystem):
 
     @override
     def write_text(
-            self,
-            path: Path,
-            content: str,
-            *,
-            root: bool = False,
+        self,
+        path: Path,
+        content: str,
+        *,
+        root: bool = False,
     ) -> None:
         self.runner.run(
             ["tee", "--", str(path)],

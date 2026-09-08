@@ -2,11 +2,10 @@ from phs.inventory.config import (
     DesktopConfig,
     FileConfig,
     GnomeDesktopConfig,
+    HyprlandDesktopConfig,
     NfsSource,
     QtileDesktopConfig,
-    HyprlandDesktopConfig,
 )
-
 from phs.inventory.host import HostData
 from phs.inventory.loader import HostDataLoader, InventoryError
 
@@ -16,8 +15,8 @@ __all__ = [
     "GnomeDesktopConfig",
     "HostData",
     "HostDataLoader",
+    "HyprlandDesktopConfig",
     "InventoryError",
     "NfsSource",
     "QtileDesktopConfig",
-    "HyprlandDesktopConfig"
 ]

@@ -10,22 +10,27 @@ from phs.tasks.task import Task
 @final
 class Git:
     def tasks(
-            self,
-            context: AppContext,
-            data: HostData,
+        self,
+        context: AppContext,
+        data: HostData,
     ) -> list[Task]:
         return [
-            PacmanInstall((
-                "git",
-                "tig",
-                "less",
-            )),
-
-            GitConfigEnsure(tuple({
-                "user.name": data.git_user,
-                "user.email": data.git_email,
-                "push.default": "simple",
-                "core.excludesfile": f"{data.homedir}/.gitignore",
-                "init.defaultBranch": "main",
-            }.items())),
+            PacmanInstall(
+                (
+                    "git",
+                    "tig",
+                    "less",
+                )
+            ),
+            GitConfigEnsure(
+                tuple(
+                    {
+                        "user.name": data.git_user,
+                        "user.email": data.git_email,
+                        "push.default": "simple",
+                        "core.excludesfile": f"{data.homedir}/.gitignore",
+                        "init.defaultBranch": "main",
+                    }.items()
+                )
+            ),
         ]

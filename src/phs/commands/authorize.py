@@ -14,9 +14,9 @@ from phs.tasks.sshkey_ensure import SshkeyEnsure
 
 
 def _can_connect(
-        source: TargetContext,
-        private_key: Path,
-        destination: HostData,
+    source: TargetContext,
+    private_key: Path,
+    destination: HostData,
 ) -> bool:
     result = source.runner.run(
         [
@@ -44,8 +44,8 @@ def _can_connect(
 
 
 def _install_public_key(
-        public_key: str,
-        destination: HostData,
+    public_key: str,
+    destination: HostData,
 ) -> bool:
     quoted_key = shlex.quote(public_key.strip())
 
@@ -86,8 +86,8 @@ chmod 600 "$HOME/.ssh/authorized_keys"
 
 
 def _inventory_hosts(
-        context: AppContext,
-        target_host: str | None = None,
+    context: AppContext,
+    target_host: str | None = None,
 ) -> list[str]:
     hosts = sorted(
         path.stem
@@ -105,19 +105,22 @@ def _inventory_hosts(
 
 
 def authorize(
-        *,
-        host: str = "local",
-        target_host: str | None = None,
-        context: Annotated[AppContext, Parameter(parse=False)],
+    *,
+    host: str = "local",
+    target_host: str | None = None,
+    context: Annotated[AppContext, Parameter(parse=False)],
 ) -> None:
     source = ExecutionFactory.create(context, host=host, dry_run=False)
 
     private_key = Path(source.data.homedir) / ".ssh" / "id_ed25519"
     public_key_path = Path(f"{private_key}.pub")
 
-    Executor.execute([
-        SshkeyEnsure(private_key),
-    ], source.target)
+    Executor.execute(
+        [
+            SshkeyEnsure(private_key),
+        ],
+        source.target,
+    )
 
     public_key = source.target.filesystem.read_text(public_key_path)
     source_hostname = source.data.hostname
@@ -130,7 +133,9 @@ def authorize(
         if destination.hostname == source_hostname:
             continue
 
-        context.output.info(f"Authorizing host '{source_hostname}' to {destination.hostname}.")
+        context.output.info(
+            f"Authorizing host '{source_hostname}' to {destination.hostname}."
+        )
 
         if _can_connect(source.target, private_key, destination):
             context.output.info(f"Already authorized on {destination.hostname}.")
@@ -139,11 +144,15 @@ def authorize(
         context.output.warning(f"Authentication required for {destination.hostname}.")
 
         if not _install_public_key(public_key, destination):
-            context.output.warning(f"Could not authorize {destination.hostname}; skipping host.")
+            context.output.warning(
+                f"Could not authorize {destination.hostname}; skipping host."
+            )
             continue
 
         if not _can_connect(source.target, private_key, destination):
-            context.output.warning(f"Authorization of {destination.hostname} could not be verified; skipping host.")
+            context.output.warning(
+                f"Authorization of {destination.hostname} could not be verified; skipping host."
+            )
             continue
 
         context.output.success(f"Successfully authorized on {destination.hostname}.")

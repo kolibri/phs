@@ -21,21 +21,19 @@ class PrinterEnsure:
 
         expected = f"device for {self.name}: {self.uri}"
 
-        if (
-            current.returncode != 0
-            or expected not in (current.stdout or "")
-        ):
-            target.output.info(
-                f"Configuring printer {self.name}."
-            )
+        if current.returncode != 0 or expected not in (current.stdout or ""):
+            target.output.info(f"Configuring printer {self.name}.")
 
             target.runner.run(
                 [
                     "lpadmin",
-                    "-p", self.name,
+                    "-p",
+                    self.name,
                     "-E",
-                    "-v", self.uri,
-                    "-m", "everywhere",
+                    "-v",
+                    self.uri,
+                    "-m",
+                    "everywhere",
                 ],
                 root=True,
             )
@@ -48,14 +46,10 @@ class PrinterEnsure:
                 check=False,
             )
 
-            expected_default = (
-                f"system default destination: {self.name}"
-            )
+            expected_default = f"system default destination: {self.name}"
 
             if expected_default not in (current_default.stdout or ""):
-                target.output.info(
-                    f"Setting default printer to {self.name}."
-                )
+                target.output.info(f"Setting default printer to {self.name}.")
 
                 target.runner.run(
                     ["lpadmin", "-d", self.name],

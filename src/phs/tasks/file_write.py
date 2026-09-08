@@ -5,7 +5,6 @@ from typing import Literal, final
 
 from phs.target.context import TargetContext
 
-
 type WatchAction = Literal["keep", "restore", "apply"]
 
 

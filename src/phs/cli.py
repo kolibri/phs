@@ -6,9 +6,9 @@ import cyclopts
 from cyclopts import App, Parameter
 from rich.console import Console
 
-from phs.commands.backup import backup
 from phs.commands.add import add
 from phs.commands.authorize import authorize
+from phs.commands.backup import backup
 from phs.commands.config import config
 from phs.commands.init import init
 from phs.commands.install import install
@@ -33,7 +33,7 @@ app = App(
         CONFIG_FILE,
         must_exist=False,
         use_commands_as_keys=False,
-    )
+    ),
 )
 
 app.command(config)
@@ -49,11 +49,11 @@ app.command(backup)
 
 @app.meta.default
 def main(
-        *tokens: Annotated[
-            str,
-            Parameter(show=False, allow_leading_hyphen=True),
-        ],
-        settings: Settings = Settings()
+    *tokens: Annotated[
+        str,
+        Parameter(show=False, allow_leading_hyphen=True),
+    ],
+    settings: Settings = Settings(),
 ):
     settings = replace(
         settings,

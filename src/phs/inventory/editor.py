@@ -24,17 +24,21 @@ class InventoryChange:
 
     def show(self, output: Output) -> None:
         if not self.changed:
-            output.info(f"Configuration already contains the requested value: {self.path}")
+            output.info(
+                f"Configuration already contains the requested value: {self.path}"
+            )
             return
 
         output.info(f"Would update configuration {self.path}")
 
-        diff = "".join(unified_diff(
-            self.before.splitlines(keepends=True),
-            self.after.splitlines(keepends=True),
-            fromfile=f"current:{self.path}",
-            tofile=f"desired:{self.path}",
-        ))
+        diff = "".join(
+            unified_diff(
+                self.before.splitlines(keepends=True),
+                self.after.splitlines(keepends=True),
+                fromfile=f"current:{self.path}",
+                tofile=f"desired:{self.path}",
+            )
+        )
 
         if diff:
             output.text(diff.rstrip())
@@ -63,22 +67,47 @@ class InventoryEditor:
     def add_aur_package(self, hostname: str, package: str) -> InventoryChange:
         return self._add_list_value(hostname, "aur_packages", package)
 
-    def add_font(self, hostname: str, font: str, ) -> InventoryChange:
+    def add_font(
+        self,
+        hostname: str,
+        font: str,
+    ) -> InventoryChange:
         return self._add_list_value(hostname, "fonts", font)
 
-    def add_service(self, hostname: str, service: str, ) -> InventoryChange:
+    def add_service(
+        self,
+        hostname: str,
+        service: str,
+    ) -> InventoryChange:
         return self._add_list_value(hostname, "services", service)
 
-    def set_file_association(self, hostname: str, extension: str, application: str, ) -> InventoryChange:
+    def set_file_association(
+        self,
+        hostname: str,
+        extension: str,
+        application: str,
+    ) -> InventoryChange:
         path, before, data = self._load(hostname)
-        associations = self._string_mapping(data, "file_associations", path, )
+        associations = self._string_mapping(
+            data,
+            "file_associations",
+            path,
+        )
         extension = extension.removeprefix(".")
 
         if associations.get(extension) == application:
-            return InventoryChange(path, before, before, )
+            return InventoryChange(
+                path,
+                before,
+                before,
+            )
         associations[extension] = application
 
-        return InventoryChange(path, before, self._dump(data), )
+        return InventoryChange(
+            path,
+            before,
+            self._dump(data),
+        )
 
     def _add_list_value(self, hostname: str, key: str, value: str) -> InventoryChange:
         path, before, data = self._load(hostname)
@@ -106,7 +135,9 @@ class InventoryEditor:
         return output.getvalue()
 
     @staticmethod
-    def _string_list(data: MutableMapping[str, object], key: str, path: Path) -> MutableSequence[str]:
+    def _string_list(
+        data: MutableMapping[str, object], key: str, path: Path
+    ) -> MutableSequence[str]:
         value = data.get(key)
 
         if value is None:
@@ -115,17 +146,18 @@ class InventoryEditor:
             return cast(MutableSequence[str], values)
 
         if (
-                not isinstance(value, MutableSequence)
-                or isinstance(value, str)
-                or not all(isinstance(item, str) for item in value
-        )
+            not isinstance(value, MutableSequence)
+            or isinstance(value, str)
+            or not all(isinstance(item, str) for item in value)
         ):
             raise TypeError(f"Expected {key} to be a list of strings in {path}")
 
         return value
 
     @staticmethod
-    def _string_mapping(data: MutableMapping[str, object], key: str, path: Path) -> MutableMapping[str, str]:
+    def _string_mapping(
+        data: MutableMapping[str, object], key: str, path: Path
+    ) -> MutableMapping[str, str]:
         value = data.get(key)
 
         if value is None:
@@ -133,13 +165,9 @@ class InventoryEditor:
             data[key] = mapping
             return cast(MutableMapping[str, str], mapping)
 
-        if (
-                not isinstance(value, MutableMapping)
-                or not all(
-            isinstance(mapping_key, str)
-            and isinstance(mapping_value, str)
+        if not isinstance(value, MutableMapping) or not all(
+            isinstance(mapping_key, str) and isinstance(mapping_value, str)
             for mapping_key, mapping_value in value.items()
-        )
         ):
             raise TypeError(f"Expected {key} to be a string mapping in {path}")
 

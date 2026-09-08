@@ -1,5 +1,6 @@
+from collections.abc import Sequence
 from pathlib import Path
-from typing import final, override, Sequence
+from typing import final, override
 
 from phs.target.runner import Runner
 from phs.target.transfer import Transfer
@@ -19,23 +20,19 @@ class LocalTransfer(Transfer):
 
     @override
     def transfer(
-            self,
-            source: Path,
-            destination: Path,
-            *,
-            root: bool = False,
-            create_dirs: bool = False,
-            exclude: Sequence[str] = (),
+        self,
+        source: Path,
+        destination: Path,
+        *,
+        root: bool = False,
+        create_dirs: bool = False,
+        exclude: Sequence[str] = (),
     ) -> None:
         if not source.exists():
             raise FileNotFoundError(source)
 
         if create_dirs:
-            directory = (
-                destination
-                if source.is_dir()
-                else destination.parent
-            )
+            directory = destination if source.is_dir() else destination.parent
 
             self.runner.run(
                 ["mkdir", "-p", "--", str(directory)],
@@ -45,16 +42,14 @@ class LocalTransfer(Transfer):
         exclude_args: list[str] = []
 
         for pattern in exclude:
-            exclude_args.extend([
-                "--exclude",
-                pattern,
-            ])
+            exclude_args.extend(
+                [
+                    "--exclude",
+                    pattern,
+                ]
+            )
 
-        source_arg = (
-            f"{source}/"
-            if source.is_dir()
-            else str(source)
-        )
+        source_arg = f"{source}/" if source.is_dir() else str(source)
 
         self.runner.run(
             [

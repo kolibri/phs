@@ -16,16 +16,16 @@ class Docker:
         data: HostData,
     ) -> list[Task]:
         return [
-            PacmanInstall((
-                "docker",
-                "docker-buildx",
-                "docker-compose",
-            )),
-
+            PacmanInstall(
+                (
+                    "docker",
+                    "docker-buildx",
+                    "docker-compose",
+                )
+            ),
             UserEnsureGroups(
                 data.username,
                 ("docker",),
             ),
-
             ServiceEnable(("docker",)),
         ]

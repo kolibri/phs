@@ -5,20 +5,16 @@ from typing import cast, override
 import yaml
 
 type YamlScalar = str | int | float | bool | None
-type YamlValue = (
-        YamlScalar
-        | list[YamlValue]
-        | dict[str, YamlValue]
-)
+type YamlValue = YamlScalar | list[YamlValue] | dict[str, YamlValue]
 type YamlDocument = dict[str, YamlValue]
 
 
 class IndentedDumper(yaml.SafeDumper):
     @override
     def increase_indent(
-            self,
-            flow: bool = False,
-            indentless: bool = False,
+        self,
+        flow: bool = False,
+        indentless: bool = False,
     ) -> None:
         super().increase_indent(flow, False)
 

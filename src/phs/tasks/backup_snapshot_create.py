@@ -19,8 +19,7 @@ class BackupSnapshotCreate:
 
     def execute(self, target: TargetContext) -> None:
         target.output.info(
-            f"Backing up {self.rsync.source_dir} "
-            f"to {self.rsync.destination_dir}"
+            f"Backing up {self.rsync.source_dir} to {self.rsync.destination_dir}"
         )
 
         target.runner.run(
@@ -77,12 +76,10 @@ class BackupSnapshotCreate:
         )
 
     def _ensure_manifest_fingerprint(
-            self,
-            target: TargetContext,
+        self,
+        target: TargetContext,
     ) -> None:
-        current_sha256 = BackupRsyncData.fingerprint_manifest(
-            self.rsync.manifest_path
-        )
+        current_sha256 = BackupRsyncData.fingerprint_manifest(self.rsync.manifest_path)
 
         if current_sha256 != self.rsync.manifest_sha256:
             raise BackupSnapshotError(

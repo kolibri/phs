@@ -2,7 +2,6 @@ from typing import Annotated
 
 from cyclopts import App, Parameter
 
-from phs.commands.setup_commands.printer import printer
 from phs.commands.setup_commands.desktop import desktop
 from phs.commands.setup_commands.docker import docker
 from phs.commands.setup_commands.file_associations import file_associations
@@ -10,6 +9,7 @@ from phs.commands.setup_commands.font import font
 from phs.commands.setup_commands.git import git
 from phs.commands.setup_commands.nfs import nfs
 from phs.commands.setup_commands.packages import packages
+from phs.commands.setup_commands.printer import printer
 from phs.commands.setup_commands.services import services
 from phs.commands.setup_commands.zsh import zsh
 from phs.context import AppContext
@@ -51,22 +51,16 @@ MODULES: dict[str, Module] = {
 
 
 def _parse_ignored_modules(value: str) -> set[str]:
-    return {
-        module.strip()
-        for module in value.split(",")
-        if module.strip()
-    }
+    return {module.strip() for module in value.split(",") if module.strip()}
 
 
 def _select_modules(
-        configured: list[str],
-        ignored: set[str],
+    configured: list[str],
+    ignored: set[str],
 ) -> list[Module]:
     unknown = set(configured).difference(MODULES)
     if unknown:
-        raise ValueError(
-            f"Unknown configured module(s): {', '.join(sorted(unknown))}"
-        )
+        raise ValueError(f"Unknown configured module(s): {', '.join(sorted(unknown))}")
 
     unknown_ignored = ignored.difference(MODULES)
     if unknown_ignored:
@@ -74,20 +68,16 @@ def _select_modules(
             f"Unknown ignored module(s): {', '.join(sorted(unknown_ignored))}"
         )
 
-    return [
-        MODULES[name]
-        for name in configured
-        if name not in ignored
-    ]
+    return [MODULES[name] for name in configured if name not in ignored]
 
 
 @setup_app.default
 def setup(
-        *,
-        options: ExecutionOptions = ExecutionOptions(),
-        ignore_modules: str = "",
-        force: bool = False,
-        context: Annotated[AppContext, Parameter(parse=False)],
+    *,
+    options: ExecutionOptions = ExecutionOptions(),
+    ignore_modules: str = "",
+    force: bool = False,
+    context: Annotated[AppContext, Parameter(parse=False)],
 ) -> None:
     execution = ExecutionFactory.create(
         context,
@@ -107,7 +97,9 @@ def setup(
         execution.target.watch.begin_refresh()
 
     context.output.info(f"Starting setup host {execution.data.hostname}.")
-    context.output.info(f"Configured modules: {' '.join(type(module).__name__.lower() for module in modules)}.")
+    context.output.info(
+        f"Configured modules: {' '.join(type(module).__name__.lower() for module in modules)}."
+    )
 
     execute_modules(
         modules,

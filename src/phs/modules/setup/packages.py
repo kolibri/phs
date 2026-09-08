@@ -13,9 +13,9 @@ from phs.tasks.task import Task
 @final
 class Packages:
     def tasks(
-            self,
-            context: AppContext,
-            data: HostData,
+        self,
+        context: AppContext,
+        data: HostData,
     ) -> list[Task]:
         return [
             FileWrite(
@@ -24,7 +24,6 @@ class Packages:
                 root=True,
                 watched=True,
             ),
-
             PacmanUpdate(),
             PacmanInstall(tuple(data.packages)),
             AurInstall(tuple(data.aur_packages), context.builtin_templates),

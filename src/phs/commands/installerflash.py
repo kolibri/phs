@@ -110,10 +110,10 @@ def _verify_iso(path: Path, expected_checksum: str) -> None:
 
 
 def _download_iso(
-        iso_url: str,
-        destination: Path,
-        expected_checksum: str,
-        output: Output,
+    iso_url: str,
+    destination: Path,
+    expected_checksum: str,
+    output: Output,
 ) -> Path:
     partial_path = destination.with_name(f"{destination.name}.part")
 
@@ -136,7 +136,9 @@ def _download_iso(
                 file.write(chunk)
     except (HTTPError, URLError, OSError) as error:
         partial_path.unlink(missing_ok=True)
-        raise InstallerFlashError(f"Could not download ISO {iso_url}: {error}") from error
+        raise InstallerFlashError(
+            f"Could not download ISO {iso_url}: {error}"
+        ) from error
 
     try:
         _verify_iso(partial_path, expected_checksum)
@@ -283,10 +285,10 @@ def _select_device(devices: list[BlockDevice], output: Output) -> BlockDevice:
 
 
 def _target_device(
-        target_dev: Path | None,
-        devices: list[BlockDevice],
-        output: Output,
-        minimum_size: int,
+    target_dev: Path | None,
+    devices: list[BlockDevice],
+    output: Output,
+    minimum_size: int,
 ) -> BlockDevice:
     if target_dev is None:
         return _select_device(
@@ -326,10 +328,10 @@ def _dd_command(iso_path: Path, target_device: Path) -> list[str]:
 
 
 def installerflash(
-        *,
-        iso_path: Path | None = None,
-        target_dev: Path | None = None,
-        context: Annotated[AppContext, Parameter(parse=False)],
+    *,
+    iso_path: Path | None = None,
+    target_dev: Path | None = None,
+    context: Annotated[AppContext, Parameter(parse=False)],
 ) -> None:
     iso_url = context.settings.installer_iso_url
     expected_checksum = _expected_checksum(iso_url)
@@ -345,7 +347,9 @@ def installerflash(
         try:
             image_path = iso_path.expanduser().resolve(strict=True)
         except OSError as error:
-            raise InstallerFlashError(f"Could not find ISO {iso_path}: {error}") from error
+            raise InstallerFlashError(
+                f"Could not find ISO {iso_path}: {error}"
+            ) from error
 
         context.output.info(f"Verifying SHA-256 checksum for {image_path}")
         _verify_iso(image_path, expected_checksum)
@@ -354,7 +358,9 @@ def installerflash(
     try:
         image_size = image_path.stat().st_size
     except OSError as error:
-        raise InstallerFlashError(f"Could not inspect ISO {image_path}: {error}") from error
+        raise InstallerFlashError(
+            f"Could not inspect ISO {image_path}: {error}"
+        ) from error
 
     device = _target_device(
         target_dev,

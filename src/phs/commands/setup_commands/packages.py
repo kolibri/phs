@@ -9,11 +9,11 @@ from phs.modules.setup.packages import Packages
 
 
 def packages(
-        *,
-        options: ExecutionOptions = ExecutionOptions(),
-        context: Annotated[AppContext, Parameter(parse=False)],
+    *,
+    options: ExecutionOptions = ExecutionOptions(),
+    context: Annotated[AppContext, Parameter(parse=False)],
 ) -> None:
-    context.output.info(f"Setting up packages")
+    context.output.info("Setting up packages")
 
     run_modules(
         [Packages()],

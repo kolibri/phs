@@ -88,10 +88,9 @@ class GnomeDesktopConfigDict(TypedDict):
 
 
 type DesktopConfigDict = (
-        HyprlandDesktopConfigDict
-        | QtileDesktopConfigDict
-        | GnomeDesktopConfigDict
+    HyprlandDesktopConfigDict | QtileDesktopConfigDict | GnomeDesktopConfigDict
 )
+
 
 class PrinterConfig(BaseModel):
     model_config: ClassVar[ConfigDict] = ConfigDict(extra="forbid")
@@ -100,10 +99,12 @@ class PrinterConfig(BaseModel):
     uri: str
     default: bool = False
 
+
 class PrinterConfigDict(TypedDict):
     name: str
     uri: str
     default: bool
+
 
 def printer_config_to_dict(printer: PrinterConfig) -> PrinterConfigDict:
     result: PrinterConfigDict = {
@@ -115,7 +116,7 @@ def printer_config_to_dict(printer: PrinterConfig) -> PrinterConfigDict:
 
 
 def desktop_to_dict(
-        desktop: DesktopConfig | None,
+    desktop: DesktopConfig | None,
 ) -> DesktopConfigDict | None:
     if isinstance(desktop, HyprlandDesktopConfig):
         result: HyprlandDesktopConfigDict = {

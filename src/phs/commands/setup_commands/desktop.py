@@ -16,7 +16,7 @@ def desktop(
         Parameter(parse=False),
     ],
 ) -> None:
-    context.output.info(f"Setting up desktop")
+    context.output.info("Setting up desktop")
 
     run_modules(
         [Desktop()],

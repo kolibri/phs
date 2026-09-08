@@ -9,11 +9,11 @@ from phs.modules.setup.font import Font
 
 
 def font(
-        *,
-        options: ExecutionOptions = ExecutionOptions(),
-        context: Annotated[AppContext, Parameter(parse=False)],
+    *,
+    options: ExecutionOptions = ExecutionOptions(),
+    context: Annotated[AppContext, Parameter(parse=False)],
 ) -> None:
-    context.output.info(f"Ensuring fonts")
+    context.output.info("Ensuring fonts")
 
     run_modules(
         [Font()],

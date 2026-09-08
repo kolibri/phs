@@ -9,10 +9,10 @@ from phs.tasks.task import Task
 
 
 def execute_modules(
-        modules: Sequence[Module],
-        *,
-        context: AppContext,
-        execution: Execution,
+    modules: Sequence[Module],
+    *,
+    context: AppContext,
+    execution: Execution,
 ) -> None:
     tasks: list[Task] = []
 
@@ -31,11 +31,11 @@ def execute_modules(
 
 
 def run_modules(
-        modules: Sequence[Module],
-        *,
-        context: AppContext,
-        host: str,
-        dry_run: bool,
+    modules: Sequence[Module],
+    *,
+    context: AppContext,
+    host: str,
+    dry_run: bool,
 ) -> None:
     execution = ExecutionFactory.create(
         context,
@@ -52,8 +52,7 @@ def run_modules(
 
 class Module(Protocol):
     def tasks(
-            self,
-            context: AppContext,
-            data: HostData,
-    ) -> Sequence[Task]:
-        ...
+        self,
+        context: AppContext,
+        data: HostData,
+    ) -> Sequence[Task]: ...

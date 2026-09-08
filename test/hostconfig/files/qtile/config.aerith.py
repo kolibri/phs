@@ -1,10 +1,9 @@
 import socket
 
-from libqtile import bar, extension, layout, qtile, widget
-from libqtile.config import Click, Drag, Group, Key, Match, Screen, IdleTimer
-from libqtile.lazy import lazy
-from libqtile.utils import guess_terminal
+from libqtile import bar, layout, widget
 from libqtile.backend.wayland import InputConfig
+from libqtile.config import Click, Drag, Group, IdleTimer, Key, Match, Screen
+from libqtile.lazy import lazy
 
 mod = "mod4"
 terminal = "qterminal"  # guess_terminal()
@@ -72,13 +71,13 @@ for i in groups:
                 [mod],
                 i.name,
                 lazy.group[i.name].toscreen(),
-                desc="Switch to group {}".format(i.name),
+                desc=f"Switch to group {i.name}",
             ),
             Key(
                 [mod, "shift"],
                 i.name,
                 lazy.window.togroup(i.name),
-                desc="move focused window to group {}".format(i.name),
+                desc=f"move focused window to group {i.name}",
             ),
         ]
     )
@@ -158,7 +157,7 @@ screens = [
                 widget.Sep(),
                 widget.CapsNumLockIndicator(),
                 widget.Sep(),
-                #widget.Systray(),
+                # widget.Systray(),
                 widget.StatusNotifier(),
                 widget.CheckUpdates(distro="Arch", no_update_string="No updates"),
                 widget.Clock(format="%Y-%m-%d %H:%M:%S ", background="#1a1a1a"),

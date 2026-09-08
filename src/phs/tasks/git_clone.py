@@ -19,13 +19,15 @@ class GitClone:
                 return
 
             target.output.info(f"Updating git repository {self.destination}")
-            target.runner.run([
-                "git",
-                "-C",
-                str(self.destination),
-                "pull",
-                "--ff-only",
-            ])
+            target.runner.run(
+                [
+                    "git",
+                    "-C",
+                    str(self.destination),
+                    "pull",
+                    "--ff-only",
+                ]
+            )
             return
 
         target.output.info(f"Cloning git repository {self.repository}")
@@ -36,15 +38,19 @@ class GitClone:
         ]
 
         if self.branch is not None:
-            command.extend([
-                "--branch",
-                self.branch,
-            ])
+            command.extend(
+                [
+                    "--branch",
+                    self.branch,
+                ]
+            )
 
-        command.extend([
-            "--",
-            self.repository,
-            str(self.destination),
-        ])
+        command.extend(
+            [
+                "--",
+                self.repository,
+                str(self.destination),
+            ]
+        )
 
         target.runner.run(command)

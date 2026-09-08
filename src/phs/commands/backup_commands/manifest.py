@@ -11,10 +11,10 @@ from phs.tasks.backup_manifest_write import BackupManifestWrite
 
 
 def backup_manifest(
-        *,
-        show: bool = False,
-        dry_run: bool = False,
-        context: Annotated[AppContext, Parameter(parse=False)],
+    *,
+    show: bool = False,
+    dry_run: bool = False,
+    context: Annotated[AppContext, Parameter(parse=False)],
 ) -> None:
     context.output.info("Creating backup manifest")
 

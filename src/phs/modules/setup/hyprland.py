@@ -25,30 +25,32 @@ class Hyprland:
         hypr_target_dir = Path(data.homedir) / ".config" / "hypr"
         waybar_target_dir = Path(data.homedir) / ".config" / "waybar"
 
-        hypr_source_dir = Path(context.settings.config_dir) / "files" / data.desktop.hypr_dir
-        waybar_source_dir = Path(context.settings.config_dir) / "files" / data.desktop.waybar_dir
-
+        hypr_source_dir = (
+            Path(context.settings.config_dir) / "files" / data.desktop.hypr_dir
+        )
+        waybar_source_dir = (
+            Path(context.settings.config_dir) / "files" / data.desktop.waybar_dir
+        )
 
         tasks: list[Task] = [
-            PacmanInstall((
-                "hyprland",
-                "waybar",
-                "hypridle",
-                "hyprpaper",
-                "hyprlauncher",
-                "greetd",
-                "polkit",
-                "xorg-xwayland",
-
-                "xdg-desktop-portal-hyprland",
-                "xdg-desktop-portal-gtk",
-            )),
+            PacmanInstall(
+                (
+                    "hyprland",
+                    "waybar",
+                    "hypridle",
+                    "hyprpaper",
+                    "hyprlauncher",
+                    "greetd",
+                    "polkit",
+                    "xorg-xwayland",
+                    "xdg-desktop-portal-hyprland",
+                    "xdg-desktop-portal-gtk",
+                )
+            ),
             DirectoryCreate(hypr_target_dir),
             DirectoryCreate(waybar_target_dir),
-
             CopyPath(hypr_source_dir, hypr_target_dir),
             CopyPath(waybar_source_dir, waybar_target_dir),
-
             FileWrite(
                 Path("/etc/greetd/config.toml"),
                 f"""
@@ -66,7 +68,6 @@ class Hyprland:
                 root=True,
                 watched=True,
             ),
-
             ServiceEnable(
                 ("greetd",),
                 start=False,

@@ -9,9 +9,9 @@ from phs.tasks.task import Task
 @final
 class Services:
     def tasks(
-            self,
-            context: AppContext,
-            data: HostData,
+        self,
+        context: AppContext,
+        data: HostData,
     ) -> list[Task]:
         return [
             ServiceEnable(tuple(data.services)),

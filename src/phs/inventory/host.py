@@ -4,16 +4,21 @@ from attr import dataclass
 from pydantic import BaseModel, ConfigDict, Field
 
 from phs.inventory.config import (
+    BackupConfig,
+    BackupConfigDict,
     DesktopConfig,
     DesktopConfigDict,
     FileConfig,
     FileConfigDict,
     NfsSource,
     NfsSourceDict,
+    PrinterConfig,
+    PrinterConfigDict,
+    backup_config_to_dict,
     desktop_to_dict,
     file_config_to_dict,
-    nfs_source_to_dict, BackupConfig, backup_config_to_dict, BackupConfigDict, printer_config_to_dict, PrinterConfig,
-    PrinterConfigDict,
+    nfs_source_to_dict,
+    printer_config_to_dict,
 )
 from phs.yaml import dump_yaml
 
@@ -35,7 +40,6 @@ class AllHostDataFragment(BaseModel):
     fonts: list[str] = Field(default_factory=list)
     file_associations: dict[str, str] = Field(default_factory=dict)
     printers: list[PrinterConfig] = Field(default_factory=list)
-
 
 
 class HostDataFragment(BaseModel):
@@ -87,7 +91,6 @@ class HostDataDict(TypedDict):
     printers: list[PrinterConfigDict]
 
 
-
 @dataclass
 class HostData:
     hostname: str
@@ -112,7 +115,6 @@ class HostData:
     backup: BackupConfig | None
     printers: list[PrinterConfig]
 
-
     def to_dict(self) -> HostDataDict:
         return {
             "hostname": self.hostname,
@@ -128,23 +130,14 @@ class HostData:
             "modules": self.modules,
             "packages": self.packages,
             "aur_packages": self.aur_packages,
-            "files": [
-                file_config_to_dict(file)
-                for file in self.files
-            ],
-            "nfs_sources": [
-                nfs_source_to_dict(nfs)
-                for nfs in self.nfs_sources
-            ],
+            "files": [file_config_to_dict(file) for file in self.files],
+            "nfs_sources": [nfs_source_to_dict(nfs) for nfs in self.nfs_sources],
             "services": self.services,
             "fonts": self.fonts,
             "file_associations": self.file_associations,
             "desktop": desktop_to_dict(self.desktop),
             "backup": backup_config_to_dict(self.backup),
-            "printers": [
-                printer_config_to_dict(printer)
-                for printer in self.printers
-            ]
+            "printers": [printer_config_to_dict(printer) for printer in self.printers],
         }
 
     def to_yaml(self) -> str:

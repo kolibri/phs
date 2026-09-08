@@ -12,12 +12,15 @@ class ServiceEnable:
 
     def execute(self, target: TargetContext) -> None:
         for service in self.services:
-            enabled = target.runner.run(
-                ["systemctl", "is-enabled", "--quiet", service],
-                root=True,
-                capture_output=True,
-                check=False,
-            ).returncode == 0
+            enabled = (
+                target.runner.run(
+                    ["systemctl", "is-enabled", "--quiet", service],
+                    root=True,
+                    capture_output=True,
+                    check=False,
+                ).returncode
+                == 0
+            )
 
             active = (
                 target.runner.run(
@@ -25,7 +28,8 @@ class ServiceEnable:
                     root=True,
                     capture_output=True,
                     check=False,
-                ).returncode == 0
+                ).returncode
+                == 0
                 if self.start
                 else True
             )

@@ -9,11 +9,11 @@ from phs.modules.setup.git import Git
 
 
 def git(
-        *,
-        options: ExecutionOptions = ExecutionOptions(),
-        context: Annotated[AppContext, Parameter(parse=False)],
+    *,
+    options: ExecutionOptions = ExecutionOptions(),
+    context: Annotated[AppContext, Parameter(parse=False)],
 ) -> None:
-    context.output.info(f"Setting up git")
+    context.output.info("Setting up git")
 
     run_modules(
         [Git()],

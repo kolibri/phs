@@ -13,24 +13,27 @@ from phs.tasks.task import Task
 @final
 class Zsh:
     def tasks(
-            self,
-            context: AppContext,
-            data: HostData,
+        self,
+        context: AppContext,
+        data: HostData,
     ) -> list[Task]:
         zsh_custom_dir: Path = Path(data.homedir) / ".ko" / "zsh"
         zsh_plugins: list[str] = ["git"]
 
         return [
             PacmanInstall(("git", "tig", "less")),
-
-            GitClone("https://github.com/ohmyzsh/ohmyzsh.git", Path(data.homedir) / ".oh-my-zsh", update=True),
+            GitClone(
+                "https://github.com/ohmyzsh/ohmyzsh.git",
+                Path(data.homedir) / ".oh-my-zsh",
+                update=True,
+            ),
             DirectoryCreate(zsh_custom_dir),
             FileWrite(
                 Path(data.homedir) / ".zshrc",
                 context.config_templates.render(
                     "zsh/zshrc.j2",
                     zsh_custom_dir=str(zsh_custom_dir),
-                    zsh_plugins=" ".join(zsh_plugins)
+                    zsh_plugins=" ".join(zsh_plugins),
                 ),
                 watched=True,
             ),
@@ -43,6 +46,5 @@ class Zsh:
                 zsh_custom_dir / "ko_functions.zsh",
                 context.config_templates.render("zsh/ko_functions.zsh.j2"),
                 watched=True,
-            )
-
+            ),
         ]

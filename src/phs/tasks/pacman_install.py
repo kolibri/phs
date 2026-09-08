@@ -13,7 +13,7 @@ class PacmanInstall:
         if not self.packages:
             return
 
-        target.output.info(f'Ensuring packages {" ".join(self.packages)}')
+        target.output.info(f"Ensuring packages {' '.join(self.packages)}")
 
         target.runner.run(
             [

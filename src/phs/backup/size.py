@@ -13,9 +13,7 @@ class BackupSizeNode:
     path: Path
     total: int = 0
     increment: int = 0
-    children: dict[str, "BackupSizeNode"] = field(
-        default_factory=dict
-    )
+    children: dict[str, BackupSizeNode] = field(default_factory=dict)
 
 
 @dataclass(frozen=True, slots=True)
@@ -45,11 +43,11 @@ class BackupSizeAccumulator:
         self._add(path.parent, increment=size)
 
     def _add(
-            self,
-            directory: Path,
-            *,
-            total: int = 0,
-            increment: int = 0,
+        self,
+        directory: Path,
+        *,
+        total: int = 0,
+        increment: int = 0,
     ) -> None:
         node = self.root
         node.total += total
@@ -106,11 +104,7 @@ class RsyncItemizedChangesParser:
             if itemization[0] != ">" or itemization[1] != "f":
                 continue
 
-            paths.append(
-                RsyncItemizedChangesParser._relative_path(
-                    line[12:]
-                )
-            )
+            paths.append(RsyncItemizedChangesParser._relative_path(line[12:]))
 
         return paths
 
@@ -120,14 +114,15 @@ class RsyncItemizedChangesParser:
         index = 0
 
         while index < len(value):
-            escaped = value[index:index + 5]
+            escaped = value[index : index + 5]
+            octal_digits = escaped[2:]
 
             if (
-                    len(escaped) == 5
-                    and escaped.startswith("\\#")
-                    and all(character in "01234567" for character in escaped[2:])
+                len(escaped) == 5
+                and escaped.startswith("\\#")
+                and all(character in "01234567" for character in octal_digits)
             ):
-                raw_path.append(int(escaped[2:], 8))
+                raw_path.append(int(octal_digits, 8))
                 index += 5
                 continue
 
@@ -147,10 +142,10 @@ class RsyncItemizedChangesParser:
 class BackupSizeRenderer:
     @classmethod
     def render(
-            cls,
-            size: BackupSize,
-            *,
-            depth: int,
+        cls,
+        size: BackupSize,
+        *,
+        depth: int,
     ) -> str:
         if depth < 0:
             raise ValueError("depth must be greater than or equal to 0")
@@ -166,16 +161,15 @@ class BackupSizeRenderer:
         )
         increment_width = max(
             len("Increment"),
-            *(
-                len(_format_size(node.increment))
-                for _, node in rows
-            ),
+            *(len(_format_size(node.increment)) for _, node in rows),
         )
 
         lines = [
-            f"{'Path':<{path_width}}  "
-            f"{'Total':>{total_width}}  "
-            f"{'Increment':>{increment_width}}"
+            (
+                f"{'Path':<{path_width}}  "
+                f"{'Total':>{total_width}}  "
+                f"{'Increment':>{increment_width}}"
+            )
         ]
 
         for label, node in rows:
@@ -189,10 +183,10 @@ class BackupSizeRenderer:
 
     @classmethod
     def _rows(
-            cls,
-            root: BackupSizeNode,
-            *,
-            depth: int,
+        cls,
+        root: BackupSizeNode,
+        *,
+        depth: int,
     ) -> list[tuple[str, BackupSizeNode]]:
         rows = [(".", root)]
 
@@ -211,13 +205,13 @@ class BackupSizeRenderer:
 
     @classmethod
     def _append_children(
-            cls,
-            rows: list[tuple[str, BackupSizeNode]],
-            node: BackupSizeNode,
-            *,
-            prefix: str,
-            current_depth: int,
-            maximum_depth: int,
+        cls,
+        rows: list[tuple[str, BackupSizeNode]],
+        node: BackupSizeNode,
+        *,
+        prefix: str,
+        current_depth: int,
+        maximum_depth: int,
     ) -> None:
         children = sorted(
             node.children.values(),
@@ -261,10 +255,7 @@ def _format_size(value: int) -> str:
 
 class BackupSizeCalculator:
     @staticmethod
-    def calculate(
-            target: TargetContext,
-            rsync: BackupRsyncData
-    ) -> BackupSize:
+    def calculate(target: TargetContext, rsync: BackupRsyncData) -> BackupSize:
         result = target.runner.run(
             create_rsync_backup_command(
                 manifest=rsync.manifest_path,
@@ -301,18 +292,17 @@ class BackupSizeCalculator:
 
         if accumulator.root.increment != rsync_increment:
             raise RuntimeError(
-                "Increment breakdown does not match rsync's "
-                "Total transferred file size"
+                "Increment breakdown does not match rsync's Total transferred file size"
             )
 
         return BackupSize(root=accumulator.root)
 
     @staticmethod
     def _accumulate_manifest(
-            accumulator: BackupSizeAccumulator,
-            *,
-            manifest: Path,
-            source: Path,
+        accumulator: BackupSizeAccumulator,
+        *,
+        manifest: Path,
+        source: Path,
     ) -> None:
         for path in BackupSizeCalculator._manifest_paths(manifest):
             status = (source / path).stat(follow_symlinks=False)
@@ -324,10 +314,10 @@ class BackupSizeCalculator:
 
     @staticmethod
     def _accumulate_increment(
-            accumulator: BackupSizeAccumulator,
-            *,
-            source: Path,
-            output: str,
+        accumulator: BackupSizeAccumulator,
+        *,
+        source: Path,
+        output: str,
     ) -> None:
         for path in RsyncItemizedChangesParser.parse(output):
             status = (source / path).stat(follow_symlinks=False)
@@ -346,9 +336,7 @@ class BackupSizeCalculator:
             path = Path(os.fsdecode(raw_path))
 
             if path.is_absolute() or ".." in path.parts:
-                raise RuntimeError(
-                    f"Backup manifest contains an unsafe path: {path}"
-                )
+                raise RuntimeError(f"Backup manifest contains an unsafe path: {path}")
 
             paths.append(path)
 
@@ -356,8 +344,8 @@ class BackupSizeCalculator:
 
     @staticmethod
     def _parse_stat(
-            output: str,
-            name: str,
+        output: str,
+        name: str,
     ) -> int:
         match = re.search(
             rf"^{re.escape(name)}:\s+([\d,]+)\s+bytes$",
@@ -366,8 +354,6 @@ class BackupSizeCalculator:
         )
 
         if match is None:
-            raise RuntimeError(
-                f"Could not find rsync statistic: {name}"
-            )
+            raise RuntimeError(f"Could not find rsync statistic: {name}")
 
         return int(match.group(1).replace(",", ""))

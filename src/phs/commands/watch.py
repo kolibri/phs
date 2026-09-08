@@ -7,9 +7,9 @@ from phs.execution import ExecutionFactory
 
 
 def watch(
-        *,
-        host: str = "local",
-        context: Annotated[AppContext, Parameter(parse=False)],
+    *,
+    host: str = "local",
+    context: Annotated[AppContext, Parameter(parse=False)],
 ) -> None:
     execution = ExecutionFactory.create(
         context,

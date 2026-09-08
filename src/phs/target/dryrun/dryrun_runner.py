@@ -1,4 +1,5 @@
-from typing import final, override, Sequence
+from collections.abc import Sequence
+from typing import final, override
 
 from phs.target.base import CommandResult
 from phs.target.runner import OutputCallback, Runner
@@ -18,21 +19,18 @@ class DryRunRunner(Runner):
 
     @override
     def run(
-            self,
-            command: Sequence[str],
-            *,
-            root: bool = False,
-            input_text: str | None = None,
-            capture_output: bool = False,
-            check: bool = True,
-            on_output: OutputCallback | None = None,
+        self,
+        command: Sequence[str],
+        *,
+        root: bool = False,
+        input_text: str | None = None,
+        capture_output: bool = False,
+        check: bool = True,
+        on_output: OutputCallback | None = None,
     ) -> CommandResult:
         prefix = "sudo " if root else ""
 
-        print(
-            f"[dry-run] [{self.runner.description}] "
-            f"{prefix}{' '.join(command)}"
-        )
+        print(f"[dry-run] [{self.runner.description}] {prefix}{' '.join(command)}")
 
         if input_text is not None:
             print("[dry-run] stdin:")

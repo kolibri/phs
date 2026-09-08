@@ -1,6 +1,7 @@
 import os
 import subprocess
-from typing import final, Sequence, override
+from collections.abc import Sequence
+from typing import final, override
 
 from phs.target.base import CommandResult, TargetCommandError
 from phs.target.runner import OutputCallback, Runner
@@ -10,9 +11,9 @@ from phs.target.runner import OutputCallback, Runner
 class LocalRunner(Runner):
     @staticmethod
     def _command(
-            command: Sequence[str],
-            *,
-            root: bool,
+        command: Sequence[str],
+        *,
+        root: bool,
     ) -> list[str]:
         result = list(command)
 
@@ -36,14 +37,14 @@ class LocalRunner(Runner):
 
     @override
     def run(
-            self,
-            command: Sequence[str],
-            *,
-            root: bool = False,
-            input_text: str | None = None,
-            capture_output: bool = False,
-            check: bool = True,
-            on_output: OutputCallback | None = None,
+        self,
+        command: Sequence[str],
+        *,
+        root: bool = False,
+        input_text: str | None = None,
+        capture_output: bool = False,
+        check: bool = True,
+        on_output: OutputCallback | None = None,
     ) -> CommandResult:
         actual_command = self._command(
             command,
@@ -53,11 +54,7 @@ class LocalRunner(Runner):
         if on_output is not None and not capture_output:
             process = subprocess.Popen(
                 actual_command,
-                stdin=(
-                    subprocess.PIPE
-                    if input_text is not None
-                    else None
-                ),
+                stdin=(subprocess.PIPE if input_text is not None else None),
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
@@ -79,9 +76,7 @@ class LocalRunner(Runner):
                 raise RuntimeError("Expected subprocess stdout")
 
             for line in process.stdout:
-                on_output(
-                    line.removesuffix("\n").removesuffix("\r")
-                )
+                on_output(line.removesuffix("\n").removesuffix("\r"))
 
             result = CommandResult(
                 command=tuple(actual_command),

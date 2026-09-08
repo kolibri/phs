@@ -15,10 +15,6 @@ class BackupManifestWrite:
     def execute(self, target: TargetContext) -> None:
         target.output.info(f"Writing backup manifest to {self.path}")
 
-        target.runner.run(["mkdir","-p",str(self.path.parent)], root=True)
+        target.runner.run(["mkdir", "-p", str(self.path.parent)], root=True)
 
-        target.filesystem.write_text(
-            self.path,
-            self.manifest.as_rsync(),
-            root=True
-        )
+        target.filesystem.write_text(self.path, self.manifest.as_rsync(), root=True)

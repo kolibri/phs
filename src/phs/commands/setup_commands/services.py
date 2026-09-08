@@ -9,11 +9,11 @@ from phs.modules.setup.services import Services
 
 
 def services(
-        *,
-        options: ExecutionOptions = ExecutionOptions(),
-        context: Annotated[AppContext, Parameter(parse=False)],
+    *,
+    options: ExecutionOptions = ExecutionOptions(),
+    context: Annotated[AppContext, Parameter(parse=False)],
 ) -> None:
-    context.output.info(f"Enabling services")
+    context.output.info("Enabling services")
 
     run_modules(
         [Services()],

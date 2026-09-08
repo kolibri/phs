@@ -9,9 +9,9 @@ from phs.modules.setup.file_associations import FileAssociations
 
 
 def file_associations(
-        *,
-        options: ExecutionOptions = ExecutionOptions(),
-        context: Annotated[AppContext, Parameter(parse=False)],
+    *,
+    options: ExecutionOptions = ExecutionOptions(),
+    context: Annotated[AppContext, Parameter(parse=False)],
 ) -> None:
     context.output.info("Ensuring file associations")
 

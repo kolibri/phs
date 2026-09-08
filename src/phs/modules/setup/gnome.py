@@ -15,10 +15,11 @@ class Gnome:
         _data: HostData,
     ) -> list[Task]:
         return [
-            PacmanInstall((
-                "gdm",
-                "gnome-control-center",
-            )),
-
+            PacmanInstall(
+                (
+                    "gdm",
+                    "gnome-control-center",
+                )
+            ),
             ServiceEnable(("gdm",)),
         ]

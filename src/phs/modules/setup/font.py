@@ -11,9 +11,9 @@ from phs.tasks.task import Task
 @final
 class Font:
     def tasks(
-            self,
-            context: AppContext,
-            data: HostData,
+        self,
+        context: AppContext,
+        data: HostData,
     ) -> list[Task]:
         return [
             AurInstall(("fnt",), context.builtin_templates),

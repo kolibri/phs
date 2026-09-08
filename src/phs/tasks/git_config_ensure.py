@@ -33,10 +33,12 @@ class GitConfigEnsure:
                 continue
 
             target.output.info(f"Ensuring git config {key}")
-            target.runner.run([
-                "git",
-                "config",
-                "--global",
-                key,
-                value,
-            ])
+            target.runner.run(
+                [
+                    "git",
+                    "config",
+                    "--global",
+                    key,
+                    value,
+                ]
+            )

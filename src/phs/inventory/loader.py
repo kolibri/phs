@@ -34,18 +34,12 @@ class HostDataLoader:
                 load_yaml(self.config_dir / "all.yaml")
             )
         except ValidationError as error:
-            raise InventoryError(
-                format_validation_error(all_path, error)
-            ) from error
+            raise InventoryError(format_validation_error(all_path, error)) from error
 
         try:
-            host_config = HostDataFragment.model_validate(
-                load_yaml(host_path)
-            )
+            host_config = HostDataFragment.model_validate(load_yaml(host_path))
         except ValidationError as error:
-            raise InventoryError(
-                format_validation_error(host_path, error)
-            ) from error
+            raise InventoryError(format_validation_error(host_path, error)) from error
 
         return HostData(
             hostname=host_config.hostname,
@@ -64,9 +58,13 @@ class HostDataLoader:
                 else all_config.modules
             ),
             packages=self.merge_unique(all_config.packages, host_config.packages),
-            aur_packages=self.merge_unique(all_config.aur_packages, host_config.aur_packages),
+            aur_packages=self.merge_unique(
+                all_config.aur_packages, host_config.aur_packages
+            ),
             files=self.merge_files(all_config.files, host_config.files),
-            nfs_sources=self.merge_nfs_sources(all_config.nfs_sources, host_config.nfs_sources),
+            nfs_sources=self.merge_nfs_sources(
+                all_config.nfs_sources, host_config.nfs_sources
+            ),
             services=self.merge_unique(all_config.services, host_config.services),
             fonts=self.merge_unique(all_config.fonts, host_config.fonts),
             file_associations={

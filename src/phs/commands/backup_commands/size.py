@@ -11,12 +11,12 @@ from phs.execution import ExecutionFactory
 
 
 def backup_size(
-        *,
-        depth: Annotated[
-            int,
-            Parameter(validator=validators.Number(gte=0)),
-        ] = 1,
-        context: Annotated[AppContext, Parameter(parse=False)],
+    *,
+    depth: Annotated[
+        int,
+        Parameter(validator=validators.Number(gte=0)),
+    ] = 1,
+    context: Annotated[AppContext, Parameter(parse=False)],
 ) -> None:
     if depth < 0:
         raise ValueError("depth must be greater than or equal to 0")
@@ -33,9 +33,9 @@ def backup_size(
     target_dir = Path(data.backup.target_dir)
 
     if not _validate_snapshot_inputs(
-            manifest=manifest,
-            target_dir=target_dir,
-            context=context,
+        manifest=manifest,
+        target_dir=target_dir,
+        context=context,
     ):
         return
 

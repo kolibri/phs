@@ -6,9 +6,9 @@ from phs.context import AppContext
 
 
 def print_config(
-        *,
-        host: str | None = None,
-        context: Annotated[AppContext, Parameter(parse=False)],
+    *,
+    host: str | None = None,
+    context: Annotated[AppContext, Parameter(parse=False)],
 ) -> None:
     target_host = context.settings.my_hostname if host is None else host
     data = context.inventory.load(target_host)

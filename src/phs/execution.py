@@ -15,7 +15,7 @@ from phs.target.local.local_runner import LocalRunner
 from phs.target.local.local_transfer import LocalTransfer
 from phs.target.remote.remote_runner import RemoteRunner
 from phs.target.remote.remote_transfer import RemoteTransfer
-from phs.target.runner import Runner, OutputRunner
+from phs.target.runner import OutputRunner, Runner
 from phs.target.transfer import Transfer
 from phs.watch import WatchCache
 
@@ -43,11 +43,7 @@ class ExecutionFactory:
         host: str,
         dry_run: bool,
     ) -> Execution:
-        target_host = (
-            context.settings.my_hostname
-            if host == "local"
-            else host
-        )
+        target_host = context.settings.my_hostname if host == "local" else host
 
         data = context.inventory.load(target_host)
 

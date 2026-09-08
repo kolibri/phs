@@ -84,9 +84,11 @@ class FileAssociationEnsure:
             target.output.info(
                 f"Ensuring .{extension.removeprefix('.')} opens with {application}"
             )
-            target.runner.run([
-                "mimeo",
-                "--prefer",
-                mime_type,
-                desktop_file,
-            ])
+            target.runner.run(
+                [
+                    "mimeo",
+                    "--prefer",
+                    mime_type,
+                    desktop_file,
+                ]
+            )

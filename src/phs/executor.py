@@ -9,8 +9,8 @@ from phs.tasks.task import Task
 class Executor:
     @staticmethod
     def execute(
-            tasks: Sequence[Task],
-            target: TargetContext,
+        tasks: Sequence[Task],
+        target: TargetContext,
     ) -> None:
         try:
             for task in tasks:

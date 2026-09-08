@@ -28,13 +28,15 @@ class SshkeyEnsure:
             raise RuntimeError(f"Incomplete SSH key pair at {self.path}")
 
         if self.replace:
-            target.runner.run([
-                "rm",
-                "-f",
-                "--",
-                str(self.path),
-                str(public_path),
-            ])
+            target.runner.run(
+                [
+                    "rm",
+                    "-f",
+                    "--",
+                    str(self.path),
+                    str(public_path),
+                ]
+            )
 
         target.runner.run(["mkdir", "-p", "--", str(self.path.parent)])
         target.runner.run(["chmod", "700", str(self.path.parent)])

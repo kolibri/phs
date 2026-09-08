@@ -5,13 +5,13 @@ from pathlib import Path
 
 
 def create_rsync_backup_command(
-        manifest: Path,
-        source: Path,
-        destination: Path,
-        previous: Path | None = None,
-        *,
-        dry_run: bool = False,
-        itemize_changes: bool = False,
+    manifest: Path,
+    source: Path,
+    destination: Path,
+    previous: Path | None = None,
+    *,
+    dry_run: bool = False,
+    itemize_changes: bool = False,
 ) -> list[str]:
     command = [
         "env",
@@ -32,14 +32,14 @@ def create_rsync_backup_command(
         command.append("--itemize-changes")
 
     if previous is not None:
-        command.append(
-            f"--link-dest={previous}"
-        )
+        command.append(f"--link-dest={previous}")
 
-    command.extend([
-        f"{source}/",
-        f"{destination}/",
-    ])
+    command.extend(
+        [
+            f"{source}/",
+            f"{destination}/",
+        ]
+    )
 
     return command
 
@@ -69,25 +69,20 @@ class BackupRsyncData:
 
     @property
     def manifest_sha256_path(self) -> Path:
-        return self.target_dir / (
-            f".{self.name}.partial.manifest-sha256"
-        )
+        return self.target_dir / (f".{self.name}.partial.manifest-sha256")
 
     @classmethod
     def create(
-            cls,
-            *,
-            manifest: Path,
-            source: Path,
-            target: Path,
-    ) -> "BackupRsyncData":
+        cls,
+        *,
+        manifest: Path,
+        source: Path,
+        target: Path,
+    ) -> BackupRsyncData:
         partials = cls._partial_snapshots(target)
 
         if partials:
-            names = "\n".join(
-                f"  {path.name}"
-                for _, path in partials
-            )
+            names = "\n".join(f"  {path.name}" for _, path in partials)
             label = (
                 "Incomplete backup snapshot exists:"
                 if len(partials) == 1
@@ -95,9 +90,7 @@ class BackupRsyncData:
             )
 
             raise BackupSnapshotError(
-                f"{label}\n{names}\n\n"
-                "Use:\n"
-                "  phs backup snapshot --resume"
+                f"{label}\n{names}\n\nUse:\n  phs backup snapshot --resume"
             )
 
         return cls(
@@ -111,24 +104,19 @@ class BackupRsyncData:
 
     @classmethod
     def resume(
-            cls,
-            *,
-            manifest: Path,
-            source: Path,
-            target: Path,
-    ) -> "BackupRsyncData":
+        cls,
+        *,
+        manifest: Path,
+        source: Path,
+        target: Path,
+    ) -> BackupRsyncData:
         partials = cls._partial_snapshots(target)
 
         if not partials:
-            raise BackupSnapshotError(
-                "No incomplete backup snapshot found."
-            )
+            raise BackupSnapshotError("No incomplete backup snapshot found.")
 
         if len(partials) > 1:
-            names = "\n".join(
-                f"  {path.name}"
-                for _, path in partials
-            )
+            names = "\n".join(f"  {path.name}" for _, path in partials)
 
             raise BackupSnapshotError(
                 "Multiple incomplete backup snapshots found.\n"
@@ -149,9 +137,7 @@ class BackupRsyncData:
             )
 
         manifest_sha256 = cls.fingerprint_manifest(manifest)
-        metadata = target / (
-            f".{name}.partial.manifest-sha256"
-        )
+        metadata = target / (f".{name}.partial.manifest-sha256")
 
         if not metadata.is_file():
             raise BackupSnapshotError(
@@ -160,9 +146,7 @@ class BackupRsyncData:
             )
 
         try:
-            stored_sha256 = metadata.read_text(
-                encoding="ascii"
-            ).strip()
+            stored_sha256 = metadata.read_text(encoding="ascii").strip()
         except UnicodeDecodeError:
             stored_sha256 = ""
 
@@ -193,8 +177,8 @@ class BackupRsyncData:
 
     @classmethod
     def _partial_snapshots(
-            cls,
-            target: Path,
+        cls,
+        target: Path,
     ) -> list[tuple[datetime, Path]]:
         snapshots: list[tuple[datetime, Path]] = []
 
@@ -224,7 +208,7 @@ class BackupRsyncData:
         if not name.startswith(prefix) or not name.endswith(suffix):
             return None
 
-        snapshot_name = name[len(prefix):-len(suffix)]
+        snapshot_name = name[len(prefix) : -len(suffix)]
 
         if cls._snapshot_timestamp(snapshot_name) is None:
             return None
@@ -234,7 +218,7 @@ class BackupRsyncData:
     @classmethod
     def _snapshot_timestamp(cls, name: str) -> datetime | None:
         try:
-            timestamp = datetime.strptime(name, cls._name_format)
+            timestamp = datetime.strptime(name, cls._name_format).replace(tzinfo=UTC)
         except ValueError:
             return None
 

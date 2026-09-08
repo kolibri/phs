@@ -13,6 +13,7 @@ def _search_name(font: str) -> str:
 
     return font
 
+
 @final
 @dataclass(frozen=True, slots=True)
 class FntInstall:
@@ -20,8 +21,9 @@ class FntInstall:
 
     def execute(self, target: TargetContext) -> None:
         for font in self.fonts:
-
-            result = target.runner.run(["fnt", "search", _search_name(font)], capture_output=True)
+            result = target.runner.run(
+                ["fnt", "search", _search_name(font)], capture_output=True
+            )
 
             target.output.info(f"##{font}##")
 
@@ -37,10 +39,11 @@ class FntInstall:
                 target.output.error(f"Font {font} not found in catalog!")
                 raise ValueError(f"Font {font} not found")
 
-
             target.output.info(f"Ensuring font {font}")
-            target.runner.run([
-                "fnt",
-                "install",
-                font,
-            ])
+            target.runner.run(
+                [
+                    "fnt",
+                    "install",
+                    font,
+                ]
+            )

@@ -15,11 +15,13 @@ from phs.tasks.task import Task
 
 
 def init(
-        *,
-        options: ExecutionOptions = ExecutionOptions(),
-        context: Annotated[AppContext, Parameter(parse=False)],
+    *,
+    options: ExecutionOptions = ExecutionOptions(),
+    context: Annotated[AppContext, Parameter(parse=False)],
 ):
-    execution = ExecutionFactory.create(context, host=options.host, dry_run=options.dry_run)
+    execution = ExecutionFactory.create(
+        context, host=options.host, dry_run=options.dry_run
+    )
     data = execution.data
 
     context.output.info(f"Starting initializing new host {data.hostname}.")
@@ -28,7 +30,10 @@ def init(
         PacmanUpdate(),
         SshkeyEnsure(Path(data.homedir) / ".ssh" / "id_ed25519"),
         DirectoryCreate(Path(data.homedir) / "projects"),
-        GitClone("https://github.com/kolibri/phs.git", Path(data.homedir) / "projects" / "phs"),
+        GitClone(
+            "https://github.com/kolibri/phs.git",
+            Path(data.homedir) / "projects" / "phs",
+        ),
         CopyPath(
             Path(context.settings.config_dir),
             Path(data.homedir) / ".phs" / "hosts",

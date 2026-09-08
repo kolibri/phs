@@ -9,11 +9,11 @@ from phs.modules.setup.nfs import Nfs
 
 
 def nfs(
-        *,
-        options: ExecutionOptions = ExecutionOptions(),
-        context: Annotated[AppContext, Parameter(parse=False)],
+    *,
+    options: ExecutionOptions = ExecutionOptions(),
+    context: Annotated[AppContext, Parameter(parse=False)],
 ) -> None:
-    context.output.info(f"Setting up nfs")
+    context.output.info("Setting up nfs")
 
     run_modules(
         [Nfs()],

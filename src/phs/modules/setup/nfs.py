@@ -16,9 +16,9 @@ from phs.tasks.task import Task
 @final
 class Nfs:
     def tasks(
-            self,
-            context: AppContext,
-            data: HostData,
+        self,
+        context: AppContext,
+        data: HostData,
     ) -> list[Task]:
         tasks: list[Task] = [
             PacmanInstall(("nfs-utils",)),
@@ -27,15 +27,17 @@ class Nfs:
         ]
 
         for nfs in data.nfs_sources:
-            tasks.extend([
-                DirectoryCreate(nfs.target, root=True),
-                EnsureLine(
-                    Path("/etc/fstab"),
-                    line=f"{nfs.source} {str(nfs.target)} {nfs.options}",
-                    match=rf"^{re.escape(nfs.source)}(?:\s|$)",
-                    root=True,
-                ),
-            ])
+            tasks.extend(
+                [
+                    DirectoryCreate(nfs.target, root=True),
+                    EnsureLine(
+                        Path("/etc/fstab"),
+                        line=f"{nfs.source} {nfs.target!s} {nfs.options}",
+                        match=rf"^{re.escape(nfs.source)}(?:\s|$)",
+                        root=True,
+                    ),
+                ]
+            )
 
         tasks.append(ServiceDaemonReload())
 

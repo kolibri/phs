@@ -27,7 +27,9 @@ class FntUpdate:
             return
 
         target.output.info("Updating font index")
-        target.runner.run([
-            "fnt",
-            "update",
-        ])
+        target.runner.run(
+            [
+                "fnt",
+                "update",
+            ]
+        )

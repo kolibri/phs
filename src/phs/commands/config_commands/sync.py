@@ -7,8 +7,8 @@ from phs.context import AppContext
 
 
 def sync_config(
-        *,
-        context: Annotated[AppContext, Parameter(parse=False)],
+    *,
+    context: Annotated[AppContext, Parameter(parse=False)],
 ) -> None:
     ConfigRepository(
         context.settings.config_dir,

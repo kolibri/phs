@@ -18,21 +18,23 @@ add = App(name="add")
 
 
 def _execute_add(
-        *,
-        description: str,
-        change: InventoryChange,
-        commit_message: str,
-        task: Task,
-        execution: Execution,
-        options: ExecutionOptions,
-        context: AppContext,
-        repository: ConfigRepository,
+    *,
+    description: str,
+    change: InventoryChange,
+    commit_message: str,
+    task: Task,
+    execution: Execution,
+    options: ExecutionOptions,
+    context: AppContext,
+    repository: ConfigRepository,
 ) -> None:
     if options.dry_run:
         context.output.info(f"Would ensure {description}.")
         change.show(context.output)
         if change.changed:
-            context.output.info(f'Would create configuration commit: "{commit_message}"')
+            context.output.info(
+                f'Would create configuration commit: "{commit_message}"'
+            )
         return
 
     Executor.execute([task], execution.target)
@@ -40,18 +42,14 @@ def _execute_add(
 
     if change.changed:
         repository.commit([change.path], commit_message)
-        context.output.success(
-            f"Added {description} to {execution.data.hostname}."
-        )
+        context.output.success(f"Added {description} to {execution.data.hostname}.")
     else:
-        context.output.info(
-            f"{description.capitalize()} is already configured."
-        )
+        context.output.info(f"{description.capitalize()} is already configured.")
 
 
 def _execution(
-        options: ExecutionOptions,
-        context: AppContext,
+    options: ExecutionOptions,
+    context: AppContext,
 ) -> tuple[Execution, InventoryEditor, ConfigRepository]:
     repository = ConfigRepository(
         context.settings.config_dir,
@@ -72,10 +70,10 @@ def _execution(
 
 
 def pkg(
-        package: str,
-        *,
-        options: ExecutionOptions = ExecutionOptions(),
-        context: Annotated[AppContext, Parameter(parse=False)],
+    package: str,
+    *,
+    options: ExecutionOptions = ExecutionOptions(),
+    context: Annotated[AppContext, Parameter(parse=False)],
 ) -> None:
     execution, editor, repository = _execution(options, context)
     change = editor.add_package(execution.data.hostname, package)
@@ -93,10 +91,10 @@ def pkg(
 
 
 def aur(
-        package: str,
-        *,
-        options: ExecutionOptions = ExecutionOptions(),
-        context: Annotated[AppContext, Parameter(parse=False)],
+    package: str,
+    *,
+    options: ExecutionOptions = ExecutionOptions(),
+    context: Annotated[AppContext, Parameter(parse=False)],
 ) -> None:
     execution, editor, repository = _execution(options, context)
     change = editor.add_aur_package(execution.data.hostname, package)
@@ -114,10 +112,10 @@ def aur(
 
 
 def font(
-        name: str,
-        *,
-        options: ExecutionOptions = ExecutionOptions(),
-        context: Annotated[AppContext, Parameter(parse=False)],
+    name: str,
+    *,
+    options: ExecutionOptions = ExecutionOptions(),
+    context: Annotated[AppContext, Parameter(parse=False)],
 ) -> None:
     execution, editor, repository = _execution(options, context)
     change = editor.add_font(execution.data.hostname, name)
@@ -135,10 +133,10 @@ def font(
 
 
 def service(
-        name: str,
-        *,
-        options: ExecutionOptions = ExecutionOptions(),
-        context: Annotated[AppContext, Parameter(parse=False)],
+    name: str,
+    *,
+    options: ExecutionOptions = ExecutionOptions(),
+    context: Annotated[AppContext, Parameter(parse=False)],
 ) -> None:
     execution, editor, repository = _execution(options, context)
     change = editor.add_service(execution.data.hostname, name)
@@ -156,11 +154,11 @@ def service(
 
 
 def app_for(
-        extension: str,
-        application: str,
-        *,
-        options: ExecutionOptions = ExecutionOptions(),
-        context: Annotated[AppContext, Parameter(parse=False)],
+    extension: str,
+    application: str,
+    *,
+    options: ExecutionOptions = ExecutionOptions(),
+    context: Annotated[AppContext, Parameter(parse=False)],
 ) -> None:
     execution, editor, repository = _execution(options, context)
     extension = extension.removeprefix(".")

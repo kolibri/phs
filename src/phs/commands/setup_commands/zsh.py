@@ -13,7 +13,7 @@ def zsh(
     options: ExecutionOptions = ExecutionOptions(),
     context: Annotated[AppContext, Parameter(parse=False)],
 ) -> None:
-    context.output.info(f"Setting up zsh")
+    context.output.info("Setting up zsh")
 
     run_modules(
         [Zsh()],
