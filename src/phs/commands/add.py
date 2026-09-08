@@ -103,7 +103,7 @@ def aur(
         description=f"AUR package {package}",
         change=change,
         commit_message=f"Add AUR package {package} to {execution.data.hostname}",
-        task=AurInstall((package,), context.builtin_templates),
+        task=AurInstall((package,)),
         execution=execution,
         options=options,
         context=context,

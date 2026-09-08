@@ -19,6 +19,6 @@ class FileAssociations:
             BashRun(
                 "gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys D89FAAEB4CECAFD199A2F5E612C6F735F7A9A519"
             ),
-            AurInstall(("mimeo",), context.builtin_templates),
+            AurInstall(("mimeo",)),
             FileAssociationEnsure(tuple(data.file_associations.items())),
         ]

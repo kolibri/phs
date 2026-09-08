@@ -26,5 +26,5 @@ class Packages:
             ),
             PacmanUpdate(),
             PacmanInstall(tuple(data.packages)),
-            AurInstall(tuple(data.aur_packages), context.builtin_templates),
+            AurInstall(tuple(data.aur_packages)),
         ]

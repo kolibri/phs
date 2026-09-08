@@ -16,7 +16,7 @@ class Font:
         data: HostData,
     ) -> list[Task]:
         return [
-            AurInstall(("fnt",), context.builtin_templates),
+            AurInstall(("fnt",)),
             FntUpdate(),
             FntInstall(tuple(data.fonts)),
         ]

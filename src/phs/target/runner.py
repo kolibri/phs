@@ -1,4 +1,5 @@
 from collections.abc import Callable, Sequence
+from pathlib import Path
 from typing import Protocol, final, override
 
 from phs.output import Output
@@ -9,6 +10,11 @@ type OutputCallback = Callable[[str], None]
 
 class Runner(Protocol):
     @property
+    def dry_run(self) -> bool:
+        """Whether tasks should preview work without querying external state."""
+        return False
+
+    @property
     def description(self) -> str: ...
 
     def run(
@@ -16,6 +22,7 @@ class Runner(Protocol):
         command: Sequence[str],
         *,
         root: bool = False,
+        cwd: Path | None = None,
         input_text: str | None = None,
         capture_output: bool = False,
         check: bool = True,
@@ -35,6 +42,11 @@ class OutputRunner(Runner):
 
     @property
     @override
+    def dry_run(self) -> bool:
+        return self.runner.dry_run
+
+    @property
+    @override
     def description(self) -> str:
         return self.runner.description
 
@@ -44,6 +56,7 @@ class OutputRunner(Runner):
         command: Sequence[str],
         *,
         root: bool = False,
+        cwd: Path | None = None,
         input_text: str | None = None,
         capture_output: bool = False,
         check: bool = True,
@@ -53,6 +66,7 @@ class OutputRunner(Runner):
             return self.runner.run(
                 command,
                 root=root,
+                cwd=cwd,
                 input_text=input_text,
                 capture_output=True,
                 check=check,
@@ -61,6 +75,7 @@ class OutputRunner(Runner):
         return self.runner.run(
             command,
             root=root,
+            cwd=cwd,
             input_text=input_text,
             check=check,
             on_output=(on_output if on_output is not None else self.output.text),

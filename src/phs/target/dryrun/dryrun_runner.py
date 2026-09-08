@@ -1,4 +1,5 @@
 from collections.abc import Sequence
+from pathlib import Path
 from typing import final, override
 
 from phs.target.base import CommandResult
@@ -14,6 +15,11 @@ class DryRunRunner(Runner):
 
     @property
     @override
+    def dry_run(self) -> bool:
+        return True
+
+    @property
+    @override
     def description(self) -> str:
         return self.runner.description
 
@@ -23,6 +29,7 @@ class DryRunRunner(Runner):
         command: Sequence[str],
         *,
         root: bool = False,
+        cwd: Path | None = None,
         input_text: str | None = None,
         capture_output: bool = False,
         check: bool = True,
@@ -31,6 +38,9 @@ class DryRunRunner(Runner):
         prefix = "sudo " if root else ""
 
         print(f"[dry-run] [{self.runner.description}] {prefix}{' '.join(command)}")
+
+        if cwd is not None:
+            print(f"[dry-run] cwd: {cwd}")
 
         if input_text is not None:
             print("[dry-run] stdin:")

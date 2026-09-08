@@ -1,6 +1,7 @@
 import os
 import subprocess
 from collections.abc import Sequence
+from pathlib import Path
 from typing import final, override
 
 from phs.target.base import CommandResult, TargetCommandError
@@ -41,6 +42,7 @@ class LocalRunner(Runner):
         command: Sequence[str],
         *,
         root: bool = False,
+        cwd: Path | None = None,
         input_text: str | None = None,
         capture_output: bool = False,
         check: bool = True,
@@ -54,6 +56,7 @@ class LocalRunner(Runner):
         if on_output is not None and not capture_output:
             process = subprocess.Popen(
                 actual_command,
+                cwd=cwd,
                 stdin=(subprocess.PIPE if input_text is not None else None),
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
@@ -87,6 +90,7 @@ class LocalRunner(Runner):
         else:
             completed = subprocess.run(
                 actual_command,
+                cwd=cwd,
                 input=input_text,
                 text=True,
                 capture_output=capture_output,

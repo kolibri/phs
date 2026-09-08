@@ -49,6 +49,7 @@ class RemoteRunner(Runner):
         command: Sequence[str],
         *,
         root: bool,
+        cwd: Path | None = None,
     ) -> list[str]:
         remote_command = list(command)
 
@@ -63,11 +64,18 @@ class RemoteRunner(Runner):
                 *remote_command,
             ]
 
+        remote_text = shlex.join(remote_command)
+        if cwd is not None:
+            # Only the SSH transport constructs shell syntax. Prefix relative
+            # paths so a leading '-' cannot be interpreted as a cd option.
+            directory = str(cwd) if cwd.is_absolute() else f"./{cwd}"
+            remote_text = f"cd {shlex.quote(directory)} && {remote_text}"
+
         return [
             "ssh",
             *self.ssh_options(),
             f"{self.user}@{self.host}",
-            shlex.join(remote_command),
+            remote_text,
         ]
 
     @property
@@ -81,6 +89,7 @@ class RemoteRunner(Runner):
         command: Sequence[str],
         *,
         root: bool = False,
+        cwd: Path | None = None,
         input_text: str | None = None,
         capture_output: bool = False,
         check: bool = True,
@@ -89,6 +98,7 @@ class RemoteRunner(Runner):
         actual_command = self._ssh_command(
             command,
             root=root,
+            cwd=cwd,
         )
 
         if on_output is not None and not capture_output:

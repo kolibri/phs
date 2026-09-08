@@ -12,8 +12,10 @@ from phs.watch import WatchCache
 
 @pytest.fixture
 def target() -> TargetContext:
+    runner = Mock(spec=Runner)
+    runner.dry_run = False
     return TargetContext(
-        runner=Mock(spec=Runner),
+        runner=runner,
         filesystem=Mock(spec=Filesystem),
         transfer=Mock(spec=Transfer),
         output=Mock(spec=Output),
