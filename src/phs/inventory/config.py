@@ -1,68 +1,35 @@
 from pathlib import Path
-from typing import Annotated, ClassVar, Literal, TypedDict
+from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import Field
+
+from phs.inventory.base import InventoryModel
 
 
-class FileConfig(BaseModel):
-    model_config: ClassVar[ConfigDict] = ConfigDict(extra="forbid")
+class FileConfig(InventoryModel):
     target: Path
     src: Path
     root: bool = False
 
 
-class FileConfigDict(TypedDict):
-    target: str
-    src: str
-    root: bool
-
-
-def file_config_to_dict(file: FileConfig) -> FileConfigDict:
-    result: FileConfigDict = {
-        "target": str(file.target),
-        "src": str(file.src),
-        "root": file.root,
-    }
-    return result
-
-
-class NfsSource(BaseModel):
-    model_config: ClassVar[ConfigDict] = ConfigDict(extra="forbid")
+class NfsSource(InventoryModel):
     source: str
     target: Path
     options: str
 
 
-class NfsSourceDict(TypedDict):
-    source: str
-    target: str
-    options: str
-
-
-def nfs_source_to_dict(nfs: NfsSource) -> NfsSourceDict:
-    result: NfsSourceDict = {
-        "source": nfs.source,
-        "target": str(nfs.target),
-        "options": nfs.options,
-    }
-    return result
-
-
-class HyprlandDesktopConfig(BaseModel):
-    model_config: ClassVar[ConfigDict] = ConfigDict(extra="forbid")
+class HyprlandDesktopConfig(InventoryModel):
     type: Literal["hyprland"]
     hypr_dir: Path
     waybar_dir: Path
 
 
-class QtileDesktopConfig(BaseModel):
-    model_config: ClassVar[ConfigDict] = ConfigDict(extra="forbid")
+class QtileDesktopConfig(InventoryModel):
     type: Literal["qtile"]
     config_file: Path
 
 
-class GnomeDesktopConfig(BaseModel):
-    model_config: ClassVar[ConfigDict] = ConfigDict(extra="forbid")
+class GnomeDesktopConfig(InventoryModel):
     type: Literal["gnome"]
 
 
@@ -72,100 +39,14 @@ type DesktopConfig = Annotated[
 ]
 
 
-class HyprlandDesktopConfigDict(TypedDict):
-    type: Literal["hyprland"]
-    hypr_dir: str
-    waybar_dir: str
-
-
-class QtileDesktopConfigDict(TypedDict):
-    type: Literal["qtile"]
-    config_file: str
-
-
-class GnomeDesktopConfigDict(TypedDict):
-    type: Literal["gnome"]
-
-
-type DesktopConfigDict = (
-    HyprlandDesktopConfigDict | QtileDesktopConfigDict | GnomeDesktopConfigDict
-)
-
-
-class PrinterConfig(BaseModel):
-    model_config: ClassVar[ConfigDict] = ConfigDict(extra="forbid")
-
+class PrinterConfig(InventoryModel):
     name: str
     uri: str
     default: bool = False
 
 
-class PrinterConfigDict(TypedDict):
-    name: str
-    uri: str
-    default: bool
-
-
-def printer_config_to_dict(printer: PrinterConfig) -> PrinterConfigDict:
-    result: PrinterConfigDict = {
-        "name": printer.name,
-        "uri": printer.uri,
-        "default": printer.default,
-    }
-    return result
-
-
-def desktop_to_dict(
-    desktop: DesktopConfig | None,
-) -> DesktopConfigDict | None:
-    if isinstance(desktop, HyprlandDesktopConfig):
-        result: HyprlandDesktopConfigDict = {
-            "type": "hyprland",
-            "hypr_dir": str(desktop.hypr_dir),
-            "waybar_dir": str(desktop.waybar_dir),
-        }
-        return result
-
-    if isinstance(desktop, QtileDesktopConfig):
-        result: QtileDesktopConfigDict = {
-            "type": "qtile",
-            "config_file": str(desktop.config_file),
-        }
-        return result
-
-    if isinstance(desktop, GnomeDesktopConfig):
-        result: GnomeDesktopConfigDict = {
-            "type": "gnome",
-        }
-        return result
-
-    return None
-
-
-class BackupConfig(BaseModel):
-    model_config: ClassVar[ConfigDict] = ConfigDict(extra="forbid")
+class BackupConfig(InventoryModel):
     manifest_path: Path
     include: list[Path] = Field(min_length=1)
     excludes: list[str] = Field(default_factory=list)
     target_dir: Path
-
-
-class BackupConfigDict(TypedDict):
-    manifest_path: str
-    include: list[str]
-    excludes: list[str]
-    target_dir: str
-
-
-def backup_config_to_dict(backup: BackupConfig | None) -> BackupConfigDict | None:
-    if backup is None:
-        return None
-
-    result: BackupConfigDict = {
-        "manifest_path": str(backup.manifest_path),
-        "include": [str(path) for path in backup.include],
-        "excludes": backup.excludes,
-        "target_dir": str(backup.target_dir),
-    }
-
-    return result
