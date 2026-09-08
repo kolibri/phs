@@ -51,11 +51,9 @@ def nfs_source_to_dict(nfs: NfsSource) -> NfsSourceDict:
 class HyprlandDesktopConfig(BaseModel):
     model_config: ClassVar[ConfigDict] = ConfigDict(extra="forbid")
     type: Literal["hyprland"]
-    config_file: Path
-    waybar_config_file: Path
-    waybar_style_file: Path
-    idle_config_file: Path
-    paper_config_file: Path
+    hypr_dir: Path
+    waybar_dir: Path
+
 
 class QtileDesktopConfig(BaseModel):
     model_config: ClassVar[ConfigDict] = ConfigDict(extra="forbid")
@@ -76,11 +74,8 @@ type DesktopConfig = Annotated[
 
 class HyprlandDesktopConfigDict(TypedDict):
     type: Literal["hyprland"]
-    config_file: str
-    waybar_config_file: str
-    waybar_style_file: str
-    idle_config_file: str
-    paper_config_file: str
+    hypr_dir: str
+    waybar_dir: str
 
 
 class QtileDesktopConfigDict(TypedDict):
@@ -98,6 +93,26 @@ type DesktopConfigDict = (
         | GnomeDesktopConfigDict
 )
 
+class PrinterConfig(BaseModel):
+    model_config: ClassVar[ConfigDict] = ConfigDict(extra="forbid")
+
+    name: str
+    uri: str
+    default: bool = False
+
+class PrinterConfigDict(TypedDict):
+    name: str
+    uri: str
+    default: bool
+
+def printer_config_to_dict(printer: PrinterConfig) -> PrinterConfigDict:
+    result: PrinterConfigDict = {
+        "name": printer.name,
+        "uri": printer.uri,
+        "default": printer.default,
+    }
+    return result
+
 
 def desktop_to_dict(
         desktop: DesktopConfig | None,
@@ -105,11 +120,8 @@ def desktop_to_dict(
     if isinstance(desktop, HyprlandDesktopConfig):
         result: HyprlandDesktopConfigDict = {
             "type": "hyprland",
-            "config_file": str(desktop.config_file),
-            "waybar_config_file": str(desktop.waybar_config_file),
-            "waybar_style_file": str(desktop.waybar_style_file),
-            "idle_config_file": str(desktop.idle_config_file),
-            "paper_config_file": str(desktop.paper_config_file),
+            "hypr_dir": str(desktop.hypr_dir),
+            "waybar_dir": str(desktop.waybar_dir),
         }
         return result
 

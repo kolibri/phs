@@ -2,6 +2,7 @@ from typing import Annotated
 
 from cyclopts import App, Parameter
 
+from phs.commands.setup_commands.printer import printer
 from phs.commands.setup_commands.desktop import desktop
 from phs.commands.setup_commands.docker import docker
 from phs.commands.setup_commands.file_associations import file_associations
@@ -34,6 +35,7 @@ setup_app.command(docker, name="docker")
 setup_app.command(font, name="font")
 setup_app.command(file_associations, name="file-associations")
 setup_app.command(services, name="services")
+setup_app.command(printer, name="printer")
 
 MODULES: dict[str, Module] = {
     "packages": Packages(),

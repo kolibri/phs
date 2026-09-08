@@ -12,7 +12,8 @@ from phs.inventory.config import (
     NfsSourceDict,
     desktop_to_dict,
     file_config_to_dict,
-    nfs_source_to_dict, BackupConfig, backup_config_to_dict, BackupConfigDict,
+    nfs_source_to_dict, BackupConfig, backup_config_to_dict, BackupConfigDict, printer_config_to_dict, PrinterConfig,
+    PrinterConfigDict,
 )
 from phs.yaml import dump_yaml
 
@@ -33,6 +34,8 @@ class AllHostDataFragment(BaseModel):
     services: list[str] = Field(default_factory=list)
     fonts: list[str] = Field(default_factory=list)
     file_associations: dict[str, str] = Field(default_factory=dict)
+    printers: list[PrinterConfig] = Field(default_factory=list)
+
 
 
 class HostDataFragment(BaseModel):
@@ -57,7 +60,7 @@ class HostDataFragment(BaseModel):
     file_associations: dict[str, str] = Field(default_factory=dict)
     desktop: DesktopConfig | None = None
     backup: BackupConfig | None = None
-
+    printers: list[PrinterConfig] = Field(default_factory=list)
 
 
 class HostDataDict(TypedDict):
@@ -81,6 +84,7 @@ class HostDataDict(TypedDict):
     file_associations: dict[str, str]
     desktop: DesktopConfigDict | None
     backup: BackupConfigDict | None
+    printers: list[PrinterConfigDict]
 
 
 
@@ -106,6 +110,7 @@ class HostData:
     file_associations: dict[str, str]
     desktop: DesktopConfig | None
     backup: BackupConfig | None
+    printers: list[PrinterConfig]
 
 
     def to_dict(self) -> HostDataDict:
@@ -136,6 +141,10 @@ class HostData:
             "file_associations": self.file_associations,
             "desktop": desktop_to_dict(self.desktop),
             "backup": backup_config_to_dict(self.backup),
+            "printers": [
+                printer_config_to_dict(printer)
+                for printer in self.printers
+            ]
         }
 
     def to_yaml(self) -> str:

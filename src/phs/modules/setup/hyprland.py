@@ -22,8 +22,12 @@ class Hyprland:
         context: AppContext,
         data: HostData,
     ) -> list[Task]:
-        hypr_dir = Path(data.homedir) / ".config" / "hypr"
-        waybar_dir = Path(data.homedir) / ".config" / "waybar"
+        hypr_target_dir = Path(data.homedir) / ".config" / "hypr"
+        waybar_target_dir = Path(data.homedir) / ".config" / "waybar"
+
+        hypr_source_dir = Path(context.settings.config_dir) / "files" / data.desktop.hypr_dir
+        waybar_source_dir = Path(context.settings.config_dir) / "files" / data.desktop.waybar_dir
+
 
         tasks: list[Task] = [
             PacmanInstall((
@@ -39,39 +43,11 @@ class Hyprland:
                 "xdg-desktop-portal-hyprland",
                 "xdg-desktop-portal-gtk",
             )),
-            DirectoryCreate(hypr_dir),
-            DirectoryCreate(waybar_dir),
+            DirectoryCreate(hypr_target_dir),
+            DirectoryCreate(waybar_target_dir),
 
-            FileWrite(
-                hypr_dir / "hyprland.lua",
-                context.config_templates.render(str(self.config.config_file)),
-                watched=True,
-            ),
-
-            FileWrite(
-                hypr_dir / "hyprpaper.conf",
-                context.config_templates.render(str(self.config.paper_config_file)),
-                watched=True,
-            ),
-
-            FileWrite(
-                hypr_dir / "hypridle.conf",
-                context.config_templates.render(str(self.config.idle_config_file)),
-                watched=True,
-            ),
-
-            FileWrite(
-                waybar_dir / "config.jsonc",
-                context.config_templates.render(str(self.config.waybar_config_file)),
-                watched=True,
-            ),
-
-            FileWrite(
-                waybar_dir / "style.css",
-                context.config_templates.render(str(self.config.waybar_style_file)),
-                watched=True,
-            ),
-
+            CopyPath(hypr_source_dir, hypr_target_dir),
+            CopyPath(waybar_source_dir, waybar_target_dir),
 
             FileWrite(
                 Path("/etc/greetd/config.toml"),

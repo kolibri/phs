@@ -74,7 +74,8 @@ class HostDataLoader:
                 **host_config.file_associations,
             },
             desktop=host_config.desktop,
-            backup=host_config.backup
+            backup=host_config.backup,
+            printers=host_config.printers,
         )
 
     @staticmethod
