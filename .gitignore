@@ -1,5 +1,10 @@
-test/qemu/iso/*
-test/qemu/state/*
+tests/vm/environment/iso/*
+tests/vm/environment/cache/*
+tests/vm/environment/state/*
+!tests/vm/environment/iso/.gitkeep
+!tests/vm/environment/cache/.gitkeep
+!tests/vm/environment/state/.gitkeep
+
 .idea/
 __pycache__/
 *.py[oc]

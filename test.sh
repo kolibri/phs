@@ -1,188 +1,143 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
-run_action() {
-    case $1 in
-    help) ## displays help
-        fn=$(basename "$0")
-        echo "## Available targets:"
-        grep -E '\)\s*##' $fn | sed "s|^[[:space:]]*\(.*\)) #\{2\} \(.*\)|\1: \2|g"
-    ;;
+ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+ENVIRONMENT=(uv run python "$ROOT/tests/vm/environment/manage.py")
+HOSTCONFIG="$ROOT/tests/vm/hostconfig"
+VM_TESTS="$ROOT/tests/vm/tests"
 
-    run) ## runs test test scripts
-        run_action setup-qemu
-        run_action create-cloudiso
-        run_action boot-with-installer
-        run_action wait-for-root
-        run_action install
-        run_action shutdown
-        run_action boot
-        run_action wait-for-user
-        run_action init
-        run_action authorize
-        #run_action setup
-        #run_action shutdown
-        #run_action boot
-    ;;
-
-    setup-qemu) ## removes old test env end inits the new one
-        echo "TEST>>> setup <<<"
-        mkdir -p test/qemu/state
-        rm -f \
-            test/qemu/state/disk.raw \
-            test/qemu/state/OVMF_VARS.4m.fd
-        truncate -s 64G test/qemu/state/disk.raw
-        cp \
-            /usr/share/edk2/x64/OVMF_VARS.4m.fd \
-            test/qemu/state/OVMF_VARS.4m.fd
-    ;;
-
-    boot) ## boots the qemu machine
-        echo "TEST>>> boot <<<"
-        qemu-system-x86_64 \
-            -name gaea-test \
-            -machine q35,accel=kvm \
-            -cpu host \
-            -smp 4 \
-            -m 4096 \
-            -drive if=pflash,format=raw,readonly=on,file=/usr/share/edk2/x64/OVMF_CODE.4m.fd \
-            -drive if=pflash,format=raw,file=test/qemu/state/OVMF_VARS.4m.fd \
-            -drive if=none,id=osdisk,format=raw,file=test/qemu/state/disk.raw \
-            -device nvme,drive=osdisk,serial=gaea-test \
-            -nic user,model=virtio-net-pci,hostfwd=tcp:127.0.0.1:2222-:22 \
-            -monitor unix:test/qemu/state/monitor.sock,server=on,wait=off \
-            -pidfile test/qemu/state/qemu.pid \
-            -daemonize \
-            "${@:2}"
-    ;;
-
-    boot-with-installer) ## boots the qemu machine with the archiso mounted
-        echo "TEST>>> boot-with-installer <<<"
-        run_action boot \
-            -drive file=test/qemu/iso/archlinux-x86_64.iso,if=ide,index=2,media=cdrom,readonly=on,id=archiso \
-            -drive file=test/qemu/iso/cloud-init.iso,if=ide,index=3,media=cdrom,readonly=on,id=cloudinit \
-            -boot once=d
-    ;;
-
-    create-cloudiso) ## configures and creates the cloud iso for unattended installation (test only)
-        echo "TEST>>> create-cloudiso <<<"
-        run_action create-cloudiso-data
-        run_action create-cloudiso-image
-    ;;
-
-    create-cloudiso-data) ## configures the cloud iso
-        echo "TEST>>> create-cloudiso-data <<<"
-
-        PUBKEY="$(cat ~/.ssh/id_rsa.pub)"
-        cat > test/qemu/cloud-init/user-data <<EOF
-#cloud-config
-disable_root: false
-users:
-    - name: root
-      ssh_authorized_keys:
-        - $PUBKEY
-EOF
-    ;;
-
-    create-cloudiso-image) ## create the cloud iso
-        echo "TEST>>> create-cloudiso-image <<<"
-        xorriso \
-            -as genisoimage \
-            -output test/qemu/iso/cloud-init.iso \
-            -volid CIDATA \
-            -joliet \
-            -rock \
-            test/qemu/cloud-init/user-data \
-            test/qemu/cloud-init/meta-data
-    ;;
-
-
-    wait-for-root) ## wait for ssh to be available
-        echo "TEST>>> wait <<<"
-
-        timeout=300
-        start=$SECONDS
-
-        until ssh \
-            -p 2222 \
-            -o BatchMode=yes \
-            -o ConnectTimeout=1 \
-            -o StrictHostKeyChecking=no \
-            -o UserKnownHostsFile=/dev/null \
-            root@127.0.0.1 \
-            true \
-            >/dev/null 2>&1
-        do
-            if (( SECONDS - start >= timeout )); then
-                echo "ERROR: SSH did not become available within 5 minutes" >&2
-                exit 1
-            fi
-            printf "."
-            sleep 0.25
-        done
-
-        echo "SSH is available now"
-    ;;
-
-    wait-for-user) ## wait for ssh to be available
-        echo "TEST>>> wait <<<"
-
-        timeout=300
-        start=$SECONDS
-
-        until ssh \
-            -p 2222 \
-            -o BatchMode=yes \
-            -o ConnectTimeout=1 \
-            -o StrictHostKeyChecking=no \
-            -o UserKnownHostsFile=/dev/null \
-            127.0.0.1 \
-            true \
-            >/dev/null 2>&1
-        do
-            if (( SECONDS - start >= timeout )); then
-                echo "ERROR: SSH did not become available within 5 minutes" >&2
-                exit 1
-            fi
-            printf "."
-            sleep 0.25
-        done
-
-        echo "SSH is available now"
-    ;;
-
-    install) ## runs the arch installation
-        echo "TEST>>> install <<<"
-        uv run phs --config-dir=./test/hostconfig  install --userpassword=test hojo.ko
-    ;;
-
-    authorize)
-        echo "TEST>>> authorize <<<"
-        uv run phs --config-dir=./test/hostconfig  authorize --host=hojo.ko
-    ;;
-
-    init)
-        echo "TEST>>> init <<<"
-        uv run phs --config-dir=./test/hostconfig  init --host=hojo.ko
-    ;;
-
-    setup)
-        echo "TEST>>> setup <<<"
-        uv run phs --config-dir=./test/hostconfig  setup --host=hojo.ko
-    ;;
-
-    shutdown) ## shuts down the machine via ssh
-        echo "TEST>>> shutdown <<<"
-        printf 'system_powerdown\n' | socat - UNIX-CONNECT:test/qemu/state/monitor.sock
-
-        sleep 2
-    ;;
-
-    *)
-        run_action help
-    ;;
-    esac
+run_default_tests() {
+    uv run ruff format --check .
+    uv run ruff check .
+    uv run pytest
 }
 
-run_action "$@"
+run_vm_tests() (
+    set -euo pipefail
+
+    cleanup() {
+        local status=$?
+        "${ENVIRONMENT[@]}" stop-all || true
+
+        echo
+        if (( status == 0 )); then
+            echo "VM tests passed. State retained for manual inspection."
+        else
+            echo "VM tests FAILED. State retained for debugging."
+        fi
+        echo "Use ./test.sh vm-gui or ./test.sh vm-ssh to inspect it."
+        exit "$status"
+    }
+
+    trap cleanup EXIT
+
+    run_default_tests
+
+    "${ENVIRONMENT[@]}" prepare
+    "${ENVIRONMENT[@]}" boot-fixture
+    "${ENVIRONMENT[@]}" wait-fixture
+
+    "${ENVIRONMENT[@]}" boot-sut-installer
+    "${ENVIRONMENT[@]}" wait-sut-root
+
+    uv run phs \
+        --config-dir="$HOSTCONFIG" \
+        install \
+        --force \
+        --userpassword=test \
+        phs-test
+
+    "${ENVIRONMENT[@]}" stop-sut
+    "${ENVIRONMENT[@]}" boot-sut
+    "${ENVIRONMENT[@]}" wait-sut-user
+    "${ENVIRONMENT[@]}" configure-sut-testnet
+
+    # Exercise the real production init path, including the GitHub clone.
+    uv run phs \
+        --config-dir="$HOSTCONFIG" \
+        init \
+        --host=phs-test
+
+    # Replace the cloned working tree with exactly what is currently local.
+    "${ENVIRONMENT[@]}" stage-source
+    "${ENVIRONMENT[@]}" exec-sut -- \
+        uv tool install --force /home/ko/projects/phs
+
+    # From here on the guest uses the staged, unpushed source itself.
+    "${ENVIRONMENT[@]}" exec-sut -- phs setup
+    "${ENVIRONMENT[@]}" exec-sut -- phs setup
+
+    uv run pytest "$VM_TESTS"
+
+    # Persistence check.
+    "${ENVIRONMENT[@]}" stop-sut
+    "${ENVIRONMENT[@]}" boot-sut
+    "${ENVIRONMENT[@]}" wait-sut-user
+    uv run pytest "$VM_TESTS"
+)
+
+show_help() {
+    cat <<'EOF'
+Usage: ./test.sh [command]
+
+Commands:
+    default                 Ruff + default pytest suite (default)
+    vm                      Full VM system test
+    vm-gui                  Boot retained SUT with GUI and fixture services
+    vm-ssh                  SSH into SUT
+    vm-ssh-fixture          SSH into network fixture VM
+    vm-clean                Stop VMs and remove current run state
+    vm-rebuild-fixture      Rebuild cached NFS + IPP fixture base
+    vm-download-archiso     Check/download current Arch ISO
+    vm-download-archiso-force
+                            Force full Arch ISO redownload
+    vm-status               Show VM/cache status
+    help                    Show this help
+EOF
+}
+
+case "${1:-default}" in
+    default)
+        run_default_tests
+        ;;
+    vm)
+        run_vm_tests
+        ;;
+    vm-gui)
+        "${ENVIRONMENT[@]}" boot-fixture
+        "${ENVIRONMENT[@]}" wait-fixture
+        "${ENVIRONMENT[@]}" boot-sut-gui
+        ;;
+    vm-ssh)
+        "${ENVIRONMENT[@]}" ssh-sut
+        ;;
+    vm-ssh-fixture)
+        "${ENVIRONMENT[@]}" ssh-fixture
+        ;;
+    vm-clean)
+        "${ENVIRONMENT[@]}" stop-all || true
+        "${ENVIRONMENT[@]}" clean-state
+        ;;
+    vm-rebuild-fixture)
+        "${ENVIRONMENT[@]}" rebuild-fixture-base
+        ;;
+    vm-download-archiso)
+        "${ENVIRONMENT[@]}" download-archiso
+        ;;
+    vm-download-archiso-force)
+        "${ENVIRONMENT[@]}" download-archiso --force
+        ;;
+    vm-status)
+        "${ENVIRONMENT[@]}" status
+        ;;
+    help|-h|--help)
+        show_help
+        ;;
+    *)
+        show_help >&2
+        echo >&2
+        echo "ERROR: unknown command: $1" >&2
+        exit 2
+        ;;
+esac

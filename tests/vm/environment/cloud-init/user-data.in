@@ -1,0 +1,7 @@
+#cloud-config
+disable_root: false
+
+users:
+  - name: root
+    ssh_authorized_keys:
+      - @SSH_PUBLIC_KEY@

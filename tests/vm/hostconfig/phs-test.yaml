@@ -1,0 +1,9 @@
+---
+hostname: phs-test
+ip: 127.0.0.1
+ssh_port: 2222
+hdd: /dev/nvme0n1
+
+desktop:
+  type: qtile
+  config_file: qtile/config.py

@@ -1,0 +1,32 @@
+---
+username: ko
+groupname: ko
+homedir: /home/ko
+git_user: PHS VM Test
+git_email: phs-vm@example.invalid
+shell: /bin/zsh
+
+modules:
+  - packages
+  - git
+  - zsh
+  - nfs
+  - desktop
+  - services
+  - printer
+
+packages:
+  - nano
+
+services:
+  - sshd
+
+nfs_sources:
+  - source: 192.168.76.2:/srv/phs-test
+    target: /mnt/phs-test
+    options: nfs defaults,_netdev 0 0
+
+printers:
+  - name: test-printer
+    uri: ipp://192.168.76.2:8000/ipp/print
+    default: true

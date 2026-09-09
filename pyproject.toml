@@ -31,7 +31,7 @@ dev = [
 ]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["tests/unit"]
 addopts = [
     "-ra",
     "--strict-config",
@@ -45,7 +45,7 @@ extend-immutable-calls = [
 ]
 [tool.ruff]
 extend-exclude = [
-    "test/hostconfig/files",
+    "tests/vm/hostconfig/files",
 ]
 
 [tool.ruff.lint]
