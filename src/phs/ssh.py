@@ -2,6 +2,17 @@ import subprocess
 from dataclasses import dataclass
 
 
+def host_key_options(*, loose_ssh: bool, accept_new: bool = False) -> list[str]:
+    if loose_ssh:
+        return [
+            "-o",
+            "StrictHostKeyChecking=no",
+            "-o",
+            "UserKnownHostsFile=/dev/null",
+        ]
+    return ["-o", "StrictHostKeyChecking=accept-new"] if accept_new else []
+
+
 @dataclass(frozen=True, slots=True)
 class SSHTarget:
     host: str
@@ -19,10 +30,7 @@ class SSHRunner:
             "ssh",
             "-p",
             str(target.port),
-            "-o",
-            "StrictHostKeyChecking=no",
-            "-o",
-            "UserKnownHostsFile=/dev/null",
+            *host_key_options(loose_ssh=True),
             f"{target.user}@{target.host}",
             "bash",
             "-s",

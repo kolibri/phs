@@ -57,7 +57,8 @@ run_vm_tests() (
     uv run phs \
         --config-dir="$HOSTCONFIG" \
         init \
-        --host=phs-test
+        --host=phs-test \
+        --loose-ssh
 
     # Replace the cloned working tree with exactly what is currently local.
     "${ENVIRONMENT[@]}" stage-source
@@ -65,8 +66,8 @@ run_vm_tests() (
         uv tool install --force /home/ko/projects/phs
 
     # From here on the guest uses the staged, unpushed source itself.
-    "${ENVIRONMENT[@]}" exec-sut -- phs setup
-    "${ENVIRONMENT[@]}" exec-sut -- phs setup
+    "${ENVIRONMENT[@]}" exec-sut -- /home/ko/.local/bin/phs setup
+    "${ENVIRONMENT[@]}" exec-sut -- /home/ko/.local/bin/phs setup
 
     uv run pytest "$VM_TESTS"
 

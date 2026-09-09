@@ -9,6 +9,7 @@ from phs.context import AppContext
 from phs.execution import ExecutionFactory
 from phs.executor import Executor
 from phs.inventory import HostData
+from phs.ssh import host_key_options
 from phs.target.context import TargetContext
 from phs.tasks.sshkey_ensure import SshkeyEnsure
 
@@ -17,6 +18,8 @@ def _can_connect(
     source: TargetContext,
     private_key: Path,
     destination: HostData,
+    *,
+    loose_ssh: bool = False,
 ) -> bool:
     result = source.runner.run(
         [
@@ -27,8 +30,7 @@ def _can_connect(
             "IdentitiesOnly=yes",
             "-o",
             "BatchMode=yes",
-            "-o",
-            "StrictHostKeyChecking=accept-new",
+            *host_key_options(loose_ssh=loose_ssh, accept_new=True),
             "-o",
             "ConnectTimeout=5",
             "-p",
@@ -46,6 +48,8 @@ def _can_connect(
 def _install_public_key(
     public_key: str,
     destination: HostData,
+    *,
+    loose_ssh: bool = False,
 ) -> bool:
     quoted_key = shlex.quote(public_key.strip())
 
@@ -67,8 +71,7 @@ chmod 600 "$HOME/.ssh/authorized_keys"
     completed = subprocess.run(
         [
             "ssh",
-            "-o",
-            "StrictHostKeyChecking=accept-new",
+            *host_key_options(loose_ssh=loose_ssh, accept_new=True),
             "-o",
             "ConnectTimeout=10",
             "-p",
@@ -137,19 +140,31 @@ def authorize(
             f"Authorizing host '{source_hostname}' to {destination.hostname}."
         )
 
-        if _can_connect(source.target, private_key, destination):
+        if _can_connect(
+            source.target,
+            private_key,
+            destination,
+            loose_ssh=context.settings.loose_ssh,
+        ):
             context.output.info(f"Already authorized on {destination.hostname}.")
             continue
 
         context.output.warning(f"Authentication required for {destination.hostname}.")
 
-        if not _install_public_key(public_key, destination):
+        if not _install_public_key(
+            public_key, destination, loose_ssh=context.settings.loose_ssh
+        ):
             context.output.warning(
                 f"Could not authorize {destination.hostname}; skipping host."
             )
             continue
 
-        if not _can_connect(source.target, private_key, destination):
+        if not _can_connect(
+            source.target,
+            private_key,
+            destination,
+            loose_ssh=context.settings.loose_ssh,
+        ):
             context.output.warning(
                 f"Authorization of {destination.hostname} could not be verified; skipping host."
             )

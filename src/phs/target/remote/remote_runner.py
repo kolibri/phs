@@ -4,6 +4,7 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import final, override
 
+from phs.ssh import host_key_options
 from phs.target.base import CommandResult, TargetCommandError
 from phs.target.runner import OutputCallback, Runner
 
@@ -22,11 +23,13 @@ class RemoteRunner(Runner):
         *,
         port: int = 22,
         identity_file: Path | None = None,
+        loose_ssh: bool = False,
     ) -> None:
         self.host = host
         self.user = user
         self.port = port
         self.identity_file = identity_file
+        self.loose_ssh = loose_ssh
 
     def ssh_options(self) -> list[str]:
         options = [
@@ -42,7 +45,7 @@ class RemoteRunner(Runner):
                 ]
             )
 
-        return options
+        return [*options, *host_key_options(loose_ssh=self.loose_ssh)]
 
     def _ssh_command(
         self,

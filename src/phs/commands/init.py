@@ -17,10 +17,11 @@ from phs.tasks.task import Task
 def init(
     *,
     options: ExecutionOptions = ExecutionOptions(),
+    loose_ssh: bool = False,
     context: Annotated[AppContext, Parameter(parse=False)],
 ):
     execution = ExecutionFactory.create(
-        context, host=options.host, dry_run=options.dry_run
+        context, host=options.host, dry_run=options.dry_run, loose_ssh=loose_ssh
     )
     data = execution.data
 

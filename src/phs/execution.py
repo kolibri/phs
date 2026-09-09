@@ -42,6 +42,7 @@ class ExecutionFactory:
         *,
         host: str,
         dry_run: bool,
+        loose_ssh: bool = False,
     ) -> Execution:
         target_host = context.settings.my_hostname if host == "local" else host
 
@@ -60,6 +61,7 @@ class ExecutionFactory:
                 data.ip,
                 data.username,
                 port=data.ssh_port,
+                loose_ssh=loose_ssh or context.settings.loose_ssh,
             )
 
             runner = remote_runner

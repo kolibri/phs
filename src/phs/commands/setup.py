@@ -22,6 +22,7 @@ from phs.modules.setup.font import Font
 from phs.modules.setup.git import Git
 from phs.modules.setup.nfs import Nfs
 from phs.modules.setup.packages import Packages
+from phs.modules.setup.printer import Printer
 from phs.modules.setup.services import Services
 from phs.modules.setup.zsh import Zsh
 
@@ -47,6 +48,7 @@ MODULES: dict[str, Module] = {
     "font": Font(),
     "file_associations": FileAssociations(),
     "services": Services(),
+    "printer": Printer(),
 }
 
 
