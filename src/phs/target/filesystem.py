@@ -5,6 +5,8 @@ from phs.target.runner import Runner
 
 
 class Filesystem(Protocol):
+    def ensure_mode(self, path: Path, mode: int, *, root: bool = False) -> None: ...
+
     @property
     def description(self) -> str: ...
 
@@ -42,6 +44,18 @@ class RunnerFilesystem(Filesystem):
     @override
     def description(self) -> str:
         return self.runner.description
+
+    @override
+    def ensure_mode(self, path: Path, mode: int, *, root: bool = False) -> None:
+        if not 0 <= mode <= 0o7777:
+            raise ValueError("File mode must be between 0000 and 7777")
+        result = self.runner.run(
+            ["stat", "-c", "%a", "--", str(path)], root=root, capture_output=True
+        )
+        if result.stdout is None:
+            raise RuntimeError("Expected captured file mode")
+        if int(result.stdout.strip(), 8) != mode:
+            self.runner.run(["chmod", f"{mode:04o}", "--", str(path)], root=root)
 
     @override
     def exists(

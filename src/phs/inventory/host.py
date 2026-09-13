@@ -7,6 +7,7 @@ from phs.inventory.config import (
     FileConfig,
     NfsSource,
     PrinterConfig,
+    SshHostConfig,
 )
 from phs.yaml import dump_yaml
 
@@ -22,6 +23,7 @@ class SharedHostConfig(InventoryModel):
     fonts: list[str] = Field(default_factory=list)
     file_associations: dict[str, str] = Field(default_factory=dict)
     printers: list[PrinterConfig] = Field(default_factory=list)
+    ssh_config: dict[str, SshHostConfig] = Field(default_factory=dict)
 
 
 class AllHostDataFragment(SharedHostConfig):

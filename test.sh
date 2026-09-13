@@ -8,7 +8,9 @@ HOSTCONFIG="$ROOT/tests/vm/hostconfig"
 VM_TESTS="$ROOT/tests/vm/tests"
 
 run_default_tests() {
+    uv run ruff format .
     uv run ruff format --check .
+    uv run ruff check . --fix
     uv run ruff check .
     uv run pytest
 }

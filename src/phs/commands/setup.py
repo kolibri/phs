@@ -11,6 +11,7 @@ from phs.commands.setup_commands.nfs import nfs
 from phs.commands.setup_commands.packages import packages
 from phs.commands.setup_commands.printer import printer
 from phs.commands.setup_commands.services import services
+from phs.commands.setup_commands.ssh_config import ssh_config
 from phs.commands.setup_commands.zsh import zsh
 from phs.context import AppContext
 from phs.execution import ExecutionFactory, ExecutionOptions
@@ -24,6 +25,7 @@ from phs.modules.setup.nfs import Nfs
 from phs.modules.setup.packages import Packages
 from phs.modules.setup.printer import Printer
 from phs.modules.setup.services import Services
+from phs.modules.setup.ssh_config import SshConfig
 from phs.modules.setup.zsh import Zsh
 
 setup_app = App(name="setup")
@@ -37,6 +39,7 @@ setup_app.command(font, name="font")
 setup_app.command(file_associations, name="file-associations")
 setup_app.command(services, name="services")
 setup_app.command(printer, name="printer")
+setup_app.command(ssh_config, name="ssh-config")
 
 MODULES: dict[str, Module] = {
     "packages": Packages(),
@@ -49,6 +52,7 @@ MODULES: dict[str, Module] = {
     "file_associations": FileAssociations(),
     "services": Services(),
     "printer": Printer(),
+    "ssh-config": SshConfig(),
 }
 
 

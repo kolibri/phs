@@ -40,6 +40,7 @@ MERGE_POLICIES: dict[str, Callable[[Any, Any], Any]] = {
     "services": merge_unique,
     "fonts": merge_unique,
     "file_associations": merge_mapping,
+    "ssh_config": merge_mapping,
     "files": partial(merge_by, key=itemgetter("target")),
     "nfs_sources": partial(merge_by, key=itemgetter("source")),
     "printers": partial(merge_by, key=itemgetter("name")),

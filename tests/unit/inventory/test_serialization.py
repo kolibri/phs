@@ -71,7 +71,7 @@ def test_nested_models_and_paths_round_trip_as_plain_yaml(load_host, defaults, h
     assert data.backup.include == [Path("documents"), Path("file with spaces")]
     assert data.backup.manifest_path == Path("/backup/manifest")
     assert data.backup.target_dir == Path("/backup/snapshots")
-    expected = defaults | host | config
+    expected = defaults | host | config | {"ssh_config": {}}
     assert data.model_dump(mode="json") == expected
     assert yaml.safe_load(data.to_yaml()) == expected
     assert HostData.model_validate(yaml.safe_load(data.to_yaml())) == data

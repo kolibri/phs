@@ -9,6 +9,7 @@ shell: /bin/zsh
 modules:
   - packages
   - git
+  - ssh-config
   - zsh
   - nfs
   - desktop
@@ -18,6 +19,11 @@ modules:
 
 packages:
   - nano
+
+ssh_config:
+  cid:
+    hostname: cid.ko
+    port: 2222
 
 services:
   - sshd

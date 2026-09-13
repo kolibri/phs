@@ -50,3 +50,9 @@ class BackupConfig(InventoryModel):
     include: list[Path] = Field(min_length=1)
     excludes: list[str] = Field(default_factory=list)
     target_dir: Path
+
+
+class SshHostConfig(InventoryModel):
+    hostname: str | None = None
+    port: int | None = Field(default=None, ge=1, le=65535)
+    user: str | None = None

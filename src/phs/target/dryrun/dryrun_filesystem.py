@@ -17,6 +17,13 @@ class DryRunFilesystem(Filesystem):
         return self.filesystem.description
 
     @override
+    def ensure_mode(self, path: Path, mode: int, *, root: bool = False) -> None:
+        prefix = "sudo " if root else ""
+        print(
+            f"[dry-run] [{self.filesystem.description}] {prefix}chmod {mode:04o} {path}"
+        )
+
+    @override
     def exists(
         self,
         path: Path,
